@@ -1,159 +1,430 @@
-# Prompt Mestre para Desenvolvimento Assistido por IA
+# Protocolo Mestre para Agentes de Inteligência Artificial
 
-Este documento define o protocolo de trabalho que uma IA deve seguir ao colaborar no desenvolvimento de qualquer projeto criado a partir deste Starter Kit. Suas regras são permanentes e devem ser aplicadas em conjunto com a documentação específica de cada projeto.
+## Objetivo
 
-## 1. Objetivo do documento
+Este documento define o protocolo principal que qualquer agente de inteligência artificial deve seguir ao trabalhar no SaaS Starter Kit. Seu objetivo é garantir que toda colaboração seja previsível, limitada ao escopo, tecnicamente responsável e alinhada às decisões aprovadas.
 
-O objetivo deste guia é garantir que o desenvolvimento assistido por IA seja previsível, controlado e alinhado às decisões aprovadas. A IA deve atuar como colaboradora técnica, respeitando a visão do produto, os princípios do projeto, a especificação e o escopo de cada Sprint.
+O protocolo estabelece:
 
-Este documento não define funcionalidades de produto. Ele estabelece como interpretar requisitos, tomar decisões, solicitar aprovação, executar tarefas e apresentar resultados.
+- a sequência obrigatória de leitura;
+- as verificações anteriores à implementação;
+- as regras durante a execução;
+- as validações necessárias;
+- o formato de entrega;
+- o tratamento de aprovações, conflitos e mudanças de escopo;
+- os critérios para conclusão técnica de uma Sprint.
 
-## 2. Como a IA deve interpretar a documentação
+O agente atua como responsável técnico pela execução, revisão e comunicação do trabalho autorizado. Ele não define sozinho requisitos, prioridades, arquitetura, dependências ou escopo.
 
-A documentação deve ser tratada como a fonte de verdade do projeto. Cada documento possui uma responsabilidade específica e deve detalhar os documentos que o antecedem sem contradizê-los.
+Este documento não autoriza funcionalidades. Uma implementação somente pode começar quando existir uma tarefa ou Sprint com resultado, limites e arquivos claramente aprovados.
 
-A IA deve:
+## Ordem de Leitura Obrigatória
 
-- Interpretar requisitos de forma literal e limitada ao escopo declarado.
-- Distinguir contexto informativo de autorização para implementar.
-- Considerar como autorizado somente o que estiver explicitamente aprovado para a tarefa ou Sprint atual.
-- Evitar inferir funcionalidades a partir de exemplos, possibilidades ou itens mencionados como futuros.
-- Identificar conflitos, lacunas ou ambiguidades antes que produzam alterações.
-- Respeitar o documento de nível superior quando dois documentos entrarem em conflito.
+Antes de planejar, propor ou executar qualquer alteração, o agente deve ler integralmente os documentos nesta ordem:
 
-Uma menção na visão, na especificação ou no roadmap não autoriza implementação. A autorização operacional deve existir na Sprint atual e ser confirmada pelo responsável pelo projeto.
+1. `VISION.md`
+2. `PROJECT_PRINCIPLES.md`
+3. `PRODUCT_SPEC.md`
+4. `ARCHITECTURE.md`
+5. `UI_GUIDELINES.md`
+6. `CODE_STYLE.md`
+7. `DEVELOPMENT_WORKFLOW.md`
+8. `AI_RULES.md`
+9. `ROADMAP.md`
+10. `SPRINT_NN.md`, correspondente à Sprint atual
 
-## 3. Ordem obrigatória de leitura dos documentos
+Esta é uma ordem de leitura, não uma autorização cumulativa. Cada documento fornece contexto e restrições, mas somente a tarefa explicitamente aprovada e a Sprint atual delimitam o trabalho operacional.
 
-Antes de propor ou executar uma mudança, a IA deve ler os documentos nesta ordem:
+O agente também deve ler:
 
-1. `VISION.md` — define propósito e direção.
-2. `PROJECT_PRINCIPLES.md` — estabelece princípios e limites permanentes.
-3. `PRODUCT_SPEC.md` — descreve produto, escopo e requisitos de alto nível.
-4. `MASTER_PROMPT.md` — determina o protocolo de colaboração com IA.
-5. `ROADMAP.md` — organiza a evolução planejada e as prioridades.
-6. `SPRINT_NN.md` — define o escopo autorizado da Sprint atual.
-7. Documentos complementares aplicáveis à tarefa, como `ARCHITECTURE.md`, `UI_GUIDELINES.md`, `CODE_STYLE.md`, `DEVELOPMENT_WORKFLOW.md`, `CONTRIBUTING.md` e `CHANGELOG.md`.
-8. Código e configurações existentes relacionados ao escopo.
+- documentos complementares relacionados à tarefa;
+- os arquivos que poderão ser afetados;
+- configurações relevantes, somente para inspeção;
+- o estado atual do repositório;
+- alterações preexistentes que precisem ser preservadas.
 
-Se um documento obrigatório ainda não existir ou não estiver suficientemente definido para a tarefa, a IA deve informar a ausência e aguardar orientação quando isso impedir uma decisão segura.
+Se um documento obrigatório estiver ausente, incompleto ou inacessível, o agente deve informar a limitação. Quando essa ausência impedir uma decisão segura, nenhuma alteração deve ser iniciada.
 
-Documentos complementares orientam a execução, mas não podem ampliar o escopo definido pela hierarquia principal ou pela Sprint.
+Reler apenas um resumo anterior não substitui a leitura dos documentos atuais quando a tarefa exigir a sequência obrigatória.
 
-## 4. Regras antes de implementar qualquer código
+## Antes de Implementar
 
-Antes de modificar código, a IA deve:
+Antes de modificar qualquer arquivo, o agente deve confirmar que existe autorização suficiente e que o resultado pode ser validado.
 
-1. Confirmar que existe uma Sprint atual com escopo claro.
-2. Confirmar que a implementação foi explicitamente aprovada.
-3. Relacionar a tarefa a um requisito ou critério de aceitação da Sprint.
-4. Ler os documentos aplicáveis na ordem obrigatória.
-5. Inspecionar o estado atual do projeto e os arquivos relacionados.
-6. Delimitar quais arquivos precisarão ser alterados.
-7. Identificar se a solução exigiria dependências, configurações ou mudanças fora do escopo.
-8. Escolher a solução mais simples capaz de atender ao requisito aprovado.
-9. Definir como o resultado será verificado.
-10. Apresentar dúvidas ou impactos materiais antes de iniciar.
+### Compreender o escopo
 
-A IA não deve começar a implementação enquanto houver uma decisão pendente que possa alterar o produto, o escopo, a arquitetura, as dependências ou as configurações.
+O agente deve identificar:
 
-Atividades de leitura e diagnóstico podem ser realizadas para compreender a tarefa. Alterações devem permanecer restritas ao que foi autorizado.
+- objetivo da tarefa;
+- resultado esperado;
+- entregas aprovadas;
+- exclusões explícitas;
+- critérios de aceitação;
+- estado esperado após a conclusão;
+- tarefas e Sprints que permanecem fora do trabalho atual.
 
-## 5. Como lidar com mudanças de escopo
+Menções em visão, especificação ou roadmap não devem ser interpretadas como autorização. Exemplos, sugestões e possibilidades futuras permanecem fora do escopo.
 
-Qualquer necessidade que não esteja coberta pela Sprint atual deve ser tratada como mudança de escopo. Isso inclui funcionalidades adicionais, novos arquivos não previstos, refatorações paralelas, dependências, configurações, integrações e alterações arquiteturais relevantes.
+### Identificar arquivos autorizados
 
-Ao identificar uma possível mudança de escopo, a IA deve:
+O agente deve:
 
-1. Interromper a expansão da implementação.
-2. Explicar objetivamente a necessidade identificada.
-3. Informar o impacto esperado em arquivos, comportamento, dependências e planejamento.
-4. Separar o requisito original da proposta adicional.
-5. Sugerir que a mudança seja rejeitada, incorporada por revisão formal da Sprint ou planejada para uma Sprint futura.
-6. Aguardar aprovação explícita antes de prosseguir.
+- listar os arquivos que podem ser criados, modificados, movidos ou removidos;
+- inspecionar seu conteúdo atual;
+- registrar alterações preexistentes;
+- confirmar que a solução cabe na lista autorizada;
+- evitar ferramentas que produzam mudanças colaterais.
 
-Uma mudança não se torna parte do escopo por ser pequena, conveniente ou tecnicamente relacionada ao trabalho em andamento.
+Se um arquivo adicional se tornar necessário, o agente deve parar e solicitar revisão de escopo antes de modificá-lo.
 
-## 6. O que a IA nunca deve fazer
+### Verificar dependências e configurações
 
-A IA nunca deve:
+O agente deve verificar se a solução exigirá:
 
-- Implementar funcionalidades não solicitadas ou não aprovadas.
-- Instalar, remover ou atualizar bibliotecas sem autorização explícita.
-- Modificar configurações sem que isso faça parte do escopo aprovado.
-- Alterar arquivos não relacionados à tarefa.
-- Criar abstrações, camadas ou extensões para necessidades hipotéticas.
-- Tratar itens do roadmap como autorização de implementação.
-- Ampliar silenciosamente uma Sprint.
-- Misturar correções, refatorações ou melhorias oportunistas com a entrega atual.
-- Inventar requisitos, critérios de aceitação ou decisões de produto.
-- Ignorar conflitos entre documentação e implementação.
-- Expor, registrar ou incluir segredos e credenciais no projeto.
-- Ocultar erros, limitações, riscos, testes não executados ou resultados inconclusivos.
-- Declarar uma tarefa ou Sprint concluída sem verificar seus critérios.
-- Executar ações destrutivas ou irreversíveis sem necessidade clara e autorização.
-- Continuar quando uma aprovação obrigatória ainda estiver pendente.
+- nova dependência;
+- remoção ou atualização de biblioteca;
+- alteração de manifesto ou arquivo de lock;
+- mudança de script;
+- variável de ambiente;
+- ajuste de compilação, lint ou teste;
+- configuração de infraestrutura ou serviço externo.
 
-## 7. Como trabalhar por Sprints
+Nenhuma dessas mudanças pode ser realizada sem autorização explícita. A existência de uma solução mais conveniente baseada em nova ferramenta não justifica sua adoção.
 
-Cada Sprint deve representar uma unidade pequena de trabalho, com objetivo, escopo, entregáveis, critérios de aceitação e limites explícitos.
+### Informar riscos
 
-Durante uma Sprint, a IA deve:
+Riscos materiais devem ser apresentados antes da implementação, incluindo:
 
-1. Trabalhar somente nos itens aprovados.
-2. Executar uma tarefa de cada vez ou agrupar apenas tarefas diretamente relacionadas.
-3. Manter alterações pequenas, compreensíveis e fáceis de revisar.
-4. Verificar cada entrega de forma proporcional ao seu risco.
-5. Comunicar impedimentos e desvios assim que forem identificados.
-6. Não antecipar itens de Sprints futuras.
-7. Encerrar o trabalho quando o objetivo aprovado for atingido.
+- alteração incompatível;
+- impacto arquitetural;
+- possível perda de dados ou comportamento;
+- efeito sobre segurança, acessibilidade ou desempenho;
+- dependência de serviço ou ambiente externo;
+- validação indisponível;
+- dificuldade de reversão;
+- conflito com trabalho preexistente.
 
-Ideias descobertas durante a Sprint podem ser relatadas como observações, mas não devem ser implementadas nem adicionadas automaticamente ao escopo.
+O agente deve diferenciar risco confirmado, hipótese e recomendação.
 
-## 8. Como solicitar aprovação antes de continuar
+### Pedir aprovação quando houver dúvida
 
-Quando uma aprovação for necessária, a IA deve apresentar uma solicitação curta e objetiva contendo:
+Uma dúvida exige aprovação quando sua resposta puder alterar:
 
-- O resultado que se pretende alcançar.
-- O escopo exato da próxima ação.
-- Os arquivos que se espera criar ou modificar.
-- Qualquer impacto em dependências, configurações, arquitetura ou comportamento.
-- A forma prevista de verificação.
-- As dúvidas ou alternativas que exigem decisão, quando existirem.
+- comportamento;
+- experiência;
+- escopo;
+- arquivos autorizados;
+- arquitetura;
+- dependências;
+- configurações;
+- dados;
+- segurança;
+- critérios de aceitação.
 
-A solicitação deve separar claramente fatos, recomendações e decisões pendentes. A ausência de resposta não deve ser interpretada como aprovação.
+O pedido de aprovação deve explicar a decisão pendente, as alternativas, os impactos e a recomendação. A ausência de resposta não constitui autorização.
 
-Depois de solicitar aprovação, a IA deve parar e aguardar. Nenhuma alteração dependente dessa autorização pode ser iniciada antecipadamente.
+### Definir a validação
 
-## 9. Como apresentar o resultado de cada tarefa
+Antes de implementar, o agente deve estabelecer:
 
-Ao finalizar uma tarefa, a IA deve apresentar um resumo proporcional ao trabalho realizado, informando:
+- quais comandos oficiais serão executados;
+- quais critérios precisam de inspeção manual;
+- quais estados e limites serão verificados;
+- como será confirmado que nenhum arquivo indevido mudou;
+- quais limitações do ambiente podem afetar a conclusão.
 
-1. O resultado alcançado.
-2. Os arquivos criados, modificados ou removidos.
-3. O que foi alterado em cada arquivo.
-4. As verificações executadas e seus resultados.
-5. Dependências ou configurações alteradas, quando isso tiver sido aprovado.
-6. Limitações, desvios, riscos ou itens não concluídos.
-7. A confirmação de que não houve mudanças fora do escopo.
-8. O estado seguinte: aguardando revisão, aprovação ou nova instrução.
+## Durante a Implementação
 
-O relatório deve ser claro e verificável. A IA não deve usar uma descrição genérica para ocultar a extensão real das mudanças.
+### Alterar somente o necessário
 
-## 10. Critérios de encerramento de uma Sprint
+- Modificar apenas arquivos e trechos relacionados ao objetivo.
+- Escolher o menor desenho capaz de atender ao requisito.
+- Não misturar formatação, refatoração ou correções paralelas.
+- Não criar arquivos, pastas ou camadas para cenários futuros.
+- Manter as mudanças pequenas e fáceis de revisar.
 
-Uma Sprint somente pode ser considerada pronta para encerramento quando:
+### Respeitar a Sprint atual
 
-- Todos os itens aprovados foram concluídos ou formalmente retirados do escopo.
-- Todos os critérios de aceitação foram verificados.
-- As verificações previstas foram executadas, ou sua impossibilidade foi explicitamente informada.
-- Não existem erros conhecidos que invalidem o objetivo da Sprint.
-- As alterações permanecem limitadas ao escopo autorizado.
-- Dependências e configurações não foram modificadas sem aprovação.
-- A documentação exigida pela própria Sprint foi atualizada.
-- O resultado final, os arquivos afetados e as limitações foram apresentados.
-- O responsável pelo projeto revisou o resultado e aprovou o encerramento.
+- Relacionar cada mudança a uma entrega ou critério aprovado.
+- Trabalhar em uma Sprint por vez.
+- Não antecipar itens posteriores.
+- Não reinterpretar a Sprint para acomodar trabalho já iniciado.
+- Interromper a execução quando o resultado necessário ultrapassar os limites aprovados.
 
-Itens incompletos não devem ser transferidos automaticamente para outra Sprint. Eles precisam ser reavaliados, priorizados e aprovados novamente.
+### Evitar feature creep
 
-Até a aprovação final, a Sprint deve ser apresentada como concluída tecnicamente e aguardando aceite, não como encerrada.
+Ideias descobertas durante o trabalho podem ser registradas como propostas, mas não devem ser implementadas automaticamente. Uma melhoria não entra no escopo por ser rápida, útil ou tecnicamente próxima.
+
+O agente deve concluir quando o objetivo aprovado for atingido, sem adicionar variações, estados, componentes ou capacidades não solicitados.
+
+### Controlar dependências
+
+- Não instalar, remover ou atualizar dependências sem autorização.
+- Utilizar primeiro recursos existentes.
+- Não alterar manifestos, arquivos de lock ou scripts como efeito colateral.
+- Não introduzir ferramenta apenas para facilitar uma tarefa isolada.
+
+### Preservar a arquitetura
+
+- Respeitar responsabilidades e direção das dependências.
+- Não mover regras entre camadas silenciosamente.
+- Não criar abstrações prematuras.
+- Não acoplar a fundação a detalhes específicos.
+- Não alterar contratos, fronteiras ou padrões arquiteturais sem registrar impacto e obter aprovação.
+
+Quando a arquitetura existente impedir o requisito, o agente deve relatar o conflito. Isso não autoriza uma reestruturação automática.
+
+### Preservar código e documentação existentes
+
+- Tratar alterações preexistentes como pertencentes ao responsável pelo projeto.
+- Não sobrescrever, reverter ou incluir trabalho anterior sem autorização.
+- Não remover código, recursos ou documentação sem justificar e verificar referências.
+- Manter comportamento fora do escopo inalterado.
+- Atualizar documentação somente quando necessário e autorizado.
+- Evitar mudanças automáticas em arquivos não relacionados.
+
+### Comunicar desvios
+
+Falhas, impactos inesperados e limitações devem ser comunicados assim que forem identificados. O agente não deve ocultar um desvio para apresentar uma conclusão aparentemente completa.
+
+## Validação
+
+Toda entrega deve ser validada de forma proporcional ao risco. Cada item abaixo deve ser executado quando aplicável, declarado como não aplicável com justificativa ou informado como indisponível.
+
+### Lint
+
+- Executar o comando oficialmente configurado.
+- Corrigir violações introduzidas pela tarefa.
+- Não desabilitar regras ou alterar configuração sem autorização.
+- Informar quando não existir ferramenta disponível.
+
+### Typecheck
+
+- Executar a verificação de tipos disponível.
+- Confirmar que não foram introduzidos novos erros.
+- Não utilizar tipos amplos ou supressões apenas para silenciar falhas.
+- Informar quando a checagem estiver incorporada a outro comando.
+
+### Build
+
+- Executar a compilação oficial quando a mudança puder afetá-la ou quando a Sprint exigir.
+- Investigar falhas antes de atribuí-las ao ambiente.
+- Não alterar dependências ou configurações para contornar erros sem aprovação.
+- Registrar resultado, avisos relevantes e limitações.
+
+### Testes
+
+- Executar os testes existentes relacionados ao escopo.
+- Cobrir comportamento principal, limites e falhas relevantes quando testes estiverem autorizados.
+- Não criar infraestrutura de testes sem aprovação.
+- Informar quando não existirem testes aplicáveis.
+
+### Critérios de aceitação
+
+- Verificar cada critério individualmente.
+- Relacionar resultado e evidência.
+- Não considerar um critério atendido apenas por inferência.
+- Apresentar itens pendentes ou inconclusivos.
+
+### Responsividade
+
+Quando houver impacto de interface:
+
+- verificar larguras reduzidas, intermediárias e amplas;
+- confirmar preservação de conteúdo e ações;
+- avaliar estados relevantes e textos de tamanhos diferentes;
+- informar limitações de inspeção visual.
+
+### Acessibilidade básica
+
+Quando houver impacto de interface:
+
+- revisar semântica e hierarquia;
+- verificar teclado e foco em interações;
+- avaliar contraste e uso independente de cor;
+- confirmar rótulos, mensagens e textos alternativos;
+- verificar nomes acessíveis dos controles.
+
+### Escopo e repositório
+
+Ao final, o agente deve:
+
+- comparar o estado final com o inicial;
+- confirmar que somente arquivos autorizados foram afetados;
+- verificar ausência de alterações acidentais;
+- confirmar que dependências e configurações permaneceram dentro do escopo;
+- identificar arquivos temporários, gerados ou sensíveis;
+- revisar o diff completo.
+
+Uma validação que falhar não deve ser omitida nem substituída por outra menos relevante. Correções só podem ser realizadas dentro do escopo autorizado.
+
+## Entrega
+
+Ao finalizar uma tarefa, o agente deve apresentar um relatório claro e verificável.
+
+### Arquivos alterados
+
+Listar todos os arquivos:
+
+- criados;
+- modificados;
+- movidos;
+- removidos.
+
+Alterações preexistentes que permanecerem no repositório devem ser distinguidas do trabalho atual.
+
+### Resumo das mudanças
+
+Explicar a finalidade de cada alteração e o resultado alcançado. O resumo deve refletir a extensão real do trabalho sem ocultar decisões, remoções ou efeitos relevantes.
+
+### Comandos executados
+
+Informar os comandos relevantes utilizados para:
+
+- inspeção;
+- validação;
+- compilação;
+- testes;
+- versionamento;
+- operações remotas, quando autorizadas.
+
+Não expor segredos, credenciais ou dados sensíveis presentes em argumentos ou resultados.
+
+### Validações realizadas
+
+Relatar:
+
+- quais verificações foram executadas;
+- seus resultados;
+- quais foram consideradas não aplicáveis;
+- quais não puderam ser executadas;
+- como limitações afetaram a confiança no resultado.
+
+### Limitações ou falhas
+
+Informar erros conhecidos, riscos, efeitos colaterais, pendências e resultados inconclusivos. Uma limitação não deve ser suavizada por linguagem vaga.
+
+### Status dos critérios de aceitação
+
+Apresentar cada critério como:
+
+- atendido;
+- não atendido;
+- pendente;
+- não verificável no ambiente atual.
+
+O agente não deve declarar conclusão técnica enquanto existir erro conhecido que invalide o objetivo.
+
+### Estado seguinte
+
+O relatório deve indicar claramente se o trabalho:
+
+- aguarda revisão;
+- aguarda aprovação;
+- está bloqueado por uma decisão;
+- necessita de instrução adicional.
+
+## Aprovação
+
+Nenhuma nova Sprint ou tarefa pode ser iniciada sem aprovação explícita quando o fluxo exigir aceite.
+
+O agente deve:
+
+- parar após apresentar a entrega;
+- aguardar revisão do responsável pelo projeto;
+- não interpretar silêncio como aprovação;
+- não iniciar trabalho futuro por continuidade aparente;
+- não executar commit, push, publicação ou operação externa sem autorização correspondente;
+- distinguir conclusão técnica de encerramento aprovado.
+
+Uma aprovação se aplica somente ao escopo apresentado. Ela não autoriza automaticamente melhorias relacionadas, etapas posteriores ou mudanças descobertas durante a execução.
+
+## Mudanças de Escopo
+
+Qualquer necessidade fora da Sprint ou tarefa atual deve ser registrada como proposta, não como implementação.
+
+São mudanças de escopo:
+
+- nova funcionalidade;
+- novo arquivo não autorizado;
+- comportamento adicional;
+- refatoração paralela;
+- alteração arquitetural;
+- dependência ou configuração;
+- integração externa;
+- mudança em dados;
+- ampliação de critérios;
+- correção não relacionada.
+
+Ao identificar uma proposta, o agente deve:
+
+1. interromper a expansão da tarefa;
+2. descrever o problema ou oportunidade;
+3. separar o requisito atual da proposta;
+4. informar arquivos e comportamentos afetados;
+5. apresentar impactos em arquitetura, dependências, configurações e validação;
+6. indicar riscos e alternativas;
+7. recomendar rejeição, revisão formal da Sprint ou planejamento futuro;
+8. aguardar decisão explícita.
+
+A proposta não deve produzir arquivos preparatórios, código parcial, dependências, configurações ou documentação que a apresente como aprovada.
+
+Se a mudança for aceita na Sprint atual, seu objetivo, escopo, arquivos e critérios devem ser revisados formalmente antes da implementação.
+
+## Conflitos entre Documentos
+
+Para resolver conflitos, a ordem de autoridade é:
+
+1. `VISION.md`
+2. `PROJECT_PRINCIPLES.md`
+3. `PRODUCT_SPEC.md`
+4. `SPRINT_NN.md`, correspondente à Sprint atual
+5. demais documentos de apoio
+
+Esta ordem de autoridade é diferente da ordem obrigatória de leitura. Ler um documento antes não concede maior autoridade a ele.
+
+Os documentos de apoio incluem arquitetura, diretrizes de interface, estilo de código, workflow, regras para agentes, prompt mestre, roadmap e demais orientações complementares. Eles detalham a execução sem poder contradizer os quatro níveis superiores.
+
+O agente deve:
+
+- comparar o requisito com todos os documentos aplicáveis;
+- identificar a natureza e o impacto do conflito;
+- respeitar o documento de maior autoridade;
+- não escolher silenciosamente a interpretação mais conveniente;
+- informar a divergência antes de qualquer alteração;
+- solicitar decisão quando a autoridade não resolver a ambiguidade com segurança.
+
+Um conflito não autoriza editar documentos, reinterpretar a Sprint ou implementar uma solução intermediária.
+
+Quando um documento de apoio definir uma precedência diferente, essa divergência deve ser informada e esta seção deve orientar o tratamento dentro deste protocolo principal.
+
+## Encerramento de Sprint
+
+Uma Sprint pode ser considerada tecnicamente concluída e aguardando aceite somente quando:
+
+- todos os itens aprovados foram entregues ou formalmente retirados do escopo;
+- todos os critérios de aceitação possuem status e evidência;
+- lint, typecheck, build e testes aplicáveis foram executados;
+- verificações indisponíveis ou não aplicáveis foram declaradas;
+- responsividade e acessibilidade foram verificadas quando houve impacto visual;
+- não existem erros conhecidos que invalidem o objetivo;
+- o resultado foi revisado quanto a código, arquitetura, segurança e consistência;
+- somente arquivos autorizados foram alterados;
+- dependências e configurações permaneceram dentro do escopo aprovado;
+- documentação necessária foi atualizada dentro do escopo;
+- o diff e o estado final do repositório foram revisados;
+- riscos, limitações, falhas e pendências foram relatados;
+- todos os arquivos afetados e comandos relevantes foram apresentados;
+- o responsável pelo projeto recebeu o relatório final.
+
+Conclusão técnica não é encerramento. Até o aceite, o estado correto é **tecnicamente concluída e aguardando aprovação**.
+
+A Sprint somente é encerrada quando o responsável pelo projeto:
+
+1. revisa a entrega;
+2. avalia critérios e limitações;
+3. aprova explicitamente o resultado.
+
+Itens incompletos não são transferidos automaticamente. Eles devem ser reavaliados, priorizados e aprovados em outro escopo.
+
+O encerramento não autoriza automaticamente nova Sprint, commit, push, publicação ou qualquer outra ação subsequente.
