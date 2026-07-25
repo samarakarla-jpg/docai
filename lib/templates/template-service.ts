@@ -1,3 +1,5 @@
+import type { Repository } from "../persistence/repository";
+
 export interface Template<TContent> {
   readonly id: string;
   readonly name: string;
@@ -15,13 +17,10 @@ export interface UpdateTemplateInput<TContent> {
   readonly content?: TContent;
 }
 
-export interface TemplateStorage<TContent> {
-  findById(id: string): Promise<Template<TContent> | null>;
-  list(): Promise<readonly Template<TContent>[]>;
-  create(template: Template<TContent>): Promise<Template<TContent>>;
-  update(template: Template<TContent>): Promise<Template<TContent>>;
-  remove(id: string): Promise<void>;
-}
+export type TemplateStorage<TContent> = Repository<
+  Template<TContent>,
+  string
+>;
 
 export type TemplateServiceErrorCode =
   | "INVALID_INPUT"

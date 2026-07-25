@@ -1,3 +1,5 @@
+import type { Repository } from "../persistence/repository";
+
 export interface Document<TContent> {
   readonly id: string;
   readonly title: string;
@@ -15,13 +17,10 @@ export interface UpdateDocumentInput<TContent> {
   readonly content?: TContent;
 }
 
-export interface DocumentStorage<TContent> {
-  findById(id: string): Promise<Document<TContent> | null>;
-  list(): Promise<readonly Document<TContent>[]>;
-  create(document: Document<TContent>): Promise<Document<TContent>>;
-  update(document: Document<TContent>): Promise<Document<TContent>>;
-  remove(id: string): Promise<void>;
-}
+export type DocumentStorage<TContent> = Repository<
+  Document<TContent>,
+  string
+>;
 
 export type DocumentServiceErrorCode =
   | "INVALID_INPUT"
