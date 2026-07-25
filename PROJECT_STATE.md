@@ -6,9 +6,9 @@
 
 **Branch de referência:** `main`
 
-**Commit de referência:** `9cdef7c653f995c1dbf088939f6811f042291efe`
+**Commit de referência:** `14e82234539afe82daef21f5486c48a19a476dcc`
 
-Este documento registra um retrato do estado observável do projeto antes do planejamento da Sprint 05. Ele consolida informações presentes no repositório, no histórico versionado e na documentação existente. Não autoriza implementação, alteração de escopo, instalação de dependências, mudança de configuração, commit, push ou início de nova Sprint.
+Este documento registra um retrato do estado observável do projeto e da sequência técnica proposta para concluir a versão 1.0. Ele consolida informações presentes no repositório, no histórico versionado e na documentação existente. Não autoriza implementação, alteração de escopo, instalação de dependências, mudança de configuração, commit, push ou início de nova Sprint.
 
 # Visão Geral do Projeto
 
@@ -25,7 +25,7 @@ No estado atual, o projeto reúne:
 - um serviço reutilizável para gerenciamento conceitual de documentos;
 - documentação de produto, arquitetura, engenharia, interface, colaboração e planejamento por Sprints.
 
-A branch local `main` e sua referência local de `origin/main` apontavam para o mesmo commit no início deste registro. A árvore de trabalho já continha `SPRINT_04.md` como arquivo não rastreado. A criação deste documento adiciona `PROJECT_STATE.md` como outro arquivo não rastreado até que exista autorização específica para versionamento.
+A branch local `main` e sua referência local de `origin/main` apontavam para o commit `14e82234539afe82daef21f5486c48a19a476dcc` no início desta atualização. A árvore de trabalho estava limpa antes das alterações documentais autorizadas nesta tarefa.
 
 # Sprints Concluídas
 
@@ -80,7 +80,7 @@ Principais resultados presentes:
 
 **Resultado materializado:** serviço genérico para o ciclo de vida mínimo de documentos conceituais.
 
-**Evidência principal no histórico:** commit `9cdef7c653f995c1dbf088939f6811f042291efe` (`feat: add reusable document service`).
+**Evidências principais no histórico:** commits `9cdef7c653f995c1dbf088939f6811f042291efe` (`feat: add reusable document service`) e `14e82234539afe82daef21f5486c48a19a476dcc` (`docs: record completed Sprint 04`).
 
 Principais resultados presentes:
 
@@ -97,9 +97,38 @@ Principais resultados presentes:
 
 Não existe Sprint de implementação em execução neste momento.
 
-A Sprint 04 possui implementação presente e enviada para `origin/main`. A Sprint 05 ainda não possui objetivo, requisitos, arquivos autorizados ou critérios de aceitação definidos na documentação. Portanto, nenhuma funcionalidade pode ser atribuída ou implementada como Sprint 05 até que seu escopo seja documentado e aprovado explicitamente.
+A Sprint 04 está encerrada, documentada e presente em `origin/main`. O roadmap passa a conter uma proposta de sequência para as Sprints 05, 06 e 07, mas nenhum arquivo individual dessas Sprints foi criado e nenhum dos três recortes está autorizado para implementação.
 
-A atividade atual limita-se à criação e revisão deste registro de estado, antes de qualquer planejamento da Sprint 05.
+A atividade atual limita-se ao planejamento em `ROADMAP.md` e à atualização deste registro de estado. A próxima Sprint somente poderá ser iniciada depois da aprovação deste planejamento, da criação de `SPRINT_05.md` em tarefa própria e da autorização explícita de seu conteúdo.
+
+# Planejamento Proposto até a Versão 1.0
+
+## Sprint 05 — Persistência reutilizável
+
+**Fase predominante:** Fase 3 — Serviços reutilizáveis.
+
+Propõe consolidar uma interface genérica de armazenamento e testes de contrato a partir dos padrões reais de `TemplateService` e `DocumentService`. Repositórios deverão permanecer substituíveis e independentes de banco específico. Supabase poderá receber um adaptador futuro, mas não fará parte do contrato interno nem da Sprint 05 proposta.
+
+## Sprint 06 — Interface reutilizável
+
+**Fase predominante:** Fase 4 — Interface reutilizável.
+
+Propõe criar um layout base autenticado, navegação limitada a destinos reais, componentes essenciais extraídos de repetição comprovada e estados de loading, vazio, erro e sucesso. A entrega deverá preservar os fluxos existentes, permanecer neutra e possuir evidências de responsividade e acessibilidade.
+
+## Sprint 07 — Integrações opcionais e fechamento da versão 1.0
+
+**Fase predominante:** Fase 5 — Integrações opcionais.
+
+Propõe contratos independentes de fornecedor para IA, pagamentos, PDF, e-mail e armazenamento externo, todos desativados por padrão e sem adaptadores concretos. Também concentra documentação de clonagem, validação integral, critérios de estabilidade e preparação documental da versão 1.0.
+
+## Ordem e dependências
+
+1. A Sprint 05 depende do encerramento das Sprints 03 e 04 e utiliza seus contratos como evidência para uma abstração limitada.
+2. A Sprint 06 depende da Sprint 05 encerrada e utiliza a autenticação da Sprint 02 como contexto real da interface.
+3. A Sprint 07 depende das Sprints 05 e 06 encerradas e valida o conjunto acumulado das Sprints 01 a 07.
+4. Cada Sprint exige documento próprio, revisão, aprovação, implementação, validação e encerramento antes da seguinte.
+
+Esse planejamento define direção e sequência, mas não define arquivos autorizados, não aprova dependências ou configurações e não substitui `SPRINT_05.md`, `SPRINT_06.md` ou `SPRINT_07.md`.
 
 # Funcionalidades Implementadas
 
@@ -178,13 +207,14 @@ Os serviços de templates e documentos definem contratos, coordenação e valida
 
 ## Estado do repositório
 
-- `SPRINT_04.md` existe localmente, mas não está rastreado pelo Git e não faz parte do commit que implementou a Sprint 04.
-- `PROJECT_STATE.md` permanecerá não rastreado ao final desta tarefa, pois commit e push não estão autorizados.
+- O planejamento das Sprints 05, 06 e 07 foi revisado e aprovado para versionamento em `ROADMAP.md` e `PROJECT_STATE.md`.
+- Nenhum outro arquivo integra a alteração documental aprovada.
+- O versionamento deste planejamento não autoriza criar arquivos individuais de Sprint nem iniciar implementação.
 
 ## Consistência documental
 
 - `SPRINT_02.md` ainda declara o status “Planejada e aguardando aprovação”, apesar da implementação estar presente no histórico.
-- `SPRINT_03.md` e `SPRINT_04.md` ainda declaram “rascunho aguardando aprovação”, apesar das respectivas implementações estarem presentes.
+- `SPRINT_03.md` ainda declara “rascunho aguardando aprovação”, apesar da implementação estar presente no histórico.
 - `SPRINT_01.md` não possui um campo explícito de status atualizado.
 - O índice de documentação do `README.md` referencia somente a Sprint 01 e não lista todos os documentos e Sprints atualmente existentes.
 - Essas divergências são registradas aqui, mas não foram corrigidas porque nenhum outro arquivo está autorizado nesta tarefa.
@@ -194,7 +224,8 @@ Os serviços de templates e documentos definem contratos, coordenação e valida
 - A autenticação exige configuração externa válida do Supabase para validação funcional completa.
 - Não existe script oficial de lint.
 - Os serviços de templates e documentos não possuem armazenamento concreto, integração com rotas ou consumidor de interface.
-- O objetivo e o recorte da Sprint 05 ainda não foram definidos.
+- Os objetivos de alto nível das Sprints 05, 06 e 07 estão propostos no roadmap, mas requisitos detalhados, arquivos autorizados e decisões de implementação ainda não existem.
+- A amplitude da Sprint 07 deverá ser reavaliada ao criar seu documento próprio; se contratos independentes e fechamento não permanecerem pequenos e verificáveis, o trabalho deverá ser dividido antes da aprovação.
 
 As pendências acima não autorizam correção automática, integração ou ampliação de escopo.
 
@@ -202,13 +233,13 @@ As pendências acima não autorizam correção automática, integração ou ampl
 
 Os próximos passos possíveis, sujeitos a autorização individual, são:
 
-1. revisar e aprovar este registro de estado;
-2. decidir como versionar `SPRINT_04.md` e `PROJECT_STATE.md`, sem misturar unidades de trabalho não relacionadas;
-3. decidir se os status e índices documentais desatualizados deverão ser reconciliados em uma tarefa própria;
-4. definir a necessidade concreta e o objetivo único da Sprint 05;
-5. criar `SPRINT_05.md` com escopo, entregas, exclusões, requisitos, arquivos autorizados, riscos e critérios de aceitação;
-6. revisar e aprovar a Sprint 05 antes de qualquer implementação;
-7. somente após autorização específica, implementar, validar, relatar e aguardar aceite conforme o protocolo do projeto.
+1. decidir se os status e índices documentais desatualizados deverão ser reconciliados em uma tarefa própria;
+2. após autorização específica, criar somente `SPRINT_05.md` com escopo, entregas, exclusões, requisitos, arquivos autorizados, riscos e critérios de aceitação;
+3. revisar e aprovar a Sprint 05 antes de qualquer implementação;
+4. implementar, validar, relatar e encerrar a Sprint 05 antes de detalhar ou iniciar a Sprint 06;
+5. repetir o mesmo fluxo de documentação e aprovação para a Sprint 06;
+6. revisar a amplitude, documentar e aprovar a Sprint 07 somente depois do encerramento da Sprint 06;
+7. executar a validação final e solicitar aprovação separada para declarar e publicar a versão 1.0.
 
 Esta sequência é um registro de dependências de processo, não uma autorização para executar qualquer etapa posterior.
 
@@ -216,7 +247,8 @@ Esta sequência é um registro de dependências de processo, não uma autorizaç
 
 Permanecem fora do estado implementado e não estão autorizados por este documento:
 
-- definição ou implementação da Sprint 05;
+- criação de `SPRINT_05.md`, `SPRINT_06.md` ou `SPRINT_07.md` nesta tarefa;
+- implementação de qualquer item proposto para as Sprints 05, 06 ou 07;
 - regras, dados, fluxos ou identidade visual de produto específico;
 - inteligência artificial, agentes, prompts, embeddings ou geração de conteúdo;
 - criação, leitura, processamento, conversão ou exportação de PDF;
@@ -234,9 +266,9 @@ Permanecem fora do estado implementado e não estão autorizados por este docume
 - instalação, remoção ou atualização de dependências;
 - alteração de scripts, manifestos, arquivos de lock, configurações ou variáveis de ambiente;
 - refatorações, abstrações compartilhadas ou preparação para Sprints futuras;
-- alteração de qualquer arquivo além de `PROJECT_STATE.md` nesta tarefa;
+- alteração de qualquer arquivo além de `ROADMAP.md` e `PROJECT_STATE.md` nesta tarefa;
 - commit, push, Pull Request, publicação ou operação remota.
 
 # Condição Atual
 
-O projeto possui quatro entregas de Sprint materializadas, encontra-se sem Sprint de implementação ativa e aguarda definição documental da Sprint 05. Este arquivo está pronto para revisão, mas somente poderá ser considerado aprovado após manifestação explícita do responsável pelo projeto.
+O projeto possui quatro Sprints encerradas, encontra-se sem Sprint de implementação ativa e possui uma sequência de alto nível aprovada para planejar as Sprints 05, 06 e 07. Nenhum arquivo individual de Sprint deverá ser criado nem implementado sem uma nova autorização explícita.
