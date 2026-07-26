@@ -2,49 +2,49 @@
 
 **Produto:** DocAI  
 **Sprint:** D01 — Refinamento do domínio  
-**Status:** revisada e aprovada  
+**Status:** revisão documental aguardando aprovação
 **Fase:** preparação funcional antes de integrações
 
-Este documento define o domínio funcional do DocAI antes de qualquer integração com Supabase, Gemini, Stripe, Vercel ou outro fornecedor. A aprovação desta especificação não autoriza implementação automática.
+Este documento registra e refina o domínio já existente no repositório. A D01 não introduz mudanças estruturais, integração com Supabase, Gemini, Stripe, Vercel ou outro fornecedor. Sua aprovação não autoriza implementação automática.
 
 ## Objetivo da Sprint
 
-Consolidar os conceitos, campos, regras, limites e responsabilidades do DocAI para os quatro tipos de contrato suportados, criando uma referência única para as Sprints de identidade, persistência, geração e interface.
+Documentar com precisão os conceitos, campos, regras e limites já representados no código para os quatro tipos de contrato suportados, criando uma referência única para as próximas Sprints sem alterar a estrutura existente.
 
 ## Escopo
 
 - Definir o vocabulário funcional dos contratos.
-- Definir campos obrigatórios e opcionais dos quatro modelos.
-- Definir validações de entrada e consistência.
-- Definir a estrutura mínima dos templates.
-- Definir o que pode e não pode ser solicitado à IA.
+- Registrar campos atuais e validações existentes dos quatro modelos.
+- Registrar a estrutura atual dos templates e da saída de IA.
+- Delimitar requisitos avançados que ficam adiados.
 - Definir responsabilidades do usuário e da IA.
 - Registrar limites jurídicos, de privacidade e de confiabilidade.
 - Preparar critérios para evolução do domínio sem acoplamento a fornecedores.
 
-Não há implementação de código, integração externa, interface visual ou persistência nesta Sprint.
+Não há implementação de código, alteração de modelos, integração externa, interface visual ou persistência nesta Sprint documental.
 
-## Compatibilidade com o estado atual
+## Estado atual e limites da D01
 
-O repositório já contém uma implementação inicial em `lib/docai/`. Esta especificação é o contrato funcional refinado e identifica ajustes que poderão ser necessários em uma Sprint de implementação aprovada:
+O repositório já contém uma implementação inicial em `lib/docai/`. Esta revisão documenta o estado real, sem exigir alterações fora do escopo autorizado:
 
-- o código atual permite pelo menos uma parte; este documento exige pelo menos duas partes nomeadas;
-- os tipos atuais possuem somente os campos básicos de cada modelo; responsabilidades, encerramento, garantias e demais campos definidos aqui são requisitos de evolução;
-- o template atual contém tipo, título e instruções; versão, seções, avisos e referência de atualização são requisitos adicionais;
-- o resultado atual da IA possui tipo e saída; alertas, avisos e identificação explícita de rascunho são requisitos de evolução;
-- nenhuma dessas diferenças autoriza alteração nesta Sprint documental.
+- cada modelo possui os campos básicos atualmente definidos em `contract-models.ts`;
+- a validação atual exige pelo menos uma parte nomeada e campos básicos não vazios;
+- o template atual contém tipo, título e instruções;
+- o resultado atual da IA contém tipo e saída opaca;
+- `ContractService` delega o ciclo de vida ao `DocumentService` genérico;
+- não há proprietário, versionamento, avisos de IA ou estado avançado de revisão no domínio atual.
 
-Os ajustes deverão ser implementados somente em Sprint aprovada, com migração ou compatibilidade para rascunhos existentes quando necessário.
+Responsabilidades adicionais, encerramento contratual, unidades monetárias, garantias, versionamento de templates, alertas de IA e revisão humana formal ficam adiados para Sprints próprias. Nenhuma dessas evoluções é requisito de implementação da D01.
 
 ## Requisitos funcionais
 
 - O sistema deve suportar Prestação de Serviços, Compra e Venda, Aluguel e Empréstimo.
-- Cada contrato deve possuir tipo, título, partes, conteúdo estruturado e estado de rascunho.
+- Cada contrato deve possuir tipo, título, partes e conteúdo estruturado conforme os tipos existentes.
 - Um rascunho deve permanecer distinguível de um documento final ou juridicamente validado.
 - O usuário deve poder revisar e corrigir os dados antes da geração.
 - A geração deve receber somente dados estruturados e um template compatível.
 - O resultado da IA deve ser retornado como rascunho revisável.
-- O sistema deve preservar avisos, limitações e eventuais alertas da geração.
+- O resultado atual da IA deve preservar o tipo e a saída retornada pelo adaptador.
 - Nenhum contrato deve ser considerado aprovado, assinado ou juridicamente válido automaticamente.
 
 ## Requisitos não funcionais
@@ -55,103 +55,63 @@ Os ajustes deverão ser implementados somente em Sprint aprovada, com migração
 - Dados contratuais devem ser tratados como sensíveis.
 - O domínio deve permitir substituição de persistência e de provedor de IA.
 - Transformações relevantes devem ser explícitas e determinísticas.
-- O modelo deve permitir evolução por versão sem quebrar rascunhos existentes.
+- A evolução por versão sem quebra de rascunhos é uma diretriz futura, não implementada nem exigida nesta D01.
 - Nenhum segredo, prompt privado ou credencial deve fazer parte dos modelos.
 
 ## Tipos de contrato suportados
 
 ### Prestação de Serviços
 
-Campos obrigatórios:
+Campos atualmente representados:
 
 - partes;
-- escopo detalhado do serviço;
-- remuneração e unidade monetária;
-- prazo ou duração;
-- responsabilidades principais de cada parte;
-- condições de encerramento ou rescisão.
+- escopo;
+- remuneração;
+- prazo;
 
-Campos opcionais:
-
-- etapas e entregáveis;
-- forma e calendário de pagamento;
-- confidencialidade;
-- propriedade intelectual;
-- foro ou jurisdição;
-- observações adicionais.
+Unidade monetária, responsabilidades detalhadas e condições de encerramento ficam adiadas.
 
 ### Compra e Venda
 
-Campos obrigatórios:
+Campos atualmente representados:
 
 - partes;
-- descrição do objeto;
-- preço e unidade monetária;
-- condições de pagamento;
-- forma e prazo de entrega;
-- responsabilidades principais;
-- condições de encerramento ou cancelamento.
+- objeto;
+- preço;
+- entrega.
 
-Campos opcionais:
-
-- quantidade e especificações;
-- garantias;
-- transferência de risco e propriedade;
-- penalidades;
-- foro ou jurisdição;
-- observações adicionais.
+Unidade monetária e regras detalhadas de entrega ficam adiadas.
 
 ### Aluguel
 
-Campos obrigatórios:
+Campos atualmente representados:
 
 - partes;
-- descrição do bem ou imóvel;
-- prazo de locação;
-- valor do aluguel e unidade monetária;
-- responsabilidades de manutenção e uso;
-- condições de devolução e encerramento.
+- propriedade;
+- aluguel;
+- prazo.
 
-Campos opcionais:
-
-- garantias;
-- reajuste;
-- encargos e despesas;
-- finalidade de uso;
-- vistoria;
-- foro ou jurisdição;
-- observações adicionais.
+Garantias, encargos e demais condições de locação ficam adiados.
 
 ### Empréstimo
 
-Campos obrigatórios:
+Campos atualmente representados:
 
 - partes;
-- objeto ou valor emprestado;
-- prazo;
-- forma e prazo de devolução;
-- encargos, quando aplicáveis, ou declaração de ausência;
-- responsabilidades principais;
-- condições de encerramento.
+- objeto;
+- devolução;
+- prazo.
 
-Campos opcionais:
-
-- calendário de parcelas;
-- garantias;
-- mora e consequências do atraso;
-- finalidade do empréstimo;
-- foro ou jurisdição;
-- observações adicionais.
+Juros, garantias e condições detalhadas de devolução ficam adiados.
 
 ## Regras de validação
 
 - O tipo deve ser um dos quatro tipos suportados.
 - Identificador, título e referência de template devem ser strings não vazias.
-- Deve haver pelo menos duas partes nomeadas, representando os participantes do contrato.
+- Deve haver pelo menos uma parte nomeada, conforme a validação atual do domínio.
 - O nome de cada parte deve ser não vazio; identificadores adicionais são opcionais.
-- Campos obrigatórios devem existir e conter texto não vazio após normalização de espaços.
-- Valores monetários devem informar valor e unidade monetária quando aplicável.
-- Prazos devem possuir descrição compreensível e não podem ser vazios.
+- Os campos atualmente representados devem existir e conter texto não vazio após normalização de espaços.
+- Valores e prazos atuais devem ser strings não vazias; unidades monetárias e semântica avançada ficam adiadas.
 - Campos específicos não podem ser misturados entre tipos de contrato.
 - O tipo do conteúdo deve corresponder ao tipo do contrato e do template.
 - Templates ausentes, incompatíveis ou incompletos devem impedir a geração.
@@ -161,30 +121,25 @@ Campos opcionais:
 
 ## Estrutura dos templates
 
-Um template de contrato deve conter, no mínimo:
+O template de contrato atualmente contém:
 
 - identificador estável;
 - tipo de contrato;
 - título legível;
-- versão do template;
-- instruções internas de composição;
-- ordem ou seções esperadas do rascunho;
-- avisos e limitações aplicáveis;
-- data ou referência de atualização.
+- instruções internas de composição.
 
 Templates devem ser neutros em relação ao provedor de IA. Não devem conter credenciais, chamadas de API, regras de cobrança ou dados de usuário. Um template só pode ser usado quando seu tipo corresponder ao contrato solicitado.
 
 ## Regras para geração pela IA
 
 - A IA recebe somente o conteúdo validado, o tipo e o template compatível.
-- A IA deve produzir um rascunho estruturado e identificável como gerado.
-- A resposta deve manter o tipo do contrato e as informações fornecidas pelo usuário sem inventar fatos.
-- Campos ausentes ou ambíguos devem gerar alerta ou solicitação de revisão, não preenchimento silencioso.
+- A IA deve retornar o tipo solicitado e a saída fornecida pelo adaptador.
+- Campos ausentes ou ambíguos não são enriquecidos pelo serviço atual.
 - A IA não deve declarar validade jurídica, aconselhar sobre direitos ou substituir advogado.
 - A IA não deve acessar dados de outras contas, persistência direta ou credenciais.
 - Falhas, indisponibilidade, limite e resposta inválida devem ser traduzidos para erros seguros.
 - O provedor deve permanecer atrás do contrato de IA e ser substituível.
-- O resultado deve incluir avisos de revisão humana antes de qualquer uso externo.
+- Avisos, revisão humana formal e metadados de geração ficam adiados para Sprint própria.
 
 ## Responsabilidades do usuário
 
@@ -205,9 +160,9 @@ Templates devem ser neutros em relação ao provedor de IA. Não devem conter cr
 - Produzir saída previsível, limitada ao tipo de contrato e ao contexto recebido.
 - Nunca substituir revisão humana, aconselhamento jurídico ou decisão do usuário.
 
-## Arquivos que poderão ser alterados na implementação
+## Arquivos que poderão ser alterados em uma futura implementação
 
-Somente se uma Sprint de implementação for aprovada posteriormente:
+Esta D01 é exclusivamente documental e não autoriza alterações de código. Somente uma Sprint de implementação aprovada posteriormente poderá autorizar, de forma explícita:
 
 - `lib/docai/domain/contract-models.ts` — tipos e regras estruturais dos contratos;
 - `lib/docai/domain/contract-models.test.ts` — testes dos modelos e validações;
@@ -232,16 +187,11 @@ Qualquer outro arquivo exige revisão formal de escopo.
 
 ## Estratégia de testes
 
-- Testar cada um dos quatro tipos com dados válidos.
-- Testar ausência de partes, partes insuficientes e nomes vazios.
-- Testar cada campo obrigatório ausente, vazio ou incompatível.
-- Testar valores monetários sem unidade e prazos vazios.
-- Testar incompatibilidade entre contrato, conteúdo e template.
-- Testar preservação de campos opcionais e observações.
-- Testar que entradas inválidas não alcançam serviços dependentes.
-- Testar erros estáveis sem rede, banco ou provedor real.
-- Executar regressão dos serviços DocAI existentes.
-- Executar typecheck, build e `git diff --check` na Sprint de implementação.
+- A implementação existente deve permanecer coberta pelos testes atuais dos quatro tipos e de seus campos básicos.
+- Uma futura Sprint de implementação deverá testar ausência de partes, nomes vazios, campos básicos ausentes ou vazios e incompatibilidade entre contrato, conteúdo e template.
+- Regras ainda não representadas no código — como partes insuficientes, unidade monetária, responsabilidades, versionamento e avisos — ficam adiadas e não são critério de teste desta D01.
+- A documentação não exige novos testes nem alterações nos arquivos de produção nesta Sprint.
+- Quando houver uma Sprint de implementação, deverão ser executados os testes aplicáveis, typecheck, build e `git diff --check`.
 
 ## Riscos conhecidos
 
@@ -256,14 +206,14 @@ Qualquer outro arquivo exige revisão formal de escopo.
 
 ## Critérios de aceitação
 
-- Os quatro tipos de contrato e seus campos obrigatórios estão definidos.
-- Regras de partes, tipos, campos, prazos, valores e compatibilidade estão explícitas.
-- Templates possuem estrutura mínima, versão e compatibilidade por tipo.
+- Os quatro tipos de contrato e os campos atualmente representados estão definidos.
+- As regras atuais de partes, tipos, campos básicos e compatibilidade estão explícitas.
+- A estrutura atual de templates (tipo, título e instruções) e sua compatibilidade por tipo estão documentadas.
 - Regras de entrada e saída da IA estão documentadas sem depender de provedor.
 - Responsabilidades do usuário e da IA estão separadas.
 - Limitações jurídicas e necessidade de revisão humana estão registradas.
 - Arquivos autorizados e proibidos estão definidos sem ambiguidade.
-- Estratégia de testes cobre todos os campos obrigatórios e incompatibilidades.
+- A estratégia distingue cobertura existente de requisitos de teste adiados.
 - Nenhuma integração ou alteração de produção é necessária para encerrar esta Sprint documental.
 
 ## Critérios de encerramento
@@ -280,4 +230,4 @@ A próxima Sprint deverá definir identidade e contexto do usuário, incluindo a
 
 ## Registro de revisão
 
-A Sprint D01 foi revisada integralmente quanto à consistência técnica, funcional e documental, conflitos com o código existente, ambiguidades, requisitos, critérios, riscos e dependências. Após o registro das diferenças de compatibilidade acima, a Sprint D01 está aprovada para servir de referência às próximas Sprints.
+A Sprint D01 foi revisada integralmente quanto à consistência técnica, funcional e documental, conflitos com o código existente, ambiguidades, requisitos, critérios, riscos e dependências. Após o registro das diferenças de compatibilidade acima, o documento está pronto para aprovação explícita e não autoriza implementação enquanto essa aprovação não ocorrer.
