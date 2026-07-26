@@ -6,7 +6,7 @@ import type {
   ContractTemplate,
   TemplateService,
 } from "../services/template-service";
-import type { AIService } from "../services/ai-service";
+import type { ContractGenerator } from "../services/contract-generation-service";
 import type {
   ContractContent,
   ContractGenerationResult,
@@ -28,7 +28,6 @@ export interface ContractCreationResult {
 }
 
 export type ContractTemplateReader = Pick<TemplateService, "getById">;
-export type ContractGenerator = Pick<AIService, "generateContract">;
 export type ContractDraftCreator = Pick<ContractService, "createDraft">;
 
 export interface ContractCreationDependencies {
@@ -91,9 +90,10 @@ export class ContractCreationService {
 
     let generation: ContractGenerationResult;
     try {
-      generation = await this.generator.generateContract({
+      generation = await this.generator.generate({
         type: input.type,
         content: input.content,
+        template: template.content,
       });
     } catch (error) {
       throw new ContractCreationError(

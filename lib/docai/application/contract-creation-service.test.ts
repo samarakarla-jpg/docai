@@ -102,9 +102,10 @@ describe("DocAI ContractCreationService", () => {
           },
         },
         generator: {
-          generateContract: async (request) => {
+          generate: async (request) => {
             events.push(`generation:${request.type}`);
             assert.deepEqual(request.content, input.content);
+            assert.deepEqual(request.template, template.content);
             return generation;
           },
         },
@@ -134,7 +135,7 @@ describe("DocAI ContractCreationService", () => {
     const calls: string[] = [];
     const service = new ContractCreationService({
       templates: { getById: async () => { calls.push("template"); return templateFor("sale"); } },
-      generator: { generateContract: async () => { calls.push("generation"); return { type: "sale", output: "draft" }; } },
+      generator: { generate: async () => { calls.push("generation"); return { type: "sale", output: "draft" }; } },
       contracts: { createDraft: async () => { calls.push("creation"); return draftFor("sale"); } },
     });
 
@@ -152,7 +153,7 @@ describe("DocAI ContractCreationService", () => {
   it("rejects a template with a different contract type", async () => {
     const service = new ContractCreationService({
       templates: { getById: async () => templateFor("services") },
-      generator: { generateContract: async () => ({ type: "sale", output: "draft" }) },
+      generator: { generate: async () => ({ type: "sale", output: "draft" }) },
       contracts: { createDraft: async () => draftFor("sale") },
     });
 
@@ -170,7 +171,7 @@ describe("DocAI ContractCreationService", () => {
     let created = false;
     const service = new ContractCreationService({
       templates: { getById: async () => templateFor("sale") },
-      generator: { generateContract: async () => { throw new Error("adapter failure"); } },
+      generator: { generate: async () => { throw new Error("adapter failure"); } },
       contracts: { createDraft: async () => { created = true; return draftFor("sale"); } },
     });
 
@@ -188,7 +189,7 @@ describe("DocAI ContractCreationService", () => {
   it("returns a stable creation error when ContractService fails", async () => {
     const service = new ContractCreationService({
       templates: { getById: async () => templateFor("sale") },
-      generator: { generateContract: async () => ({ type: "sale", output: "draft" }) },
+      generator: { generate: async () => ({ type: "sale", output: "draft" }) },
       contracts: { createDraft: async () => { throw new Error("storage failure"); } },
     });
 
