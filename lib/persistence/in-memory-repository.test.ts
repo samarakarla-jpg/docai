@@ -133,4 +133,26 @@ describe("InMemoryRepository", () => {
     assert.equal(error.cause, cause);
     assert.doesNotMatch(error.message, /private infrastructure detail/);
   });
+
+  it("translates identifier failures without exposing their details", async () => {
+    const repository = new InMemoryRepository<NamedEntity, string>(() => {
+      throw new Error("private identifier detail");
+    });
+
+    await assert.rejects(
+      repository.create({
+        key: "failure",
+        label: "Entity",
+        payload: { enabled: true },
+      }),
+      (error: unknown) => {
+        assert.ok(error instanceof RepositoryError);
+        assert.equal(error.code, "STORAGE_FAILURE");
+        assert.ok(error.cause instanceof Error);
+        assert.equal(error.cause.message, "private identifier detail");
+        assert.doesNotMatch(error.message, /private identifier detail/);
+        return true;
+      },
+    );
+  });
 });

@@ -26,50 +26,74 @@ export class InMemoryRepository<TEntity, TIdentifier>
   }
 
   async create(entity: TEntity): Promise<TEntity> {
-    const id = this.getIdentifier(entity);
+    return this.run(() => {
+      const id = this.getIdentifier(entity);
 
-    if (this.entities.has(id)) {
-      throw new RepositoryError(
-        "CONFLICT",
-        "An entity with this identifier already exists.",
-      );
-    }
+      if (this.entities.has(id)) {
+        throw new RepositoryError(
+          "CONFLICT",
+          "An entity with this identifier already exists.",
+        );
+      }
 
-    this.entities.set(id, entity);
-    return entity;
+      this.entities.set(id, entity);
+      return entity;
+    });
   }
 
   async findById(id: TIdentifier): Promise<TEntity | null> {
-    if (!this.entities.has(id)) {
-      return null;
-    }
+    return this.run(() => {
+      if (!this.entities.has(id)) {
+        return null;
+      }
 
-    return this.entities.get(id) as TEntity;
+      return this.entities.get(id) as TEntity;
+    });
   }
 
   async list(): Promise<readonly TEntity[]> {
-    return [...this.entities.values()];
+    return this.run(() => [...this.entities.values()]);
   }
 
   async update(entity: TEntity): Promise<TEntity> {
-    const id = this.getIdentifier(entity);
+    return this.run(() => {
+      const id = this.getIdentifier(entity);
 
-    if (!this.entities.has(id)) {
-      throw new RepositoryError(
-        "NOT_FOUND",
-        "The entity to update was not found.",
-      );
-    }
+      if (!this.entities.has(id)) {
+        throw new RepositoryError(
+          "NOT_FOUND",
+          "The entity to update was not found.",
+        );
+      }
 
-    this.entities.set(id, entity);
-    return entity;
+      this.entities.set(id, entity);
+      return entity;
+    });
   }
 
   async remove(id: TIdentifier): Promise<void> {
-    if (!this.entities.delete(id)) {
+    return this.run(() => {
+      if (!this.entities.delete(id)) {
+        throw new RepositoryError(
+          "NOT_FOUND",
+          "The entity to remove was not found.",
+        );
+      }
+    });
+  }
+
+  private async run<TResult>(operation: () => TResult): Promise<TResult> {
+    try {
+      return operation();
+    } catch (error) {
+      if (error instanceof RepositoryError) {
+        throw error;
+      }
+
       throw new RepositoryError(
-        "NOT_FOUND",
-        "The entity to remove was not found.",
+        "STORAGE_FAILURE",
+        "The in-memory storage operation failed.",
+        { cause: error },
       );
     }
   }
