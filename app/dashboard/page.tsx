@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { createReadOnlyAuthClient } from "@/lib/auth/server";
 import { StatusState } from "@/components/ui/status-state";
@@ -34,12 +35,18 @@ export default async function DashboardPage({
           Dashboard protegido
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-600 sm:text-lg">
-          Esta área confirma que a sessão está válida. Funcionalidades de
-          produto permanecem fora desta Sprint.
+          Escolha um tipo de contrato e gere um rascunho revisável a partir dos
+          dados informados.
         </p>
       </div>
 
       <div className="space-y-4">
+        <Link
+          className="inline-flex rounded-lg bg-slate-950 px-4 py-2.5 font-medium text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+          href="/dashboard/contracts/new"
+        >
+          Criar contrato
+        </Link>
         <StatusState
           description="A sessão atual foi validada com sucesso."
           title="Sessão autenticada"
