@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { ContractForm } from "@/components/docai/contracts/contract-form";
+import { ContractDetailsForm } from "@/components/docai/contracts/contract-details-form";
 import type { ContractType } from "@/lib/docai/domain/contract-models";
 
 const contractTypeLabels: Record<ContractType, string> = {
@@ -44,9 +44,7 @@ export default async function ContractFormPage({
         </p>
       </div>
 
-      <form className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <ContractForm type={type} />
-      </form>
+      <ContractDetailsForm type={type} />
     </section>
   );
 }
