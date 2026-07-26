@@ -95,38 +95,34 @@ Principais resultados presentes:
 
 # Sprint Atual
 
-Não existe Sprint de implementação em execução neste momento.
+A Sprint 07 está tecnicamente concluída e aguardando aprovação. Ela é a Sprint final do Starter Kit e definiu contratos opcionais, neutros e desativados por padrão para capacidades externas, sem integrações concretas.
 
-A Sprint 04 está encerrada, documentada e presente em `origin/main`. O roadmap passa a conter uma proposta de sequência para as Sprints 05, 06 e 07, mas nenhum arquivo individual dessas Sprints foi criado e nenhum dos três recortes está autorizado para implementação.
-
-A atividade atual limita-se ao planejamento em `ROADMAP.md` e à atualização deste registro de estado. A próxima Sprint somente poderá ser iniciada depois da aprovação deste planejamento, da criação de `SPRINT_05.md` em tarefa própria e da autorização explícita de seu conteúdo.
-
-# Planejamento Proposto até a Versão 1.0
+# Sequência até a Versão 1.0
 
 ## Sprint 05 — Persistência reutilizável
 
 **Fase predominante:** Fase 3 — Serviços reutilizáveis.
 
-Propõe consolidar uma interface genérica de armazenamento e testes de contrato a partir dos padrões reais de `TemplateService` e `DocumentService`. Repositórios deverão permanecer substituíveis e independentes de banco específico. Supabase poderá receber um adaptador futuro, mas não fará parte do contrato interno nem da Sprint 05 proposta.
+Implementada e encerrada. Consolidou repositórios genéricos, implementação em memória e testes de contrato sem banco específico.
 
 ## Sprint 06 — Interface reutilizável
 
 **Fase predominante:** Fase 4 — Interface reutilizável.
 
-Propõe criar um layout base autenticado, navegação limitada a destinos reais, componentes essenciais extraídos de repetição comprovada e estados de loading, vazio, erro e sucesso. A entrega deverá preservar os fluxos existentes, permanecer neutra e possuir evidências de responsividade e acessibilidade.
+Implementada e encerrada. Criou layout autenticado, navegação e estados visuais neutros, responsivos e acessíveis.
 
 ## Sprint 07 — Integrações opcionais e fechamento da versão 1.0
 
 **Fase predominante:** Fase 5 — Integrações opcionais.
 
-Propõe contratos independentes de fornecedor para IA, pagamentos, PDF, e-mail e armazenamento externo, todos desativados por padrão e sem adaptadores concretos. Também concentra documentação de clonagem, validação integral, critérios de estabilidade e preparação documental da versão 1.0.
+Implementada tecnicamente nesta entrega. Criou contratos independentes de fornecedor, adaptadores nulos, estado desativado, testes sem rede, documentação de clonagem e critérios de estabilidade. Nenhum provedor real foi integrado.
 
 ## Ordem e dependências
 
 1. A Sprint 05 depende do encerramento das Sprints 03 e 04 e utiliza seus contratos como evidência para uma abstração limitada.
 2. A Sprint 06 depende da Sprint 05 encerrada e utiliza a autenticação da Sprint 02 como contexto real da interface.
 3. A Sprint 07 depende das Sprints 05 e 06 encerradas e valida o conjunto acumulado das Sprints 01 a 07.
-4. Cada Sprint exige documento próprio, revisão, aprovação, implementação, validação e encerramento antes da seguinte.
+4. Cada Sprint exigiu documento próprio, revisão, aprovação, implementação e validação. O encerramento formal da Sprint 07 e a declaração da versão 1.0 ainda dependem de aprovação.
 
 Esse planejamento define direção e sequência, mas não define arquivos autorizados, não aprova dependências ou configurações e não substitui `SPRINT_05.md`, `SPRINT_06.md` ou `SPRINT_07.md`.
 
@@ -186,6 +182,8 @@ Os serviços de templates e documentos definem contratos, coordenação e valida
 - TypeScript disponível para verificação sem emissão.
 - Build oficial disponível pelo script `npm run build`.
 - Não existe script oficial de lint no `package.json`.
+- Contratos opcionais de IA, pagamentos, PDF, e-mail e armazenamento externo estão disponíveis em `lib/integrations/` somente como portas neutras e adaptadores desativados.
+- As capacidades opcionais não realizam rede, não inicializam SDKs e não exigem configuração para build ou execução básica.
 
 # Decisões Arquiteturais
 
@@ -200,6 +198,8 @@ Os serviços de templates e documentos definem contratos, coordenação e valida
 - O campo `content` é parametrizável e opaco nos dois serviços.
 - Os serviços permanecem independentes; não existe classe base, repositório genérico, barrel compartilhado ou abstração comum de CRUD.
 - Armazenamentos em memória existem somente nos arquivos de teste e não são adaptadores de produção.
+- Capacidades externas são representadas por contratos separados, inativos por padrão e recebidos por injeção explícita.
+- Storage externo de objetos/arquivos permanece separado do repositório genérico de entidades.
 - Regras específicas de produto devem permanecer fora da fundação compartilhada.
 - Novas dependências, configurações, integrações e mudanças arquiteturais exigem necessidade atual, documentação e aprovação explícita.
 
@@ -207,25 +207,23 @@ Os serviços de templates e documentos definem contratos, coordenação e valida
 
 ## Estado do repositório
 
-- O planejamento das Sprints 05, 06 e 07 foi revisado e aprovado para versionamento em `ROADMAP.md` e `PROJECT_STATE.md`.
-- Nenhum outro arquivo integra a alteração documental aprovada.
-- O versionamento deste planejamento não autoriza criar arquivos individuais de Sprint nem iniciar implementação.
+- A Sprint 07 aguarda aprovação formal de sua conclusão técnica.
+- A declaração da versão 1.0, tag, release, deploy ou publicação ainda não foi autorizada.
 
 ## Consistência documental
 
 - `SPRINT_02.md` ainda declara o status “Planejada e aguardando aprovação”, apesar da implementação estar presente no histórico.
 - `SPRINT_03.md` ainda declara “rascunho aguardando aprovação”, apesar da implementação estar presente no histórico.
 - `SPRINT_01.md` não possui um campo explícito de status atualizado.
-- O índice de documentação do `README.md` referencia somente a Sprint 01 e não lista todos os documentos e Sprints atualmente existentes.
-- Essas divergências são registradas aqui, mas não foram corrigidas porque nenhum outro arquivo está autorizado nesta tarefa.
+- As Sprints 02 e 03 mantêm status históricos nos próprios documentos, embora suas implementações estejam presentes; essa inconsistência não altera o código entregue.
 
 ## Operação e validação
 
 - A autenticação exige configuração externa válida do Supabase para validação funcional completa.
 - Não existe script oficial de lint.
-- Os serviços de templates e documentos não possuem armazenamento concreto, integração com rotas ou consumidor de interface.
-- Os objetivos de alto nível das Sprints 05, 06 e 07 estão propostos no roadmap, mas requisitos detalhados, arquivos autorizados e decisões de implementação ainda não existem.
-- A amplitude da Sprint 07 deverá ser reavaliada ao criar seu documento próprio; se contratos independentes e fechamento não permanecerem pequenos e verificáveis, o trabalho deverá ser dividido antes da aprovação.
+- Os serviços de templates e documentos continuam sem armazenamento de produção ou consumidor de produto.
+- Os contratos opcionais não possuem adaptadores concretos e não executam efeitos externos por decisão de escopo.
+- A autenticação ainda depende de um ambiente Supabase válido para validação funcional completa.
 
 As pendências acima não autorizam correção automática, integração ou ampliação de escopo.
 
@@ -233,13 +231,10 @@ As pendências acima não autorizam correção automática, integração ou ampl
 
 Os próximos passos possíveis, sujeitos a autorização individual, são:
 
-1. decidir se os status e índices documentais desatualizados deverão ser reconciliados em uma tarefa própria;
-2. após autorização específica, criar somente `SPRINT_05.md` com escopo, entregas, exclusões, requisitos, arquivos autorizados, riscos e critérios de aceitação;
-3. revisar e aprovar a Sprint 05 antes de qualquer implementação;
-4. implementar, validar, relatar e encerrar a Sprint 05 antes de detalhar ou iniciar a Sprint 06;
-5. repetir o mesmo fluxo de documentação e aprovação para a Sprint 06;
-6. revisar a amplitude, documentar e aprovar a Sprint 07 somente depois do encerramento da Sprint 06;
-7. executar a validação final e solicitar aprovação separada para declarar e publicar a versão 1.0.
+1. revisar e aprovar formalmente a conclusão técnica da Sprint 07;
+2. verificar os critérios de estabilidade da versão 1.0 em ambiente limpo;
+3. solicitar, em tarefa separada, qualquer reconciliação documental restante;
+4. decidir separadamente sobre tag, release, deploy ou publicação.
 
 Esta sequência é um registro de dependências de processo, não uma autorização para executar qualquer etapa posterior.
 
@@ -247,8 +242,7 @@ Esta sequência é um registro de dependências de processo, não uma autorizaç
 
 Permanecem fora do estado implementado e não estão autorizados por este documento:
 
-- criação de `SPRINT_05.md`, `SPRINT_06.md` ou `SPRINT_07.md` nesta tarefa;
-- implementação de qualquer item proposto para as Sprints 05, 06 ou 07;
+- integração real com qualquer fornecedor de IA, pagamentos, PDF, e-mail ou armazenamento;
 - regras, dados, fluxos ou identidade visual de produto específico;
 - inteligência artificial, agentes, prompts, embeddings ou geração de conteúdo;
 - criação, leitura, processamento, conversão ou exportação de PDF;
@@ -266,9 +260,8 @@ Permanecem fora do estado implementado e não estão autorizados por este docume
 - instalação, remoção ou atualização de dependências;
 - alteração de scripts, manifestos, arquivos de lock, configurações ou variáveis de ambiente;
 - refatorações, abstrações compartilhadas ou preparação para Sprints futuras;
-- alteração de qualquer arquivo além de `ROADMAP.md` e `PROJECT_STATE.md` nesta tarefa;
-- commit, push, Pull Request, publicação ou operação remota.
+- commit, push, Pull Request, publicação ou operação remota posteriores.
 
 # Condição Atual
 
-O projeto possui quatro Sprints encerradas, encontra-se sem Sprint de implementação ativa e possui uma sequência de alto nível aprovada para planejar as Sprints 05, 06 e 07. Nenhum arquivo individual de Sprint deverá ser criado nem implementado sem uma nova autorização explícita.
+O projeto possui as Sprints 01 a 06 encerradas e a Sprint 07 tecnicamente concluída, com contratos opcionais neutros, testes e documentação de clonagem. A árvore deve permanecer sem integrações concretas, dependências novas ou segredos. O encerramento formal da Sprint 07 e a estabilidade da versão 1.0 aguardam aprovação explícita.

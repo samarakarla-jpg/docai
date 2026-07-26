@@ -49,6 +49,39 @@ O projeto evolui por meio de Sprints pequenas, verificáveis e explicitamente ap
 - TypeScript 5
 - Tailwind CSS 4
 
+## Capacidades opcionais
+
+O Starter Kit possui contratos neutros e adaptadores desativados por padrão para IA, pagamentos, PDF, e-mail e armazenamento externo de objetos ou arquivos. Eles não incluem SDKs, chamadas externas, credenciais ou integrações reais. A aplicação básica compila e executa sem qualquer configuração opcional.
+
+Cada capacidade deve ser fornecida por injeção explícita quando um produto derivado realmente precisar dela. Os contratos não dependem de Gemini, OpenAI, Stripe, Supabase, Resend ou de qualquer outro fornecedor. O armazenamento externo de objetos é uma fronteira diferente do repositório de entidades da camada de persistência.
+
+## Clonagem e execução
+
+Para iniciar uma cópia local com as versões registradas:
+
+```bash
+git clone <endereco-do-repositorio>
+cd saas-starter-kit
+npm ci
+npm run build
+```
+
+A execução de desenvolvimento utiliza `npm run dev`. As variáveis de ambiente do Supabase Auth estão listadas em `.env.example`; sem valores válidos, a interface pública e a compilação continuam disponíveis, mas a validação funcional da autenticação depende de um ambiente autorizado.
+
+As capacidades opcionais permanecem desligadas quando não são configuradas. Não inclua segredos no repositório. Para substituí-las, implemente somente o contrato correspondente em um produto derivado, injete o adaptador explicitamente e valide sua configuração no ambiente de servidor. Para removê-las, retire o adaptador e suas variáveis opcionais sem alterar os contratos neutros.
+
+## Validação
+
+Os comandos mínimos são:
+
+```bash
+node --test lib/integrations/contracts.test.ts lib/integrations/optional-capability.test.ts
+./node_modules/.bin/tsc --noEmit
+npm run build
+```
+
+O projeto não possui script oficial de lint. As Sprints concluídas e seus limites estão registradas nos documentos `SPRINT_01.md` a `SPRINT_07.md`.
+
 ## Estrutura do Projeto
 
 ### `app/`
@@ -133,6 +166,12 @@ A documentação existente está organizada da seguinte forma:
 - [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md) — descreve como o trabalho é planejado, aprovado e executado.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — orienta a colaboração e a contribuição com o projeto.
 - [CHANGELOG.md](CHANGELOG.md) — mantém o histórico relevante de alterações.
+- [SPRINT_02.md](SPRINT_02.md) — registra autenticação e proteção de rotas.
+- [SPRINT_03.md](SPRINT_03.md) — registra o serviço reutilizável de templates.
+- [SPRINT_04.md](SPRINT_04.md) — registra o serviço reutilizável de documentos.
+- [SPRINT_05.md](SPRINT_05.md) — registra a camada de persistência substituível.
+- [SPRINT_06.md](SPRINT_06.md) — registra a camada visual reutilizável.
+- [SPRINT_07.md](SPRINT_07.md) — registra contratos opcionais e fechamento da versão 1.0.
 
 Os documentos mais específicos devem detalhar os anteriores sem contradizê-los. Em caso de conflito, o documento de nível superior determina os limites.
 
