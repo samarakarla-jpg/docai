@@ -6,7 +6,7 @@
 
 **Fase do Roadmap:** Aplicação e preparação do fluxo de geração
 
-**Status:** `em revisão`
+**Status:** `encerrada`
 
 Esta Sprint complementa a Sprint 02 do DocAI. Ela cria somente uma fronteira de entrada agnóstica de framework para transformar dados recebidos em comando de aplicação e chamar o `ContractCreationService` existente.
 
@@ -162,7 +162,7 @@ Na entrega, cada critério deverá ser marcado como **atendido**, **não atendid
 - Os testes unitários passam, juntamente com typecheck, build e `git diff --check`.
 - Nenhum arquivo proibido, dependência, configuração ou integração externa foi alterado.
 - O diff e os critérios de aceitação foram revisados individualmente.
-- A Sprint é apresentada como tecnicamente concluída e aguarda aprovação explícita antes de encerramento ou publicação.
+- A Sprint está encerrada após implementação, validação e aprovação documental.
 
 # Commit Esperado
 
@@ -174,3 +174,14 @@ Na entrega, cada critério deverá ser marcado como **atendido**, **não atendid
 - `lib/docai/application/request-contract-creation.test.ts`
 
 O commit deve conter somente os dois arquivos autorizados. A definição da mensagem não autoriza commit, push ou publicação.
+
+# Encerramento e validação
+
+A implementação foi concluída nos commits `a9d36f153b3f1b091a8f662479de4874142b7197` e `c27ebe60a934c868bb245b239c9bf887c5882eb6`. O segundo completou a cobertura do CA-09 sem alterar o código de produção.
+
+- Arquivos: `lib/docai/application/request-contract-creation.ts` e `lib/docai/application/request-contract-creation.test.ts`.
+- Testes completos: 63 aprovados, sem falhas.
+- Typecheck, build e `git diff --check`: aprovados.
+- Critérios CA-01 a CA-10: atendidos.
+
+A Sprint 03 está encerrada.

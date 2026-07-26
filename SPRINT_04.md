@@ -6,7 +6,7 @@
 
 **Fase do Roadmap:** Domínio e persistência de rascunhos
 
-**Status:** `em revisão`
+**Status:** `encerrada`
 
 Esta Sprint substitui a documentação genérica anterior e descreve uma entrega exclusiva do DocAI. Ela utiliza `ContractService`, `DocumentService` e os contratos de armazenamento já existentes, sem criar integração concreta com banco de dados ou alterar a fundação do Starter Kit.
 
@@ -157,7 +157,7 @@ git diff --check
 - Testes, typecheck, build e `git diff --check` passam.
 - Nenhuma integração, UI, autenticação, persistência concreta ou documentação foi alterada.
 - O diff final contém somente os arquivos autorizados.
-- A Sprint fica tecnicamente concluída e aguardando aprovação explícita.
+- A Sprint está encerrada após implementação, validação e aprovação documental.
 
 # Commit Esperado
 
@@ -169,3 +169,14 @@ git diff --check
 - `lib/docai/application/manage-contract-drafts.test.ts`
 
 O commit futuro deverá conter somente esses dois arquivos; esta documentação não autoriza commit, push ou publicação.
+
+# Encerramento e validação
+
+A implementação foi concluída no commit `b6d96024193cb722c080455ff44da8b8c27c42b0`.
+
+- Arquivos: `lib/docai/application/manage-contract-drafts.ts` e `lib/docai/application/manage-contract-drafts.test.ts`.
+- Testes completos: 63 aprovados, sem falhas.
+- Typecheck, build e `git diff --check`: aprovados.
+- Critérios CA-01 a CA-10: atendidos.
+
+A Sprint 04 está encerrada.

@@ -4,7 +4,7 @@
 
 **Fase do Roadmap:** `Fase 3 — Serviços reutilizáveis`
 
-**Status:** `em revisão`
+**Status:** `encerrada`
 
 Esta Sprint define a camada genérica de persistência do SaaS Starter Kit utilizada pelo DocAI. Ela deve consolidar somente o padrão comprovado pelos serviços de templates e documentos, sem criar banco, adaptador de fornecedor ou regra de produto.
 
@@ -220,7 +220,7 @@ Cada critério deverá receber estado **atendido**, **não atendido**, **pendent
 - Somente os seis arquivos autorizados foram afetados.
 - Nenhuma dependência, configuração, integração ou funcionalidade fora do escopo foi introduzida.
 - Todos os critérios de aceitação têm evidência.
-- A Sprint é apresentada como tecnicamente concluída e aguardando aprovação explícita.
+- A Sprint está encerrada após implementação, validação e aprovação documental.
 
 # Commit Esperado
 
@@ -242,4 +242,17 @@ A definição da mensagem não autoriza commit, push, publicação ou alteraçã
 - `InMemoryRepository` é apropriado somente para testes e desenvolvimento local; reinício do processo perde os dados.
 - Um futuro adaptador Supabase deverá implementar o contrato interno sem expor tipos de fornecedor às camadas superiores.
 - O repositório não resolve autorização, multi-tenancy, paginação, transações ou durabilidade.
-- A Sprint não altera a documentação de estado do projeto; essa atualização exige autorização própria.
+- O estado atual do projeto é registrado em `PROJECT_STATE.md` conforme autorização posterior.
+
+# Encerramento e validação
+
+A implementação foi concluída nos commits `bc7ca07d2ca2d8622380dc1d8a8177b1eb5802e1` e `f3a5e38b3c5219bf747900d51916a17cb377d982`.
+
+- Interface genérica, repositório em memória e suíte de contrato estão disponíveis.
+- `TemplateService` e `DocumentService` permanecem compatíveis.
+- Testes completos: 63 aprovados, sem falhas.
+- Typecheck, build e `git diff --check`: aprovados.
+- Critérios CA-01 a CA-14: atendidos.
+- Nenhum adaptador Supabase ou persistência externa foi implementado.
+
+A Sprint 05 está encerrada.

@@ -3,7 +3,7 @@
 **Produto:** DocAI
 **Base:** SaaS Starter Kit v1.0.0
 **Referência da base:** tag `v1.0.0`, commit `cf3cb6dce444b9770d9627c208ee946fea825f58`
-**Estado:** preparação documental; nenhuma funcionalidade específica do DocAI implementada
+**Estado:** Sprints 01 a 05 implementadas e encerradas; Sprints 06 e 07 ainda não encerradas no contexto DocAI
 
 ## Release da fundação
 
@@ -11,7 +11,7 @@ O SaaS Starter Kit está oficialmente concluído na versão `v1.0.0`. A fundaç�
 
 ## Visão geral
 
-O DocAI é o produto planejado para gerar rascunhos de contratos com IA. Este repositório foi clonado a partir do Starter Kit v1.0.0 e ainda contém apenas a fundação reutilizável. A documentação específica criada nesta tarefa registra decisões de produto, sequência proposta e estado real, sem iniciar implementação.
+O DocAI é o produto planejado para gerar rascunhos de contratos com IA. Este repositório foi clonado a partir do Starter Kit v1.0.0 e contém a fundação reutilizável e as camadas específicas das Sprints 01 a 05. As integrações reais e a interface específica do produto permanecem fora do estado implementado.
 
 ## O que a base oferece
 
@@ -43,21 +43,42 @@ Essas capacidades são fundação. Nenhuma delas, isoladamente, implementa o pro
 
 Concluído antes da criação do produto. A base foi validada e versionada com a tag `v1.0.0`.
 
-### Sprint D01 — Especificação e decisões pendentes
+### Sprint 01 — Domínio e serviços
 
-Em planejamento. Este documento e `PRODUCT_SPEC.md` registram o primeiro recorte documental. Ainda faltam jurisdição inicial, campos completos, política de privacidade e critérios comerciais.
+Encerrada. Os quatro modelos de contrato, `TemplateService`, `ContractService` e `AIService` estão implementados sem integração real com provedores.
 
-### Sprint D02 em diante
+### Sprint 02 — Criação de contratos
 
-Não iniciadas. O roadmap contém apenas planejamento; nenhuma implementação de autenticação específica, domínio, geração, persistência DocAI, Gemini, Stripe ou Vercel foi feita neste produto.
+Encerrada. O `ContractCreationService` coordena validação, template, geração por interface e criação de rascunho.
+
+### Sprint 03 — Camada de entrada
+
+Encerrada. `RequestContractCreation` valida entradas, transforma comandos e retorna resultados estruturados.
+
+### Sprint 04 — Gerenciamento de rascunhos
+
+Encerrada. `ManageContractDrafts` implementa leitura, listagem, atualização e exclusão por `ContractService`.
+
+### Sprint 05 — Persistência reutilizável
+
+Encerrada. O repositório genérico e a implementação em memória estão disponíveis, sem adaptador Supabase real.
+
+### Sprint 06 — Camada visual específica
+
+Documentada, mas não encerrada como Sprint específica do DocAI. A interface neutra existente pertence à fundação do Starter Kit.
+
+### Sprint 07 — Capacidades opcionais
+
+Documentada, mas não encerrada como Sprint específica do DocAI. Os contratos opcionais existentes permanecem genéricos e desativados por padrão.
 
 ## Funcionalidades específicas implementadas
 
-Nenhuma.
-
 Em particular, ainda não existem:
 
-- modelos de contrato específicos do DocAI no código;
+- modelos de contrato específicos do DocAI;
+- serviços de templates, rascunhos e geração desacoplada;
+- fluxos de criação, entrada e gerenciamento de rascunhos;
+- persistência genérica em memória para testes e desenvolvimento;
 - formulários de contratos;
 - serviço de geração de contratos;
 - prompts ou chamadas ao Gemini;
@@ -68,11 +89,14 @@ Em particular, ainda não existem:
 
 ## Arquivos alterados nesta etapa
 
-- `PRODUCT_SPEC.md` — especificação do produto DocAI.
-- `ROADMAP.md` — sequência técnica proposta para o produto.
-- `PROJECT_STATE.md` — estado atual e decisões registradas.
+- `lib/docai/domain/` — modelos dos quatro contratos.
+- `lib/docai/services/` — serviços específicos de templates, rascunhos e IA.
+- `lib/docai/application/` — casos de uso de criação, entrada e gerenciamento.
+- `lib/persistence/` — contratos e implementação em memória reutilizável.
+- `SPRINT_03.md`, `SPRINT_04.md`, `SPRINT_05.md` — registros de encerramento.
+- `PROJECT_STATE.md` — estado atual do produto.
 
-Nenhum arquivo de implementação, dependência, configuração ou ambiente foi alterado.
+Nenhuma dependência, configuração, integração real ou arquivo do Starter Kit congelado foi alterado.
 
 ## Pendências
 
@@ -83,16 +107,16 @@ Nenhum arquivo de implementação, dependência, configuração ou ambiente foi 
 - Definir planos, preços, limites e política de cobrança do Stripe.
 - Definir estratégia de persistência Supabase e autorização por usuário.
 - Definir ambientes e configuração de execução na Vercel.
-- Criar Sprints específicas com arquivos autorizados e critérios de aceite.
-- Obter aprovação antes de qualquer implementação.
+- Criar a interface específica do DocAI em Sprint própria.
+- Aprovar e implementar integrações reais somente em Sprints próprias.
 
 ## Próximos passos aprováveis
 
-1. Revisar e aprovar `PRODUCT_SPEC.md`, `ROADMAP.md` e `PROJECT_STATE.md`.
-2. Criar a Sprint D01 com decisões de domínio, privacidade e limites.
-3. Aprovar a Sprint D01 antes de criar qualquer código do DocAI.
+1. Definir jurisdição, aviso jurídico e campos finais dos quatro contratos.
+2. Criar e aprovar a Sprint da interface específica do DocAI.
+3. Definir privacidade, retenção, limites e custos antes de qualquer integração real.
 4. Implementar, validar e encerrar cada Sprint antes de iniciar a seguinte.
-5. Avaliar integrações reais somente quando seus contratos, riscos e configurações estiverem aprovados.
+5. Avaliar Supabase, Gemini, Stripe e Vercel somente em Sprints próprias aprovadas.
 
 ## Riscos atuais
 
@@ -101,17 +125,16 @@ Nenhum arquivo de implementação, dependência, configuração ou ambiente foi 
 - Custos e limites imprevisíveis do Gemini.
 - Acoplamento de regras do DocAI a Supabase, Gemini, Stripe ou Vercel.
 - Cobrança incoerente com o uso ou falhas de webhook.
-- Interpretar a fundação do Starter Kit como produto já implementado.
+- Interpretar as camadas implementadas como integração real com Gemini, Supabase ou Stripe.
 
 Nenhum risco autoriza implementação preventiva. Cada risco deverá possuir mitigação e critério na Sprint correspondente.
 
 ## Fora do escopo atual
 
-- Qualquer código ou funcionalidade específica do DocAI.
-- Instalação de dependências, configuração de fornecedores ou alteração de ambiente.
 - Integrações reais com Supabase, Gemini, Stripe ou Vercel.
+- Instalação de dependências, configuração de fornecedores ou alteração de ambiente.
 - Commit, push, deploy, cobrança ou publicação.
 
 ## Condição de encerramento desta etapa
 
-Esta etapa documental está concluída quando os três arquivos forem revisados pelo responsável. O próximo estado correto é aguardar aprovação; silêncio não constitui autorização para iniciar a Sprint D01 ou qualquer implementação.
+As Sprints 01 a 05 estão tecnicamente implementadas e encerradas. O próximo trabalho deve ser iniciado somente após uma Sprint específica aprovada para a interface do DocAI ou para uma integração externa.
