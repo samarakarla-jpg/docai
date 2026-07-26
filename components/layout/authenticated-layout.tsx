@@ -7,10 +7,14 @@ import { Sidebar } from "@/components/layout/sidebar";
 
 type AuthenticatedLayoutProps = Readonly<{
   children: React.ReactNode;
+  userEmail: string;
+  userName: string;
 }>;
 
 export function AuthenticatedLayout({
   children,
+  userEmail,
+  userName,
 }: AuthenticatedLayoutProps) {
   const [isNavigationOpen, setIsNavigationOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -55,6 +59,8 @@ export function AuthenticatedLayout({
         isNavigationOpen={isNavigationOpen}
         menuButtonRef={menuButtonRef}
         onMenuToggle={() => setIsNavigationOpen((isOpen) => !isOpen)}
+        userEmail={userEmail}
+        userName={userName}
       />
 
       <div className="flex min-h-[calc(100vh-4.5rem)]">

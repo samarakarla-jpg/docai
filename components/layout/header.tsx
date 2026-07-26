@@ -2,18 +2,20 @@
 
 import type { RefObject } from "react";
 
-import { signOut } from "@/app/actions/auth";
-
 type HeaderProps = Readonly<{
   isNavigationOpen: boolean;
   menuButtonRef: RefObject<HTMLButtonElement | null>;
   onMenuToggle: () => void;
+  userEmail: string;
+  userName: string;
 }>;
 
 export function Header({
   isNavigationOpen,
   menuButtonRef,
   onMenuToggle,
+  userEmail,
+  userName,
 }: HeaderProps) {
   return (
     <header className="border-b border-slate-200 bg-white">
@@ -37,7 +39,7 @@ export function Header({
 
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-slate-950">
-              SaaS Starter Kit
+              Dashboard
             </p>
             <p className="truncate text-xs text-slate-500">
               Área autenticada
@@ -45,14 +47,12 @@ export function Header({
           </div>
         </div>
 
-        <form action={signOut}>
-          <button
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
-            type="submit"
-          >
-            Sair
-          </button>
-        </form>
+        <div className="min-w-0 text-right">
+          <p className="truncate text-sm font-semibold text-slate-950">
+            {userName}
+          </p>
+          <p className="truncate text-xs text-slate-500">{userEmail}</p>
+        </div>
       </div>
     </header>
   );

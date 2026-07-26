@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { RefObject } from "react";
 
+import { signOut } from "@/app/actions/auth";
+
 type SidebarProps = Readonly<{
   closeButtonRef: RefObject<HTMLButtonElement | null>;
   isOpen: boolean;
@@ -26,7 +28,7 @@ export function Sidebar({
 
   return (
     <div
-      className={isOpen ? "block lg:block" : "hidden lg:block"}
+      className={`lg:block lg:h-[calc(100dvh-4.5rem)] lg:shrink-0 ${isOpen ? "block" : "hidden"}`}
       id="authenticated-navigation"
     >
       <button
@@ -37,7 +39,7 @@ export function Sidebar({
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-30 flex w-72 flex-col border-r border-slate-200 bg-white pt-[4.5rem] transition-transform lg:static lg:z-auto lg:min-h-[calc(100vh-4.5rem)] lg:w-64 lg:translate-x-0 lg:pt-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed inset-y-0 left-0 z-30 flex h-dvh w-72 flex-col overflow-hidden border-r border-slate-200 bg-white pt-[4.5rem] transition-transform lg:static lg:z-auto lg:h-full lg:w-64 lg:translate-x-0 lg:pt-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 lg:hidden">
           <p className="text-sm font-semibold text-slate-950">Navegação</p>
@@ -56,7 +58,7 @@ export function Sidebar({
 
         <nav
           aria-label="Navegação principal"
-          className="flex-1 px-3 py-5"
+          className="min-h-0 flex-1 overflow-y-auto px-3 py-5"
         >
           <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
             Área principal
@@ -85,9 +87,16 @@ export function Sidebar({
           </ul>
         </nav>
 
-        <p className="border-t border-slate-200 px-6 py-4 text-xs leading-5 text-slate-500">
-          Estrutura neutra para aplicações SaaS.
-        </p>
+        <div className="relative z-10 mt-auto shrink-0 border-t border-slate-200 bg-white p-3">
+          <form action={signOut}>
+            <button
+              className="w-full rounded-lg bg-slate-950 px-3 py-2.5 text-left text-sm font-medium text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+              type="submit"
+            >
+              Sair
+            </button>
+          </form>
+        </div>
       </aside>
     </div>
   );
