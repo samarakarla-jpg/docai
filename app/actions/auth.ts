@@ -10,6 +10,8 @@ export async function signUp(
   _previousState: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
+  console.log("[signUp] Server action started");
+
   const validation = validateCredentials(formData);
 
   if (!validation.valid) {
@@ -23,10 +25,27 @@ export async function signUp(
   let hasSession = false;
 
   try {
+    console.log("[signUp] Creating Supabase auth client");
     const supabase = await createWritableAuthClient();
-    const { data, error } = await supabase.auth.signUp(validation.data);
+    console.log("[signUp] Before supabase.auth.signUp()");
+    const signUpResult = await supabase.auth.signUp(validation.data);
+    console.log("[signUp] After supabase.auth.signUp()", {
+      hasError: Boolean(signUpResult.error),
+      hasSession: Boolean(signUpResult.data.session),
+      hasUser: Boolean(signUpResult.data.user),
+    });
+
+    const { data, error } = signUpResult;
 
     if (error) {
+      console.log("[signUp] Complete Supabase error object", error);
+      console.error("Supabase sign-up error", {
+        status: error.status,
+        code: error.code,
+        message: error.message,
+        error,
+      });
+
       return {
         message:
           "Não foi possível criar a conta. Verifique os dados ou utilize outro e-mail.",
@@ -35,7 +54,20 @@ export async function signUp(
     }
 
     hasSession = Boolean(data.session);
-  } catch {
+  } catch (error) {
+    console.error("Unexpected Supabase sign-up error", {
+      status:
+        error && typeof error === "object" && "status" in error
+          ? error.status
+          : undefined,
+      code:
+        error && typeof error === "object" && "code" in error
+          ? error.code
+          : undefined,
+      message: error instanceof Error ? error.message : String(error),
+      error,
+    });
+
     return {
       message:
         "O serviço de autenticação está indisponível. Tente novamente mais tarde.",

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import { signIn } from "@/app/actions/auth";
 import type { AuthActionState } from "@/lib/auth/types";
@@ -12,6 +12,7 @@ const INITIAL_STATE: AuthActionState = {
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState(signIn, INITIAL_STATE);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const messageId = "login-message";
 
   return (
@@ -71,22 +72,34 @@ export default function LoginPage() {
             >
               Senha
             </label>
-            <input
-              aria-describedby={
-                state.fieldErrors?.password
-                  ? "login-password-error"
-                  : undefined
-              }
-              aria-invalid={Boolean(state.fieldErrors?.password)}
-              autoComplete="current-password"
-              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none transition focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
-              id="password"
-              maxLength={128}
-              minLength={8}
-              name="password"
-              required
-              type="password"
-            />
+            <div className="relative mt-2">
+              <input
+                aria-describedby={
+                  state.fieldErrors?.password
+                    ? "login-password-error"
+                    : undefined
+                }
+                aria-invalid={Boolean(state.fieldErrors?.password)}
+                autoComplete="current-password"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 pr-24 text-slate-950 outline-none transition focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
+                id="password"
+                maxLength={128}
+                minLength={8}
+                name="password"
+                required
+                type={isPasswordVisible ? "text" : "password"}
+              />
+              <button
+                aria-label={
+                  isPasswordVisible ? "Ocultar senha" : "Mostrar senha"
+                }
+                className="absolute inset-y-0 right-3 text-sm font-medium text-slate-700 underline-offset-4 hover:underline focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+                onClick={() => setIsPasswordVisible((visible) => !visible)}
+                type="button"
+              >
+                {isPasswordVisible ? "Ocultar" : "Mostrar"}
+              </button>
+            </div>
             {state.fieldErrors?.password ? (
               <p
                 className="mt-2 text-sm text-red-700"
