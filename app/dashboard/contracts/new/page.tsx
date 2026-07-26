@@ -1,5 +1,5 @@
-import { ContractFlow } from "@/components/docai/contracts/contract-flow";
+import { ContractTypeSelection } from "@/components/docai/contracts/contract-type-selection";
 
 export default function NewContractPage() {
-  return <ContractFlow />;
+  return <ContractTypeSelection />;
 }
