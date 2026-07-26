@@ -3,7 +3,7 @@
 **Produto:** DocAI
 **Sprint:** `02 — Fluxo de criação de contratos`
 **Fase:** Aplicação e orquestração do domínio
-**Status:** `aprovada para implementação`
+**Status:** `encerrada`
 
 Esta Sprint é específica do DocAI e não altera a Sprint 02 do repositório original do SaaS Starter Kit.
 
@@ -20,6 +20,17 @@ Implementar a camada de aplicação que orquestra a criação de contratos do Do
 - Sequência `validação → template → geração → criação`.
 - Erros previsíveis de entrada, template, geração e criação.
 - Testes unitários do fluxo, ordem das chamadas e falhas relevantes.
+
+# Implementação realizada
+
+A Sprint foi implementada no commit `250c8dd01d629d3e534638c2a715f771ab88eac5`, com a criação do serviço de aplicação e de sua suíte de testes. O fluxo valida a entrada antes de consultar dependências, verifica a compatibilidade do template, chama o `AIService` injetado e cria o rascunho pelo `ContractService`. O resultado da geração é retornado separadamente do rascunho estruturado, preservando os contratos da Sprint 01.
+
+## Arquivos implementados
+
+- `lib/docai/application/contract-creation-service.ts`
+- `lib/docai/application/contract-creation-service.test.ts`
+
+Somente esses dois arquivos foram alterados no commit de implementação.
 
 # Fora do Escopo
 
@@ -65,15 +76,15 @@ Se qualquer outro arquivo for necessário, a implementação deverá parar para 
 
 # Critérios de Aceitação
 
-- **CA-01 — Criação válida:** consulta template, solicita geração e cria o rascunho.
-- **CA-02 — Validação:** entrada inválida não chama serviço dependente.
-- **CA-03 — Template:** template ausente ou incompatível impede geração e retorna erro previsível.
-- **CA-04 — IA por interface:** somente o `AIService` injetado é usado, sem provedor ou rede.
-- **CA-05 — Falha de geração:** falha de IA não cria rascunho parcial.
-- **CA-06 — Falha de criação:** falha do `ContractService` é retornada sem ocultação.
-- **CA-07 — Ordem e injeção:** testes comprovam a ordem e a substituição das dependências.
-- **CA-08 — Isolamento:** não há UI, autenticação, persistência nova, dependências ou configurações alteradas.
-- **CA-09 — Regressão:** os serviços de domínio existentes permanecem compatíveis.
+- **CA-01 — Criação válida:** atendido — criação validada para os quatro tipos de contrato.
+- **CA-02 — Validação:** atendido — entradas inválidas são rejeitadas antes das dependências.
+- **CA-03 — Template:** atendido — template ausente ou incompatível impede as etapas seguintes com erro estável.
+- **CA-04 — IA por interface:** atendido — somente `AIService` injetado é utilizado, sem provedor ou rede.
+- **CA-05 — Falha de geração:** atendido — falha de IA não chama `ContractService`.
+- **CA-06 — Falha de criação:** atendido — falha de criação é convertida em erro previsível.
+- **CA-07 — Ordem e injeção:** atendido — testes comprovam ordem e dublês substituíveis.
+- **CA-08 — Isolamento:** atendido — nenhuma UI, autenticação, persistência nova, dependência ou configuração foi adicionada.
+- **CA-09 — Regressão:** atendido — serviços de domínio e testes existentes permanecem compatíveis.
 
 # Testes esperados
 
@@ -135,3 +146,18 @@ Nenhuma. A Sprint não autoriza instalação ou atualização de pacotes.
 - `lib/docai/application/contract-creation-service.test.ts`
 
 O commit deverá conter somente os dois arquivos autorizados e não deverá ser enviado ao remoto sem autorização específica.
+
+# Validação realizada
+
+- **Testes:** `find lib -name '*.test.ts' -print0 | xargs -0 node --test` — 55 testes aprovados.
+- **Typecheck:** `./node_modules/.bin/tsc --noEmit --incremental false` — aprovado.
+- **Build:** `npm run build` — aprovado.
+- **Diff:** `git diff --check` — aprovado.
+- **Lint:** não há script de lint configurado; nenhuma ferramenta foi instalada.
+
+# Observações relevantes
+
+- Não houve integração real com Gemini, OpenAI, Supabase, Stripe ou qualquer serviço externo.
+- Não foram implementadas páginas, componentes React, autenticação, chamadas HTTP ou persistência nova.
+- O rascunho mantém o conteúdo estruturado do domínio; a saída livre da IA é retornada no resultado da aplicação e não altera o contrato de `ContractDraft`.
+- A implementação permanece um commit à frente de `origin/main` até que este registro documental seja enviado.
