@@ -1,152 +1,148 @@
-# Especificação do Produto
+# Especificação do Produto — DocAI
 
-## 1. Objetivo do produto
+**Produto:** DocAI
+**Versão documental:** 0.1 — planejamento inicial
+**Status:** documentação criada; nenhuma funcionalidade específica implementada
 
-O SaaS Starter Kit tem como objetivo fornecer uma fundação técnica e documental simples, confiável e reutilizável para a criação de micro SaaS. Ele deve permitir que novos projetos comecem a partir de uma base consistente, sem incorporar antecipadamente funcionalidades ou decisões específicas de um produto.
+## 1. Visão do produto
 
-O Starter Kit não é um SaaS pronto. Ele é um ponto de partida controlado, destinado a evoluir por meio de sprints pequenas e explicitamente aprovadas.
+O DocAI será um SaaS para gerar contratos a partir de informações fornecidas pelo usuário, utilizando inteligência artificial como serviço desacoplado. O produto deverá reduzir o esforço de redigir documentos contratuais iniciais, mantendo revisão humana, transparência sobre o conteúdo gerado e separação entre a fundação técnica reutilizável e as regras do produto.
 
-## 2. Problema que resolve
+O DocAI será construído sobre o Starter Kit v1.0.0. A fundação fornece Next.js, autenticação, persistência substituível, interface reutilizável e contratos opcionais. Esta especificação adiciona somente as decisões próprias do produto; ela não autoriza implementação sem uma Sprint aprovada.
 
-O início de um novo micro SaaS costuma exigir a repetição de configurações básicas, decisões estruturais e definições de processo. Quando essa etapa não possui limites claros, é comum introduzir dependências, abstrações e funcionalidades antes que exista uma necessidade real.
+## 2. Problema
 
-O SaaS Starter Kit reduz esse trabalho inicial ao reunir uma base técnica mínima e uma hierarquia documental para orientar decisões. Dessa forma, novos produtos podem concentrar seus esforços no problema que pretendem resolver, mantendo simplicidade e controle de escopo desde o começo.
+Pessoas e pequenas empresas frequentemente precisam iniciar contratos comuns, mas enfrentam dificuldade para organizar informações, escolher cláusulas adequadas e produzir um primeiro rascunho consistente. O DocAI deve transformar dados estruturados e escolhas orientadas em um rascunho contratual revisável, sem prometer aconselhamento jurídico ou validade automática.
 
-## 3. Público-alvo
+## 3. Público-alvo inicial
 
-O Starter Kit é destinado a:
+- Profissionais autônomos e pequenas empresas que precisam de contratos recorrentes.
+- Pessoas que desejam iniciar um rascunho contratual com orientação estruturada.
+- Usuários com conhecimento suficiente para revisar o conteúdo antes de utilizá-lo.
 
-- Desenvolvedores independentes que criam micro SaaS.
-- Equipes pequenas que precisam iniciar produtos web com uma base consistente.
-- Responsáveis técnicos que desejam controlar escopo, dependências e complexidade.
-- Projetos que adotam desenvolvimento incremental e orientado por documentação.
+O produto não substitui advogado, consultoria jurídica ou revisão profissional. O público e os limites comerciais deverão ser refinados antes do lançamento.
 
-O público-alvo deve possuir familiaridade com desenvolvimento web e com a stack técnica adotada. O projeto não tem como objetivo substituir conhecimentos fundamentais de engenharia de software.
+## 4. Tipos de contrato da primeira versão
 
-## 4. Escopo do Starter Kit
+O DocAI terá quatro modelos de produto, todos sujeitos a revisão e aprovação nas Sprints próprias:
 
-O escopo compreende uma aplicação web inicial construída com Next.js 15, TypeScript, Tailwind CSS e App Router, acompanhada por documentação que define visão, princípios, especificação, orientação de desenvolvimento, roadmap e sprints.
+1. **Prestação de Serviços** — partes, escopo, remuneração, prazo, responsabilidades e condições de encerramento.
+2. **Compra e Venda** — partes, objeto, preço, pagamento, entrega, responsabilidades e condições de encerramento.
+3. **Aluguel** — partes, bem, prazo, valor, garantias, responsabilidades e devolução.
+4. **Empréstimo** — partes, objeto ou valor, prazo, devolução, encargos quando aplicáveis e responsabilidades.
 
-Essa base deve permanecer pequena e neutra em relação ao domínio de negócio. Qualquer capacidade adicional deve ser especificada, priorizada e aprovada em uma etapa posterior antes de ser incorporada.
+Os modelos deverão possuir campos e regras documentados por contrato. Nenhum modelo deve ser tratado como aconselhamento jurídico universal ou aplicado automaticamente a todas as jurisdições.
 
-## 5. O que faz parte do projeto
+## 5. Escopo funcional planejado
 
-Fazem parte do SaaS Starter Kit:
+### Identidade e conta
 
-- A estrutura inicial de uma aplicação Next.js 15 com App Router.
-- TypeScript como linguagem principal do projeto.
-- Tailwind CSS para a futura construção da interface.
-- Scripts essenciais fornecidos pela base do projeto para desenvolvimento e build.
-- Uma organização inicial mínima, sem camadas especulativas.
-- A hierarquia de documentação que orienta decisões e entregas.
-- Um processo incremental baseado em escopo pequeno e aprovação explícita.
-- Uma base reutilizável que possa receber requisitos específicos em sprints futuras.
+- Cadastro, login, logout e sessão utilizando o mecanismo de autenticação aprovado.
+- Associação segura dos rascunhos ao usuário autenticado.
+- Mensagens de erro que não revelem dados de outras contas.
 
-A presença desses elementos define a fundação do Starter Kit, mas não autoriza automaticamente a criação de novas funcionalidades.
+### Seleção e coleta
 
-## 6. O que não faz parte do projeto
+- Seleção de um dos quatro tipos de contrato.
+- Formulário orientado para coletar dados necessários ao tipo escolhido.
+- Validação de campos obrigatórios, formatos e limites antes da geração.
+- Preservação dos dados preenchidos quando houver erro recuperável.
 
-Não fazem parte do escopo atual:
+### Geração assistida
 
-- Autenticação, autorização ou gestão de usuários.
-- Banco de dados, persistência ou modelagem de dados.
-- Pagamentos, assinaturas, faturamento ou integração com Stripe.
-- Recursos de inteligência artificial ou integração com modelos como Gemini.
-- Criação, leitura, processamento ou exportação de PDF.
-- E-mails transacionais, notificações ou filas de processamento.
-- Painéis administrativos, analytics ou monitoramento de produto.
-- Multi-tenancy, internacionalização ou gestão de organizações.
-- Bibliotecas de componentes extensas ou design systems completos.
-- Regras, fluxos ou interfaces pertencentes a um domínio de negócio específico.
-- Infraestrutura de produção, automação de deploy ou integrações externas.
+- Envio de uma solicitação estruturada ao serviço de IA desacoplado.
+- Geração de um rascunho vinculado ao tipo de contrato selecionado.
+- Indicação de que o resultado é um rascunho gerado e exige revisão humana.
+- Tratamento previsível de indisponibilidade, limite, falha e resposta inválida.
 
-Esses itens somente poderão fazer parte de uma evolução futura se forem documentados, priorizados e aprovados. Sua menção nesta seção não constitui planejamento ou compromisso de implementação.
+### Revisão e gerenciamento
 
-## 7. Requisitos funcionais de alto nível
+- Visualização do rascunho gerado.
+- Edição manual antes de qualquer uso externo.
+- Salvamento, leitura, atualização, listagem e exclusão de rascunhos do usuário.
+- Estados de carregamento, vazio, erro e sucesso.
 
-### RF-01 — Base executável
+### Plano e pagamento
 
-O Starter Kit deve fornecer uma aplicação web inicial que possa ser executada e compilada utilizando os scripts essenciais do projeto.
+- Definição de planos e limites somente após decisão comercial aprovada.
+- Integração de cobrança por contrato de pagamentos desacoplado.
+- Nenhuma cobrança deve ser realizada antes de requisitos, preços, eventos e políticas serem aprovados em Sprint própria.
 
-### RF-02 — Estrutura de aplicação
+### Exportação e compartilhamento
 
-O Starter Kit deve oferecer um ponto inicial para páginas e layouts por meio do App Router, sem impor fluxos de produto ou regras de negócio.
+- PDF, download, envio por e-mail ou compartilhamento somente quando documentados em Sprints próprias.
+- A existência dos contratos opcionais do Starter Kit não habilita esses fluxos automaticamente.
 
-### RF-03 — Suporte à construção de interface
+## 6. Arquitetura do produto
 
-O Starter Kit deve disponibilizar TypeScript e Tailwind CSS para que interfaces futuras possam ser implementadas de forma tipada e consistente quando forem aprovadas.
+O DocAI seguirá a arquitetura do Starter Kit:
 
-### RF-04 — Extensão incremental
+- **Apresentação:** rotas App Router, formulários, navegação e estados visuais.
+- **Aplicação:** casos de uso como coletar dados, solicitar geração, revisar e gerenciar rascunhos.
+- **Domínio:** tipos de contrato, campos, validações e regras específicas do DocAI.
+- **Infraestrutura:** Supabase para identidade e persistência quando aprovado, Gemini por adaptador de IA, Stripe por adaptador de pagamentos, Vercel como ambiente de execução e publicação.
+- **Compartilhada:** contratos realmente reutilizáveis, sem incorporar regras de um fornecedor.
 
-A base deve permitir a inclusão posterior de capacidades específicas sem exigir funcionalidades preventivas ou uma arquitetura voltada a cenários hipotéticos.
+As dependências devem apontar para contratos internos. Nenhuma tela ou regra de domínio poderá depender diretamente de Gemini, Stripe ou APIs de armazenamento.
 
-### RF-05 — Orientação documental
+## 7. Integrações aprovadas como direção
 
-O projeto deve manter documentos com responsabilidades distintas, organizados em uma hierarquia que conduza da visão até o escopo autorizado de cada sprint.
+As seguintes tecnologias foram escolhidas para planejamento, mas sua implementação depende de Sprints e aprovação próprias:
 
-### RF-06 — Neutralidade de domínio
+- **Next.js:** aplicação web baseada no App Router.
+- **Supabase:** autenticação e persistência do produto, atrás de contratos internos e configuração segura.
+- **Gemini:** provedor de IA atrás do contrato de IA do Starter Kit; prompts, limites e tratamento de resposta serão específicos do DocAI e documentados antes da implementação.
+- **Stripe:** pagamentos e assinaturas atrás do contrato de pagamentos; preços, webhooks, estados e reconciliação exigem escopo próprio.
+- **Vercel:** hospedagem e execução; configurações de produção, domínios e deploy exigem autorização operacional separada.
 
-O Starter Kit não deve conter nomes, regras, dados ou comportamentos vinculados a um produto ou setor específico.
+Nenhum segredo, chave ou credencial deve entrar no repositório. A troca de qualquer fornecedor deve ser possível sem alterar o domínio do produto.
 
-## 8. Requisitos não funcionais
+## 8. Segurança, privacidade e confiabilidade
 
-### Simplicidade
+- Isolar dados por usuário autenticado e validar autorização no servidor.
+- Não enviar dados de uma conta para outra nem expor conteúdo em mensagens ou logs.
+- Tratar informações inseridas pelo usuário e respostas da IA como dados não confiáveis.
+- Minimizar os dados enviados ao provedor de IA e documentar retenção, finalidade e limitações.
+- Evitar registrar conteúdo contratual integral em logs.
+- Manter segredos exclusivamente em variáveis de ambiente do servidor.
+- Definir política de exclusão, retenção e exportação antes do lançamento.
+- Informar claramente limitações jurídicas, possibilidade de erro e necessidade de revisão.
 
-A estrutura deve conter apenas os elementos necessários para o estágio atual. Toda complexidade adicional exige uma justificativa concreta e aprovação.
+## 9. Requisitos não funcionais
 
-### Clareza
+- Interface responsiva e acessível conforme `UI_GUIDELINES.md`.
+- Contratos e serviços testáveis sem depender obrigatoriamente de fornecedores reais.
+- Falhas de IA, persistência e pagamentos traduzidas para estados seguros e recuperáveis.
+- Desempenho suficiente para formular, gerar e revisar sem bloquear operações não relacionadas.
+- Observabilidade somente quando houver necessidade e política de privacidade aprovadas.
+- Dependências e configurações adicionadas apenas com justificativa atual.
+- Documentação de configuração, operação, limites e recuperação mantida junto às entregas autorizadas.
 
-A organização, os nomes e a documentação devem permitir que uma pessoa familiarizada com a stack compreenda a base sem depender de conhecimento oculto.
+## 10. Fora do escopo inicial
 
-### Manutenibilidade
+- Aconselhamento jurídico, validação jurídica automática ou garantia de validade contratual.
+- Atendimento a todas as jurisdições, idiomas ou legislações sem análise própria.
+- Assinatura eletrônica, testemunhas, certificação ou reconhecimento de firma.
+- Marketplace de modelos, colaboração em tempo real ou gestão avançada de equipes.
+- Integrações não aprovadas com outros provedores de IA, pagamento, armazenamento ou e-mail.
+- Automação de cobrança sem plano comercial aprovado.
+- Treinamento de modelo próprio, fine-tuning, embeddings ou busca vetorial.
+- Aplicativos nativos, extensão de navegador ou API pública.
+- Analytics de produto, anúncios ou venda de dados.
 
-As mudanças devem ser pequenas, isoladas e fáceis de revisar. A fundação não deve criar obrigações desnecessárias para produtos futuros.
+## 11. Critérios de sucesso
 
-### Confiabilidade
+O DocAI poderá ser considerado pronto para uma primeira avaliação quando:
 
-A base deve permanecer executável e compilável após mudanças aprovadas. A verificação deve ser proporcional ao risco de cada alteração.
+- um usuário autenticado conseguir selecionar um tipo de contrato e preencher os dados necessários;
+- uma solicitação puder ser enviada ao adaptador de IA aprovado sem acoplamento ao domínio;
+- o resultado for apresentado como rascunho editável e revisável;
+- rascunhos forem isolados por usuário e gerenciáveis conforme as operações aprovadas;
+- falhas, limites e ausência de configuração forem compreensíveis;
+- nenhum segredo ou dado de outra conta for exposto;
+- pagamentos e demais integrações permanecerem desativados até suas Sprints;
+- documentação, testes e critérios de aceite refletirem o comportamento real.
 
-### Segurança
+## 12. Regra de autorização
 
-O Starter Kit não deve incluir segredos, credenciais ou configurações sensíveis no repositório. Recursos futuros deverão considerar segurança dentro de seus próprios requisitos e escopos.
-
-### Acessibilidade
-
-Interfaces futuras deverão considerar semântica, navegação e legibilidade desde sua especificação. Este requisito não autoriza a criação antecipada de componentes.
-
-### Dependências controladas
-
-Nenhuma biblioteca deve ser adicionada sem necessidade atual demonstrada e aprovação explícita.
-
-### Desempenho responsável
-
-Decisões futuras devem evitar custo desnecessário de carregamento e execução. Otimizações somente devem ser introduzidas a partir de requisitos ou evidências concretas.
-
-## 9. Critérios de sucesso
-
-O SaaS Starter Kit será considerado bem-sucedido quando:
-
-- Oferecer uma base mínima que possa ser executada e compilada de forma consistente.
-- Permitir iniciar diferentes micro SaaS sem carregar regras de um produto anterior.
-- Possibilitar que uma pessoa compreenda rapidamente o propósito, os limites e o processo do projeto.
-- Sustentar evolução por sprints pequenas sem exigir arquitetura especulativa.
-- Manter dependências, configurações e funcionalidades sob aprovação explícita.
-- Preservar alinhamento entre visão, princípios, especificação, planejamento e código.
-- Reduzir o trabalho inicial sem transferir complexidade desnecessária para os produtos derivados.
-
-O sucesso não será medido pela quantidade de funcionalidades incluídas, mas pela utilidade, clareza e simplicidade da fundação.
-
-## 10. Limites do projeto
-
-O SaaS Starter Kit:
-
-- Não é um produto SaaS pronto para comercialização.
-- Não define o problema de negócio, o público ou o modelo comercial dos produtos derivados.
-- Não garante uma arquitetura universal para todo tipo de aplicação.
-- Não antecipa requisitos de escala, disponibilidade ou infraestrutura que ainda não existem.
-- Não substitui a especificação própria de cada produto construído a partir dele.
-- Não inclui automaticamente recursos considerados comuns em plataformas SaaS.
-- Não permite que documentação genérica seja interpretada como autorização para implementar.
-- Está limitado à stack e ao escopo formalmente aprovados para a fundação.
-
-Qualquer necessidade que ultrapasse esses limites deve ser tratada como uma proposta de evolução, documentada e aprovada antes de produzir alterações no projeto.
+Esta especificação orienta o produto, mas não autoriza código. Cada capacidade deverá ser convertida em uma Sprint com objetivo, escopo, arquivos autorizados, critérios, validações e aprovação explícita.
