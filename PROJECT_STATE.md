@@ -73,12 +73,15 @@ Documentada, mas não encerrada como Sprint específica do DocAI. Os contratos o
 
 ## Funcionalidades específicas implementadas
 
-Em particular, ainda não existem:
+Já existem:
 
 - modelos de contrato específicos do DocAI;
 - serviços de templates, rascunhos e geração desacoplada;
 - fluxos de criação, entrada e gerenciamento de rascunhos;
 - persistência genérica em memória para testes e desenvolvimento;
+
+Ainda não existem:
+
 - formulários de contratos;
 - serviço de geração de contratos;
 - prompts ou chamadas ao Gemini;
@@ -101,7 +104,7 @@ Nenhuma dependência, configuração, integração real ou arquivo do Starter Ki
 ## Pendências
 
 - Definir jurisdição e aviso jurídico inicial.
-- Detalhar campos, validações e regras de cada um dos quatro contratos.
+- Refinar campos, validações e regras jurídicas dos quatro contratos.
 - Definir política de privacidade, retenção, exclusão e uso de dados na IA.
 - Escolher limites, custos e modelo operacional do Gemini.
 - Definir planos, preços, limites e política de cobrança do Stripe.

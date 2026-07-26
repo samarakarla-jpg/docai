@@ -16,35 +16,47 @@ Este roadmap organiza a evolução do DocAI a partir do Starter Kit v1.0.0. Ele 
 - Contratos e serviços de IA devem permanecer desacoplados do provedor.
 - Modelos iniciais: Prestação de Serviços, Compra e Venda, Aluguel e Empréstimo.
 
-## 3. Ordem de execução proposta
+## 3. Estado atual
+
+O Starter Kit v1.0.0 está concluído e congelado. No contexto específico do DocAI, as Sprints 01 a 05 estão implementadas, validadas e encerradas:
+
+- modelos de contrato e serviços específicos;
+- criação, entrada e gerenciamento de rascunhos;
+- contratos de persistência reutilizável e implementação em memória.
+
+As Sprints 06 e 07 do DocAI ainda não estão encerradas. A interface neutra e os contratos opcionais existentes pertencem à fundação do Starter Kit e não representam a interface ou integrações reais do produto.
+
+Ainda não foram implementados formulários do DocAI, isolamento por usuário, persistência Supabase, integração Gemini, pagamentos Stripe, exportação, e-mail ou operação específica na Vercel.
+
+## 4. Ordem de execução proposta
 
 ### Fase 0 — Preparação do produto
 
-**Sprint D01 — Especificação e decisões pendentes**
+**Sprint D01 — Refinamento de produto e decisões pendentes**
 
-- detalhar campos, regras e textos dos quatro modelos;
+- refinar campos, regras e textos dos quatro modelos já implementados;
 - definir público inicial, jurisdição suportada e limites de responsabilidade;
 - definir política preliminar de privacidade, retenção e revisão humana;
 - confirmar contratos entre domínio, aplicação e infraestrutura.
 
-### Fase 1 — Adaptação da fundação
+### Fase 1 — Adaptação da fundação (concluída para as Sprints 01–05)
 
-**Sprint D02 — Identidade e contexto DocAI**
+**Sprint D02 — Identidade e contexto DocAI (próxima capacidade planejada)**
 
 - adaptar textos e navegação neutra para o contexto DocAI;
 - preservar autenticação do Starter Kit;
 - definir isolamento por usuário e contexto de conta;
 - não adicionar ainda geração, pagamento ou fluxo contratual completo.
 
-### Fase 2 — Domínio e persistência de rascunhos
+### Fase 2 — Domínio e persistência de rascunhos (camada reutilizável concluída; produto ainda pendente)
 
-**Sprint D03 — Modelos dos contratos**
+**Sprint D03 — Modelos dos contratos (atendida pelas Sprints 01–02 do DocAI)**
 
 - definir tipos e validações dos quatro contratos;
 - separar dados de entrada, rascunho gerado e metadados de ciclo de vida;
 - criar testes de domínio sem IA, rede ou fornecedor.
 
-**Sprint D04 — Rascunhos e persistência**
+**Sprint D04 — Rascunhos e persistência do produto (próxima persistência específica)**
 
 - implementar casos de uso de criação, leitura, atualização, listagem e exclusão de rascunhos;
 - utilizar os repositórios substituíveis do Starter Kit;
@@ -108,22 +120,22 @@ Este roadmap organiza a evolução do DocAI a partir do Starter Kit v1.0.0. Ele 
 - verificar documentação, termos, privacidade e mensagens de limitação;
 - registrar critérios de lançamento e pendências.
 
-## 4. Dependências entre Sprints
+## 5. Dependências entre Sprints
 
-1. D01 deve ser aprovada antes de definir modelos e fluxos.
+1. D01 deve ser aprovada antes de alterar os modelos ou fluxos já implementados e antes de assumir decisões jurídicas, comerciais ou de privacidade.
 2. D02 depende da fundação v1.0.0 e não deve alterar contratos reutilizáveis sem Sprint própria.
-3. D03 precede D04 e D05; o serviço de IA não deve inventar o modelo de domínio.
+3. D03 já foi atendida pelas Sprints 01–02; qualquer evolução de domínio deve preceder novos fluxos de persistência ou geração.
 4. D04 precede qualquer uso de persistência Supabase para dados do DocAI.
 5. D05 deve existir antes do adaptador Gemini, e ambos devem ser testáveis sem o provedor real.
 6. D07 depende de contratos estáveis de domínio e geração.
 7. D08 deve definir decisões comerciais antes de D09.
 8. D10 e D11 só devem ocorrer depois dos fluxos principais e dos riscos estarem evidenciados.
 
-## 5. Critérios para avançar
+## 6. Critérios para avançar
 
 Uma Sprint só poderá começar quando a anterior estiver encerrada ou formalmente retirada, seus riscos forem conhecidos, os arquivos autorizados estiverem definidos e os critérios de aceite puderem ser verificados. Integrações reais exigem aprovação própria, configuração de ambiente e plano de rollback.
 
-## 6. Critérios de lançamento inicial
+## 7. Critérios de lançamento inicial
 
 O DocAI somente poderá ser considerado pronto para lançamento quando:
 
