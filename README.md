@@ -4,6 +4,12 @@
 
 O SaaS Starter Kit é uma fundação técnica e documental para iniciar aplicações SaaS de maneira simples, controlada e reutilizável. Ele reúne uma estrutura web mínima, convenções de trabalho e uma hierarquia de documentação que conduz o projeto desde a visão até a entrega de cada Sprint.
 
+## Release v1.0.0
+
+A fundação do SaaS Starter Kit foi oficialmente concluída e versionada como `v1.0.0`. Esta release está pronta para servir de base a novos produtos, preservando neutralidade de domínio e separação entre capacidades reutilizáveis e regras específicas.
+
+O DocAI é o primeiro produto derivado planejado a partir desta base.
+
 O Starter Kit não representa um produto pronto. Sua função é reduzir o trabalho inicial sem impor regras de negócio, integrações ou decisões que pertencem a cada produto derivado. Toda evolução deve responder a uma necessidade concreta, possuir escopo explícito e ser aprovada antes da implementação.
 
 ## Objetivos

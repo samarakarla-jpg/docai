@@ -5,6 +5,10 @@
 **Referência da base:** tag `v1.0.0`, commit `cf3cb6dce444b9770d9627c208ee946fea825f58`
 **Estado:** preparação documental; nenhuma funcionalidade específica do DocAI implementada
 
+## Release da fundação
+
+O SaaS Starter Kit está oficialmente concluído na versão `v1.0.0`. A fundação foi validada, versionada e está pronta para servir de base a novos produtos. O DocAI é o primeiro produto derivado planejado a partir dela.
+
 ## Visão geral
 
 O DocAI é o produto planejado para gerar rascunhos de contratos com IA. Este repositório foi clonado a partir do Starter Kit v1.0.0 e ainda contém apenas a fundação reutilizável. A documentação específica criada nesta tarefa registra decisões de produto, sequência proposta e estado real, sem iniciar implementação.
