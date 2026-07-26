@@ -1,173 +1,189 @@
-# Sprint 01 — Fundação do Starter Kit
+# Domínio e serviços de contratos do DocAI
 
-## 1. Objetivo da Sprint
+**Sprint:** `01 — Domínio e serviços de contratos`
 
-Estabelecer a fundação mínima, executável, compreensível e reutilizável do SaaS Starter Kit. Ao final da Sprint, o projeto deve oferecer um ponto de partida neutro para futuros SaaS, sem regras de negócio, serviços de aplicação ou decisões específicas de produto.
+**Fase do Roadmap:** Fundação do produto e camada de domínio
 
-Esta Sprint pertence à **Fase 1 — Fundação do projeto** do roadmap. Seu escopo está limitado à consolidação da estrutura inicial já aprovada, à substituição do conteúdo demonstrativo da ferramenta de criação por uma apresentação neutra da base e à verificação de que o projeto pode ser executado e compilado com os recursos existentes.
+**Status:** `encerrada`
 
-A aprovação deste documento define o escopo da Sprint, mas a implementação somente poderá começar após autorização explícita do responsável pelo projeto.
+Esta Sprint registra a implementação aprovada no commit `711e76f7b202c178e1faf879e98515710499cab6`.
 
-## 2. O que será entregue
+# Objetivo
 
-- Uma aplicação web inicial executável com a stack já aprovada.
-- Um layout raiz mínimo, com metadados e idioma adequados à natureza genérica do Starter Kit.
-- Uma página inicial simples e neutra que identifique a base sem representar um produto final.
-- Estilos globais mínimos, legíveis e suficientes para sustentar a página inicial.
-- Remoção do conteúdo demonstrativo que não pertence à fundação, quando estiver diretamente relacionado aos arquivos autorizados.
-- Preservação dos scripts essenciais já disponíveis para desenvolvimento e compilação.
-- Uma estrutura sem regras de negócio, fluxos de produto ou abstrações preventivas.
-- Evidências de que a aplicação inicia e produz uma compilação válida.
+Disponibilizar a camada de domínio do DocAI para os quatro tipos de contrato previstos, com serviços específicos do produto apoiados pelos contratos genéricos do SaaS Starter Kit. A entrega cobre validação de dados, ciclo de vida de rascunhos, gerenciamento de templates e preparação da geração assistida por IA, sem páginas, persistência concreta ou integração com provedores externos.
 
-As entregas devem utilizar somente as capacidades e dependências já presentes no projeto.
+# Escopo
 
-## 3. O que não faz parte desta Sprint
+- Definição dos modelos neutros de contrato para Prestação de Serviços, Compra e Venda, Aluguel e Empréstimo.
+- Criação do `TemplateService` específico do DocAI, reutilizando o serviço genérico de templates.
+- Criação do `ContractService`, utilizando o `DocumentService` existente para o ciclo de vida de rascunhos.
+- Criação do `AIService`, utilizando a interface genérica `AiAdapter` sem chamada real a Gemini ou outro provedor.
+- Validações de entrada e tradução estável dos erros dos serviços.
+- Testes unitários dos modelos e serviços, além da regressão dos serviços genéricos relacionados.
 
-Não fazem parte da Sprint 01:
+# Fora do Escopo
 
-- autenticação, autorização, sessões ou gestão de usuários;
-- banco de dados, persistência, migrações ou modelagem de dados;
-- pagamentos, assinaturas, faturamento ou Stripe;
-- inteligência artificial, modelos generativos ou automações baseadas em IA;
-- criação, leitura, processamento ou exportação de PDF;
-- integrações externas de qualquer natureza;
-- envio de e-mails, notificações ou processamento em filas;
-- painéis administrativos, analytics ou monitoramento de produto;
-- multi-tenancy, organizações ou internacionalização completa;
-- APIs, serviços de domínio ou regras específicas de negócio;
-- biblioteca de componentes ou design system;
-- infraestrutura de produção, hospedagem ou automação de deploy;
-- instalação, remoção ou atualização de dependências;
-- alteração de scripts, manifestos, arquivos de lock ou configurações;
-- refatorações e melhorias sem relação direta com a fundação;
-- preparação antecipada para itens de Sprints futuras.
+- Páginas, rotas, componentes visuais, layout ou fluxos de usuário.
+- Autenticação, autorização e gerenciamento de usuários.
+- Supabase, Stripe, Vercel, chamadas HTTP ou qualquer integração externa.
+- Integração real com Gemini, OpenAI ou outro fornecedor de IA.
+- Implementação de adaptadores de persistência, banco de dados ou armazenamento externo.
+- Geração de PDF, envio de e-mail, pagamentos ou assinatura.
+- Prompts de produto, geração jurídica automatizada e aconselhamento legal.
+- Alterações na documentação do produto, dependências, configurações ou scripts.
+- Funcionalidades adicionais dos contratos além dos quatro tipos definidos.
 
-Qualquer necessidade fora desta lista de entregas deverá ser registrada como observação, submetida a avaliação e mantida fora da implementação atual.
+# Requisitos
 
-## 4. Pré-requisitos
+- **REQ-01 — Modelos de contrato:** representar os quatro tipos de contrato com uniões discriminadas e conteúdo específico, preservando um contrato de dados neutro.
+- **REQ-02 — Templates do DocAI:** permitir criar, consultar, listar, atualizar e remover templates por meio de um `TemplateService` específico que delega ao serviço genérico existente.
+- **REQ-03 — Rascunhos de contrato:** permitir criar, consultar, listar, atualizar e remover rascunhos usando o `DocumentService` existente, mantendo o tipo de contrato.
+- **REQ-04 — Validação:** rejeitar tipos não suportados, campos obrigatórios ausentes, partes sem nome e atualizações vazias com erros previsíveis.
+- **REQ-05 — Preparação para IA:** aceitar um `AiAdapter` genérico injetado, validar o tipo da solicitação e devolver o resultado sem acoplamento a provedor.
+- **REQ-06 — Compatibilidade:** preservar os contratos e o comportamento do Starter Kit e manter os testes existentes aprovados.
+- **REQ-07 — Restrições:** não alterar páginas, integrações, configurações, dependências ou documentação durante a implementação.
 
-Antes de iniciar a implementação, deve-se confirmar que:
+# Arquivos autorizados para alteração
 
-- a visão, os princípios, a especificação, o protocolo de colaboração e o roadmap foram revisados na ordem definida pela hierarquia documental;
-- este plano foi revisado e aprovado pelo responsável pelo projeto;
-- existe autorização explícita para iniciar a implementação da Sprint;
-- a stack e as dependências existentes estão disponíveis, sem necessidade de instalação ou atualização;
-- os comandos existentes de desenvolvimento e compilação são conhecidos;
-- o estado inicial do repositório foi registrado para distinguir mudanças anteriores das mudanças da Sprint;
-- os arquivos autorizados foram inspecionados;
-- nenhuma decisão pendente exige alteração de dependências, configurações, arquitetura ou escopo;
-- a forma de validação descrita neste documento pode ser executada no ambiente disponível.
+| Arquivo | Ação autorizada | Finalidade |
+| --- | --- | --- |
+| `lib/docai/domain/contract-models.ts` | criar | Tipos e contratos de dados dos quatro modelos. |
+| `lib/docai/domain/contract-models.test.ts` | criar | Testes dos tipos suportados. |
+| `lib/docai/services/template-service.ts` | criar | Serviço de templates específico do DocAI sobre a abstração genérica. |
+| `lib/docai/services/template-service.test.ts` | criar | Testes do ciclo de vida e validações de templates. |
+| `lib/docai/services/contract-service.ts` | criar | Serviço de rascunhos apoiado pelo `DocumentService`. |
+| `lib/docai/services/contract-service.test.ts` | criar | Testes do ciclo de vida e validações de contratos. |
+| `lib/docai/services/ai-service.ts` | criar | Serviço de geração apoiado por `AiAdapter`. |
+| `lib/docai/services/ai-service.test.ts` | criar | Testes do adaptador genérico e da tradução de erros. |
 
-Se algum pré-requisito não for atendido, a implementação deverá permanecer suspensa até que a pendência seja resolvida ou explicitamente aprovada.
+Os oito arquivos acima foram efetivamente criados no commit de implementação. Nenhum outro arquivo pertenceu à implementação desta Sprint.
 
-## 5. Arquivos que poderão ser modificados
+# Arquivos proibidos
 
-Durante a futura implementação desta Sprint, somente os seguintes arquivos poderão ser modificados:
+- Todo arquivo não listado em “Arquivos autorizados para alteração”.
+- `PRODUCT_SPEC.md`, `ROADMAP.md`, `PROJECT_STATE.md` e demais documentos do produto.
+- `package.json`, arquivos de lock, `tsconfig.json`, scripts e variáveis de ambiente.
+- Diretórios de páginas, rotas, componentes, autenticação e infraestrutura.
+- Implementações ou configurações específicas de Supabase, Stripe, Gemini, OpenAI, Vercel ou HTTP.
+- Os serviços genéricos existentes do Starter Kit; eles podem ser consumidos por importação, mas não modificados.
 
-- `app/layout.tsx` — apenas para consolidar o layout raiz, o idioma e os metadados genéricos.
-- `app/page.tsx` — apenas para substituir o conteúdo demonstrativo por uma página inicial mínima e neutra.
-- `app/globals.css` — apenas para manter os estilos globais essenciais à apresentação e à legibilidade da base.
+# Critérios de Aceitação
 
-Os arquivos demonstrativos existentes em `public/` poderão ser removidos somente se deixarem de ser referenciados após a alteração da página inicial:
+- **CA-01 — Tipos suportados:** os quatro modelos de contrato são representados e cobertos por teste.
+- **CA-02 — TemplateService:** o serviço específico cria, consulta, lista, atualiza e remove templates, reutilizando a abstração genérica e rejeitando entradas inválidas.
+- **CA-03 — ContractService:** o serviço cria, consulta, lista, atualiza e remove rascunhos por meio do `DocumentService`, validando partes e campos obrigatórios de cada tipo.
+- **CA-04 — AIService:** o serviço aceita `AiAdapter` por injeção, valida a solicitação e traduz falhas do adaptador sem chamar um provedor real.
+- **CA-05 — Isolamento:** não existem páginas, chamadas HTTP, integrações reais, dependências novas ou mudanças de configuração introduzidas.
+- **CA-06 — Regressão:** os testes dos serviços genéricos de documentos, templates e persistência continuam aprovados.
+- **CA-07 — Qualidade:** typecheck, build e verificação do diff foram concluídos sem erro.
+- **CA-08 — Escopo:** somente os oito arquivos autorizados foram alterados no commit de implementação.
 
-- `public/file.svg`
-- `public/globe.svg`
-- `public/next.svg`
-- `public/vercel.svg`
-- `public/window.svg`
+Todos os critérios foram atendidos. Evidências detalhadas constam no plano de validação e nos resultados registrados abaixo.
 
-Nenhum outro arquivo está autorizado. Em especial, manifestos, arquivos de lock, configurações e demais documentos não poderão ser alterados nesta Sprint. Se a implementação demonstrar necessidade de modificar um arquivo não listado, o trabalho deverá parar e uma revisão formal do escopo deverá ser solicitada.
+# Checklist Técnico
 
-## 6. Critérios de aceitação
+- [x] **Lint:** não há script de lint configurado no projeto; declarado não aplicável.
+- [x] **Typecheck:** `./node_modules/.bin/tsc --noEmit --incremental false` executado com sucesso.
+- [x] **Build:** `npm run build` executado com sucesso.
+- [x] **Testes:** testes DocAI e regressão do Starter Kit executados; 50 testes passaram.
+- [x] **Responsividade:** não aplicável; não houve mudança visual.
+- [x] **Acessibilidade básica:** não aplicável; não houve mudança de interface.
 
-A Sprint será aceita tecnicamente quando todos os critérios abaixo forem atendidos:
+# Critérios de Revisão
 
-- a aplicação utiliza exclusivamente a stack e as dependências já existentes;
-- o layout raiz possui estrutura mínima válida, idioma definido e metadados neutros;
-- a página inicial identifica o projeto como uma base reutilizável, sem apresentar um produto ou domínio específico;
-- o conteúdo demonstrativo original e seus links promocionais não aparecem na interface;
-- a interface inicial é simples, legível e adaptável a diferentes tamanhos de tela;
-- a estrutura semântica básica da página pode ser compreendida por tecnologias assistivas;
-- os estilos globais contêm somente o necessário para a fundação atual;
-- não existem autenticação, banco de dados, pagamentos, Stripe, IA, PDF ou integrações externas;
-- não foram criados serviços, componentes genéricos, abstrações ou camadas para necessidades futuras;
-- nenhuma dependência, configuração, script, manifesto ou arquivo de lock foi alterado;
-- somente os arquivos expressamente autorizados foram modificados ou removidos;
-- o projeto inicia em ambiente de desenvolvimento sem erro impeditivo;
-- o projeto conclui a compilação de produção usando o comando já existente;
-- não existem erros conhecidos que invalidem o objetivo da Sprint.
+- A implementação foi comparada com o escopo desta Sprint e com a arquitetura do Starter Kit.
+- Os serviços específicos dependem das interfaces genéricas existentes e não introduzem provedores concretos.
+- A validação foi mantida no domínio; não foram criados fluxos de produto, UI ou infraestrutura.
+- O diff do commit de implementação contém somente os oito arquivos autorizados.
+- Não foram alterados dependências, configurações, documentação ou arquivos de lock.
 
-## 7. Critérios de conclusão
+# Riscos
 
-A Sprint 01 poderá ser considerada tecnicamente concluída quando:
+| Risco | Impacto | Mitigação |
+| --- | --- | --- |
+| Modelos de contrato evoluírem com requisitos jurídicos adicionais | Alterações incompatíveis no domínio | Manter uniões discriminadas e validar mudanças em Sprint própria. |
+| Saída de IA permanecer sem estrutura jurídica garantida | Resultado inadequado para uso legal | O `AIService` somente delega ao adaptador; geração real e políticas de revisão ficam fora desta Sprint. |
+| Falha de adaptador ser confundida com erro de domínio | Diagnóstico inconsistente | Traduzir falhas para erro estável `ADAPTER_FAILURE` e manter o provedor fora do serviço. |
+| Expansão para integrações ou persistência concreta | Acoplamento e aumento de escopo | Interfaces são injetadas e nenhuma implementação externa foi autorizada. |
 
-- todas as entregas aprovadas tiverem sido realizadas;
-- todos os critérios de aceitação tiverem sido verificados;
-- as validações previstas tiverem sido executadas e seus resultados registrados;
-- qualquer validação não executada tiver sido declarada com sua justificativa;
-- as alterações tiverem permanecido dentro da lista de arquivos autorizados;
-- não houver mudança de dependências, configurações ou escopo;
-- riscos, limitações e pendências conhecidos tiverem sido informados;
-- o resultado e os arquivos afetados tiverem sido apresentados ao responsável pelo projeto.
+# Dependências
 
-Após a conclusão técnica, a Sprint permanecerá **aguardando aceite**. Ela somente será encerrada quando o responsável pelo projeto revisar o resultado e aprovar formalmente seu encerramento.
+## Pré-requisitos
 
-## 8. Riscos da Sprint
+- Starter Kit v1.0.0 disponível no repositório DocAI.
+- Contratos genéricos existentes de `TemplateService`, `DocumentService`, repositório e `AiAdapter`.
+- Documentação inicial do produto DocAI aprovada.
 
-### Expansão silenciosa de escopo
+## Dependências técnicas existentes
 
-Uma página inicial simples pode estimular a inclusão de navegação, componentes ou conteúdo adicional. A mitigação é implementar somente o necessário para identificar e validar a fundação.
+- TypeScript e runtime já presentes no projeto.
+- Serviços genéricos e testes do Starter Kit utilizados sem modificação.
 
-### Personalização excessiva
+## Novas dependências
 
-Escolhas visuais, textos ou estruturas podem aproximar a base de um produto específico. A mitigação é manter linguagem neutra, apresentação mínima e ausência de fluxos de negócio.
+Nenhuma. Não foram instaladas bibliotecas, adicionados provedores ou alteradas configurações.
 
-### Abstração prematura
+# Plano de Implementação
 
-Elementos usados uma única vez podem ser transformados em componentes ou camadas sem necessidade. A mitigação é manter a implementação direta enquanto não existir repetição real.
+1. Inspecionar os contratos genéricos e registrar o estado inicial do repositório.
+2. Definir os modelos discriminados dos quatro contratos.
+3. Implementar o `TemplateService` específico sobre o serviço genérico existente.
+4. Implementar o `ContractService` usando o `DocumentService` e as validações de domínio.
+5. Implementar o `AIService` com `AiAdapter` injetado e sem integração concreta.
+6. Adicionar os testes unitários correspondentes e executar a regressão existente.
+7. Revisar o diff, executar as validações e preparar o commit único da implementação.
 
-### Alteração indireta de arquivos não autorizados
+# Plano de Validação
 
-Ferramentas ou comandos podem atualizar arquivos de lock, configurações ou artefatos rastreados. A mitigação é verificar o estado do repositório antes e depois de cada etapa e não executar comandos que modifiquem esses arquivos.
+| Item | Método de validação | Evidência |
+| --- | --- | --- |
+| CA-01 | `node --test lib/docai/domain/contract-models.test.ts ...` | Os quatro tipos são aceitos; conjunto completo com 50 testes aprovados. |
+| CA-02 | Testes de `template-service.test.ts` | CRUD, validação e delegação ao serviço genérico aprovados. |
+| CA-03 | Testes de `contract-service.test.ts` | CRUD de rascunhos, mapeamento de tipo e validações aprovados. |
+| CA-04 | Testes de `ai-service.test.ts` | Adaptador injetado, validação e erro estável aprovados; nenhuma chamada externa. |
+| CA-05 e CA-08 | `git diff` e inspeção do commit `711e76f7b202c178e1faf879e98515710499cab6` | Somente os oito arquivos autorizados; sem dependências ou configurações. |
+| CA-06 | Regressão de documentos, templates e persistência | Testes existentes incluídos no conjunto de 50 aprovações. |
+| CA-07 | `./node_modules/.bin/tsc --noEmit --incremental false`, `npm run build`, `git diff --check` | Typecheck, build e diff concluídos sem erro. |
 
-### Dependência de recursos externos
+Comando de testes executado:
 
-Fontes, imagens ou outros recursos remotos podem prejudicar previsibilidade e neutralidade. A mitigação é não adicionar novas integrações ou recursos externos e avaliar a execução com as capacidades atuais.
+```text
+node --test lib/docai/domain/contract-models.test.ts lib/docai/services/contract-service.test.ts lib/docai/services/template-service.test.ts lib/docai/services/ai-service.test.ts lib/integrations/contracts.test.ts lib/integrations/optional-capability.test.ts lib/persistence/in-memory-repository.test.ts lib/templates/template-service.test.ts lib/documents/document-service.test.ts
+```
 
-### Validação incompleta
+# Entrega Esperada
 
-Uma compilação bem-sucedida não garante sozinha legibilidade, responsividade ou neutralidade. A mitigação é combinar verificações automatizadas disponíveis com inspeção manual da interface e do escopo.
+- **Arquivos efetivamente alterados:** os oito arquivos listados em “Arquivos autorizados para alteração”.
+- **Commit de implementação:** `711e76f7b202c178e1faf879e98515710499cab6` — `feat: add DocAI contract domain services`.
+- **Testes:** 50 testes aprovados.
+- **Typecheck:** aprovado com `--incremental false`.
+- **Build:** aprovado.
+- **Diff:** `git diff --check` aprovado.
+- **Riscos remanescentes:** os riscos descritos acima permanecem para futuras Sprints; nenhuma integração externa ou garantia de validade jurídica foi implementada.
 
-## 9. Como validar o resultado
+# Commit Esperado
 
-A validação deverá seguir esta sequência:
+**Mensagem de implementação:** `feat: add DocAI contract domain services`
 
-1. Comparar o estado final do repositório com o estado inicial e confirmar que somente os arquivos autorizados foram afetados.
-2. Revisar o conteúdo dos arquivos alterados para verificar simplicidade, neutralidade e ausência de funcionalidades não aprovadas.
-3. Confirmar que dependências, scripts, arquivos de lock e configurações permaneceram inalterados.
-4. Executar o comando de compilação já definido pelo projeto e registrar seu resultado.
-5. Iniciar o ambiente de desenvolvimento com o comando já existente e confirmar que a página inicial carrega sem erro impeditivo.
-6. Inspecionar a página em tamanhos de tela reduzido e amplo.
-7. Verificar título, descrição, idioma, hierarquia de conteúdo, legibilidade e estrutura semântica básica.
-8. Confirmar que não existem conteúdo demonstrativo original, links promocionais ou referências a um produto específico.
-9. Procurar evidências de autenticação, banco de dados, Stripe, IA, PDF e integrações externas, confirmando que nenhuma delas foi introduzida.
-10. Apresentar um relatório final com entregas, arquivos afetados, resultados das verificações, limitações e estado de aceite.
+**Commit de implementação:** `711e76f7b202c178e1faf879e98515710499cab6`
 
-Nenhuma correção identificada durante a validação poderá ampliar o escopo. Caso isso seja necessário, a Sprint deverá ser revisada antes da continuidade.
+**Mensagem desta documentação:** `docs: document DocAI Sprint 01`
 
-## 10. O que deverá acontecer antes da Sprint 02
+**Arquivo previsto para este commit documental:** `SPRINT_01.md` somente.
 
-Antes de planejar ou iniciar a Sprint 02:
+O commit documental deve conter somente este arquivo. O push dos commits de implementação e documentação ocorre apenas mediante a autorização registrada para esta tarefa.
 
-- a Sprint 01 deverá estar tecnicamente concluída;
-- o responsável pelo projeto deverá revisar as entregas e aprovar formalmente o encerramento;
-- todas as verificações executadas e suas limitações deverão estar registradas;
-- eventuais pendências deverão ser reavaliadas, sem transferência automática para a Sprint seguinte;
-- o estado da fundação deverá ser considerado estável, executável e compreensível;
-- a necessidade concreta da próxima evolução deverá ser identificada;
-- deverá ser confirmado se a Sprint 02 ainda pertence à Fase 1 ou se existem critérios para considerar outra fase;
-- o objetivo, o escopo, os arquivos autorizados, os riscos e os critérios de aceitação da Sprint 02 deverão ser documentados;
-- qualquer dependência, configuração ou ampliação arquitetural deverá receber aprovação específica;
-- a Sprint 02 deverá ser aprovada explicitamente antes de qualquer implementação.
+# Critérios de Conclusão
 
-O encerramento da Sprint 01 não autoriza automaticamente a Sprint 02 nem qualquer item posterior do roadmap.
+- Os oito arquivos de implementação foram revisados contra o objetivo, requisitos e critérios desta Sprint.
+- Os testes, typecheck, build e `git diff --check` foram executados com sucesso.
+- A implementação não alterou documentação, dependências, configurações ou integrações externas.
+- O commit de implementação foi identificado e permanece separado do commit desta documentação.
+- Esta documentação foi criada para registrar fielmente a entrega já aprovada.
+- Com o commit documental e o push solicitados concluídos, a branch deverá estar sincronizada com `origin/main` e sem arquivos pendentes.
+
+# Observações
+
+- Esta Sprint descreve a primeira implementação específica do DocAI sobre o Starter Kit; o roadmap do produto continua responsável por orientar as próximas expansões.
+- A camada de IA é apenas um contrato de serviço com adaptador injetado. Gemini e demais provedores permanecem deliberadamente fora do escopo.
+- Os modelos representam dados e validações de domínio; não constituem aconselhamento jurídico nem substituem revisão profissional.
