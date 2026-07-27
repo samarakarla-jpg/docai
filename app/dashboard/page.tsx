@@ -46,18 +46,29 @@ export default async function DashboardPage({
       </div>
 
       <div className="space-y-4">
-        <StatusState
-          description="Crie seu primeiro contrato para começar."
-          title="Você ainda não possui contratos."
-          variant="empty"
-        >
-          <button
-            className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-950 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
-            type="button"
-          >
-            Criar primeiro contrato
-          </button>
-        </StatusState>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <h2 className="text-xl font-semibold text-slate-950">
+            Como o DocAI funciona
+          </h2>
+          <ol className="mt-5 grid gap-4 sm:grid-cols-2">
+            {[
+              "Escolha o tipo de contrato.",
+              "Preencha os dados.",
+              "Gere o rascunho.",
+              'Consulte depois em "Meus contratos".',
+            ].map((step, index) => (
+              <li className="flex gap-3 text-slate-700" key={step}>
+                <span
+                  aria-hidden="true"
+                  className="flex size-7 shrink-0 items-center justify-center rounded-full bg-slate-950 text-sm font-semibold text-white"
+                >
+                  {index + 1}
+                </span>
+                <span className="pt-0.5 leading-6">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
 
         {logout === "error" ? (
           <StatusState

@@ -1,19 +1,20 @@
 "use server";
 
 import { createGeminiAdapterFromEnvironment } from "@/lib/docai/infrastructure/ai/gemini-adapter";
+import { SupabaseAuthAdapter } from "@/lib/docai/infrastructure/auth/supabase-auth";
+import { createSupabaseContractRepository } from "@/lib/docai/infrastructure/persistence/supabase-contract-repository";
 import type {
   ContractContent,
   ContractType,
 } from "@/lib/docai/domain/contract-models";
+import { createUserContext } from "@/lib/docai/application/user-context";
 import { AIService } from "@/lib/docai/services/ai-service";
 
 export type GenerateContractActionState = Readonly<{
   fieldErrors?: Readonly<Record<string, string>>;
   message?: string;
   result?: Readonly<{
-    output: string;
-    title: string;
-    type: ContractType;
+    id: string;
   }>;
   status: "idle" | "error" | "success";
 }>;
@@ -66,18 +67,26 @@ export async function generateContract(
       };
     }
 
+    const identity = await new SupabaseAuthAdapter().getIdentity();
+    const context = createUserContext(identity);
+    const repository = await createSupabaseContractRepository();
+    const savedContract = await repository.create({
+      content: result.output.trim(),
+      title: contractTypeLabels[parsed.type],
+      type: parsed.type,
+      userId: context.user.id,
+    });
+
     return {
       result: {
-        output: result.output.trim(),
-        title: contractTypeLabels[parsed.type],
-        type: parsed.type,
+        id: savedContract.id,
       },
       status: "success",
     };
   } catch {
     return {
       message:
-        "Não foi possível gerar o contrato. Verifique a configuração e tente novamente.",
+        "Não foi possível gerar e salvar o contrato. Verifique a configuração e tente novamente.",
       status: "error",
     };
   }

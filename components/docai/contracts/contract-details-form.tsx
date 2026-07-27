@@ -8,7 +8,6 @@ import {
   type GenerateContractActionState,
 } from "@/app/actions/generate-contract";
 import { ContractForm } from "@/components/docai/contracts/contract-form";
-import { useGeneratedContract } from "@/components/docai/contracts/generated-contract-context";
 import type { ContractType } from "@/lib/docai/domain/contract-models";
 
 type ContractDetailsFormProps = Readonly<{
@@ -21,7 +20,6 @@ const INITIAL_STATE: GenerateContractActionState = {
 
 export function ContractDetailsForm({ type }: ContractDetailsFormProps) {
   const router = useRouter();
-  const { setContract } = useGeneratedContract();
   const [state, formAction, pending] = useActionState(
     generateContract,
     INITIAL_STATE,
@@ -29,10 +27,9 @@ export function ContractDetailsForm({ type }: ContractDetailsFormProps) {
 
   useEffect(() => {
     if (state.status === "success" && state.result) {
-      setContract(state.result);
-      router.push("/dashboard/contracts/result");
+      router.push(`/dashboard/contracts/${state.result.id}`);
     }
-  }, [router, setContract, state]);
+  }, [router, state]);
 
   return (
     <form

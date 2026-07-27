@@ -14,8 +14,8 @@ type SidebarProps = Readonly<{
 
 const navigationItems = [
   {
-    href: "/dashboard",
-    label: "Visão geral",
+    href: "/dashboard/contracts",
+    label: "Meus contratos",
   },
 ] as const;
 
@@ -63,9 +63,17 @@ export function Sidebar({
           <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
             Área principal
           </p>
+          <Link
+            className="mb-3 block w-full rounded-lg border border-amber-300 bg-amber-200 px-3 py-2.5 text-center text-sm font-semibold text-slate-950 transition hover:border-amber-400 hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+            href="/dashboard/contracts/new"
+            onClick={onClose}
+          >
+            Novo contrato
+          </Link>
           <ul className="space-y-1">
             {navigationItems.map((item) => {
-              const isCurrent = pathname === item.href;
+              const isCurrent =
+                pathname === item.href || pathname.startsWith(`${item.href}/`);
 
               return (
                 <li key={item.href}>
