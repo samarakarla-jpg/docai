@@ -21,7 +21,7 @@ export function ContractForm({
           className="text-lg font-semibold text-slate-950"
           id="contractor-title"
         >
-          Dados do contratante
+          Contratante (seus dados)
         </h2>
         <div className="mt-4 grid gap-5 sm:grid-cols-2">
           <TextField
@@ -49,7 +49,7 @@ export function ContractForm({
           className="text-lg font-semibold text-slate-950"
           id="contracted-title"
         >
-          Dados do contratado
+          Contratado (dados da pessoa que realizará o serviço)
         </h2>
         <div className="mt-4 grid gap-5 sm:grid-cols-2">
           <TextField
@@ -82,15 +82,17 @@ export function ContractForm({
         <div className="mt-4 grid gap-5 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <TextField
+              description="Ex.: pintura de uma casa, instalação de ar-condicionado, criação de um site, aulas particulares ou consultoria."
               error={fieldErrors?.contractObject}
-              label="Objeto do contrato"
+              label="Qual é o serviço?"
               name="contractObject"
             />
           </div>
           <TextField
+            description="Ex.: 1500"
             error={fieldErrors?.value}
             inputMode="decimal"
-            label="Valor"
+            label="Qual é o valor do serviço?"
             name="value"
           />
           <TextField
@@ -100,8 +102,9 @@ export function ContractForm({
             type="date"
           />
           <TextField
+            description="Ex.: serviço único em 15 dias; 1 vez por semana durante 3 meses; mensal por 12 meses."
             error={fieldErrors?.term}
-            label="Prazo"
+            label="Qual é a duração ou frequência do serviço?"
             name="term"
           />
         </div>
@@ -111,6 +114,7 @@ export function ContractForm({
 }
 
 type TextFieldProps = Readonly<{
+  description?: string;
   error?: string;
   inputMode?: "decimal";
   label: string;
@@ -119,6 +123,7 @@ type TextFieldProps = Readonly<{
 }>;
 
 function TextField({
+  description,
   error,
   inputMode,
   label,
@@ -133,7 +138,11 @@ function TextField({
         {label}
       </label>
       <input
-        aria-describedby={error ? errorId : undefined}
+        aria-describedby={
+          [description ? `${name}-description` : undefined, error ? errorId : undefined]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
         aria-invalid={Boolean(error)}
         className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
         id={name}
@@ -142,6 +151,11 @@ function TextField({
         required
         type={type}
       />
+      {description ? (
+        <p className="mt-2 text-sm text-slate-600" id={`${name}-description`}>
+          {description}
+        </p>
+      ) : null}
       {error ? (
         <p className="mt-2 text-sm text-red-700" id={errorId}>
           {error}

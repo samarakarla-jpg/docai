@@ -88,6 +88,18 @@ Nosso objetivo é que qualquer pessoa consiga criar um contrato profissional em 
 
 ---
 
+## Conta do Usuário
+
+- Adicionar a opção "Esqueci minha senha" na tela de login.
+- Permitir redefinir a senha por meio de um link enviado por e-mail.
+- Criar uma página "Alterar senha" para usuários autenticados.
+- Permitir que o usuário altere sua senha atual.
+- Exibir mensagens simples e claras durante todo o processo.
+- Confirmar quando a senha for alterada com sucesso.
+- Exigir a confirmação da nova senha para evitar erros de digitação.
+
+---
+
 ## Ideias Futuras
 
 Registrar aqui todas as novas sugestões identificadas durante o uso do DocAI.
