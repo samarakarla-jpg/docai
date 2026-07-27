@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { createUserContext } from "@/lib/docai/application/user-context";
+import { DownloadPdfButton } from "@/components/docai/contracts/download-pdf-button";
+import { createReadOnlyAuthClient } from "@/lib/auth/server";
 import type { ContractType } from "@/lib/docai/domain/contract-models";
-import { SupabaseAuthAdapter } from "@/lib/docai/infrastructure/auth/supabase-auth";
 import { createSupabaseContractRepository } from "@/lib/docai/infrastructure/persistence/supabase-contract-repository";
 
 const contractTypeLabels: Record<ContractType, string> = {
@@ -20,16 +20,17 @@ type ContractPageProps = Readonly<{
 }>;
 
 export default async function ContractPage({ params }: ContractPageProps) {
-  const identity = await new SupabaseAuthAdapter().getIdentity();
+  const supabase = await createReadOnlyAuthClient();
+  const { data, error } = await supabase.auth.getClaims();
+  const userId = data?.claims.sub;
 
-  if (!identity) {
+  if (error || typeof userId !== "string" || !userId.trim()) {
     redirect("/login");
   }
 
-  const context = createUserContext(identity);
   const repository = await createSupabaseContractRepository();
   const { id } = await params;
-  const contract = await repository.findByIdForUser(id, context.user.id);
+  const contract = await repository.findByIdForUser(id, userId);
 
   if (!contract) {
     notFound();
@@ -40,70 +41,139 @@ export default async function ContractPage({ params }: ContractPageProps) {
       aria-labelledby="saved-contract-title"
       className="mx-auto w-full max-w-5xl"
     >
-      <Link
-        className="inline-flex items-center rounded-lg px-1 py-2 text-sm font-semibold text-slate-600 transition hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
-        href="/dashboard/contracts"
-      >
-        <span aria-hidden="true" className="mr-2">
-          ←
-        </span>
-        Meus contratos
-      </Link>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <Link
+          className="inline-flex items-center self-start rounded-lg px-1 py-2 text-sm font-semibold text-slate-600 transition hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+          href="/dashboard/contracts"
+        >
+          <span aria-hidden="true" className="mr-2">
+            ←
+          </span>
+          Meus contratos
+        </Link>
 
-      <header className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 bg-slate-50 px-5 py-3 sm:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
-            Contrato salvo
-          </p>
-        </div>
+        <DownloadPdfButton contractTitle={contract.title} />
+      </div>
 
-        <div className="p-5 sm:p-8">
-          <h1
-            className="break-words text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
-            id="saved-contract-title"
-          >
-            {contract.title}
-          </h1>
+      <div id="printable-contract">
+        <header className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 bg-slate-50 px-5 py-3 sm:px-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
+              Contrato salvo
+            </p>
+          </div>
 
-          <dl className="mt-6 flex flex-col gap-4 border-t border-slate-200 pt-5 sm:flex-row sm:gap-10">
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                Tipo
-              </dt>
-              <dd className="mt-1 text-sm font-semibold text-blue-900">
-                {contractTypeLabels[contract.type]}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                Data de criação
-              </dt>
-              <dd className="mt-1 text-sm font-medium text-slate-700">
-                <time dateTime={contract.createdAt}>
-                  {formatDate(contract.createdAt)}
-                </time>
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </header>
+          <div className="p-5 sm:p-8">
+            <h1
+              className="break-words text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
+              id="saved-contract-title"
+            >
+              {contract.title}
+            </h1>
 
-      <article
-        aria-labelledby="contract-content-title"
-        className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
-      >
-        <div className="border-b border-slate-200 px-5 py-4 sm:px-8">
-          <h2
-            className="text-sm font-semibold text-slate-950"
-            id="contract-content-title"
-          >
-            Conteúdo do contrato
-          </h2>
-        </div>
-        <div className="whitespace-pre-wrap break-words px-5 py-7 text-base leading-8 text-slate-800 sm:px-8 sm:py-9 lg:px-12 lg:py-10">
-          {contract.content}
-        </div>
-      </article>
+            <dl className="mt-6 flex flex-col gap-4 border-t border-slate-200 pt-5 sm:flex-row sm:gap-10">
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                  Tipo
+                </dt>
+                <dd className="mt-1 text-sm font-semibold text-blue-900">
+                  {contractTypeLabels[contract.type]}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                  Data de criação
+                </dt>
+                <dd className="mt-1 text-sm font-medium text-slate-700">
+                  <time dateTime={contract.createdAt}>
+                    {formatDate(contract.createdAt)}
+                  </time>
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </header>
+
+        <article
+          aria-labelledby="contract-content-title"
+          className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+        >
+          <div className="border-b border-slate-200 px-5 py-4 sm:px-8">
+            <h2
+              className="text-sm font-semibold text-slate-950"
+              id="contract-content-title"
+            >
+              Conteúdo do contrato
+            </h2>
+          </div>
+          <div className="whitespace-pre-wrap break-words px-5 py-7 text-base leading-8 text-slate-800 sm:px-8 sm:py-9 lg:px-12 lg:py-10">
+            {contract.content}
+          </div>
+        </article>
+      </div>
+
+      <style>{`
+        @page {
+          size: A4;
+          margin: 16mm;
+        }
+
+        @media print {
+          html,
+          body {
+            min-width: 0;
+            background: #ffffff !important;
+          }
+
+          body > header,
+          body header {
+            display: none !important;
+          }
+
+          #authenticated-navigation {
+            display: none !important;
+          }
+
+          #main-content {
+            display: block !important;
+            padding: 0 !important;
+          }
+
+          #main-content > section {
+            max-width: none !important;
+          }
+
+          #main-content > section > :not(#printable-contract) {
+            display: none !important;
+          }
+
+          #printable-contract {
+            width: 100%;
+            max-width: none;
+            color: #172033;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
+          #printable-contract * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
+          #printable-contract > header {
+            display: block !important;
+            margin-top: 0;
+            break-inside: avoid;
+            box-shadow: none;
+          }
+
+          #printable-contract > article {
+            margin-top: 8mm;
+            overflow: visible;
+            box-shadow: none;
+          }
+        }
+      `}</style>
     </section>
   );
 }

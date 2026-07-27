@@ -1,13 +1,12 @@
 "use server";
 
+import { createReadOnlyAuthClient } from "@/lib/auth/server";
 import { createGeminiAdapterFromEnvironment } from "@/lib/docai/infrastructure/ai/gemini-adapter";
-import { SupabaseAuthAdapter } from "@/lib/docai/infrastructure/auth/supabase-auth";
 import { createSupabaseContractRepository } from "@/lib/docai/infrastructure/persistence/supabase-contract-repository";
 import type {
   ContractContent,
   ContractType,
 } from "@/lib/docai/domain/contract-models";
-import { createUserContext } from "@/lib/docai/application/user-context";
 import { AIService } from "@/lib/docai/services/ai-service";
 
 export type GenerateContractActionState = Readonly<{
@@ -67,14 +66,20 @@ export async function generateContract(
       };
     }
 
-    const identity = await new SupabaseAuthAdapter().getIdentity();
-    const context = createUserContext(identity);
+    const supabase = await createReadOnlyAuthClient();
+    const { data, error } = await supabase.auth.getClaims();
+    const userId = data?.claims.sub;
+
+    if (error || typeof userId !== "string" || !userId.trim()) {
+      throw new Error("Authenticated user is unavailable.");
+    }
+
     const repository = await createSupabaseContractRepository();
     const savedContract = await repository.create({
       content: result.output.trim(),
       title: contractTypeLabels[parsed.type],
       type: parsed.type,
-      userId: context.user.id,
+      userId,
     });
 
     return {
