@@ -2,7 +2,7 @@
 
 **Produto:** DocAI
 **Sprint:** D06 — Interface de criação e revisão
-**Status:** especificação aguardando aprovação
+**Status:** planejamento histórico substituído; sem autoridade vigente
 **Fase:** apresentação, sem persistência ou integrações externas
 
 ## Objetivo da Sprint

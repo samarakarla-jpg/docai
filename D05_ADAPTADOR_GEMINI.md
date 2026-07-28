@@ -2,7 +2,7 @@
 
 **Produto:** DocAI
 **Sprint:** D05 — Adaptador Gemini
-**Status:** especificação aguardando aprovação
+**Status:** planejamento histórico substituído; sem autoridade vigente
 **Fase:** infraestrutura de IA, sem alteração do domínio
 
 ## Objetivo da Sprint

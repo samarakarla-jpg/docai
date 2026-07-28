@@ -1,148 +1,149 @@
-# Especificação do Produto — DocAI
+# Especificação Oficial do Produto — DocAI
 
-**Produto:** DocAI
-**Versão documental:** 0.1 — planejamento inicial
-**Status:** documentação criada; nenhuma funcionalidade específica implementada
+**Status:** fonte oficial da visão e da estratégia do produto
 
-## 1. Visão do produto
+**Data de consolidação:** 28 de julho de 2026
 
-O DocAI será um SaaS para gerar contratos a partir de informações fornecidas pelo usuário, utilizando inteligência artificial como serviço desacoplado. O produto deverá reduzir o esforço de redigir documentos contratuais iniciais, mantendo revisão humana, transparência sobre o conteúdo gerado e separação entre a fundação técnica reutilizável e as regras do produto.
+## 1. Responsabilidade deste documento
 
-O DocAI será construído sobre o Starter Kit v1.0.0. A fundação fornece Next.js, autenticação, persistência substituível, interface reutilizável e contratos opcionais. Esta especificação adiciona somente as decisões próprias do produto; ela não autoriza implementação sem uma Sprint aprovada.
+Este documento define exclusivamente o que é o DocAI, para quem existe, qual problema resolve, como se posiciona e quais capacidades compõem o produto.
 
-## 2. Problema
+Não define arquitetura, contratos específicos, categorias, prioridades da biblioteca, regras de desenvolvimento nem escopo de Sprint. Esses assuntos pertencem às respectivas fontes oficiais:
 
-Pessoas e pequenas empresas frequentemente precisam iniciar contratos comuns, mas enfrentam dificuldade para organizar informações, escolher cláusulas adequadas e produzir um primeiro rascunho consistente. O DocAI deve transformar dados estruturados e escolhas orientadas em um rascunho contratual revisável, sem prometer aconselhamento jurídico ou validade automática.
+- arquitetura: [`ARCHITECTURE.md`](ARCHITECTURE.md);
+- evolução da biblioteca: [`docs/ROADMAP_BIBLIOTECA.md`](docs/ROADMAP_BIBLIOTECA.md);
+- desenvolvimento e colaboração: [`AGENTS.md`](AGENTS.md);
+- trabalho autorizado: Sprint ativa.
 
-## 3. Público-alvo inicial
+## 2. Visão
 
-- Profissionais autônomos e pequenas empresas que precisam de contratos recorrentes.
-- Pessoas que desejam iniciar um rascunho contratual com orientação estruturada.
-- Usuários com conhecimento suficiente para revisar o conteúdo antes de utilizá-lo.
+O DocAI é uma plataforma brasileira para criar documentos contratuais profissionais a partir de informações fornecidas pelo usuário. O produto transforma situações comuns de trabalho e negócio em um fluxo orientado, simples e revisável.
 
-O produto não substitui advogado, consultoria jurídica ou revisão profissional. O público e os limites comerciais deverão ser refinados antes do lançamento.
+O objetivo não é reunir centenas de modelos genéricos. O DocAI oferece uma biblioteca curada de documentos úteis, compreensíveis e capazes de reduzir riscos reais para quem presta ou contrata serviços.
 
-## 4. Tipos de contrato da primeira versão
+## 3. Problema
 
-O DocAI terá quatro modelos de produto, todos sujeitos a revisão e aprovação nas Sprints próprias:
+MEIs, autônomos, freelancers, profissionais liberais e pequenas empresas frequentemente negociam e executam serviços por mensagens, propostas informais ou acordos incompletos. Isso favorece conflitos sobre escopo, preço, prazo, alterações, cancelamento, pagamento, responsabilidades e entrega.
 
-1. **Prestação de Serviços** — partes, escopo, remuneração, prazo, responsabilidades e condições de encerramento.
-2. **Compra e Venda** — partes, objeto, preço, pagamento, entrega, responsabilidades e condições de encerramento.
-3. **Aluguel** — partes, bem, prazo, valor, garantias, responsabilidades e devolução.
-4. **Empréstimo** — partes, objeto ou valor, prazo, devolução, encargos quando aplicáveis e responsabilidades.
+O acesso a documentos adequados também costuma exigir tempo, conhecimento jurídico ou custo incompatível com operações pequenas e recorrentes.
 
-Os modelos deverão possuir campos e regras documentados por contrato. Nenhum modelo deve ser tratado como aconselhamento jurídico universal ou aplicado automaticamente a todas as jurisdições.
+## 4. Proposta de valor
 
-## 5. Escopo funcional planejado
+O DocAI permite que o usuário organize as informações essenciais de uma relação comercial e obtenha rapidamente um primeiro rascunho profissional para leitura, negociação e revisão.
 
-### Identidade e conta
+O valor entregue combina:
 
-- Cadastro, login, logout e sessão utilizando o mecanismo de autenticação aprovado.
-- Associação segura dos rascunhos ao usuário autenticado.
-- Mensagens de erro que não revelem dados de outras contas.
+- orientação estruturada sem exigir domínio de linguagem jurídica;
+- redução de dúvidas e omissões durante o preenchimento;
+- documentos proporcionais ao problema tratado;
+- reutilização de informações já fornecidas;
+- revisão humana antes do uso;
+- continuidade entre diferentes momentos da jornada comercial.
 
-### Seleção e coleta
+## 5. Público-alvo
 
-- Seleção de um dos quatro tipos de contrato.
-- Formulário orientado para coletar dados necessários ao tipo escolhido.
-- Validação de campos obrigatórios, formatos e limites antes da geração.
-- Preservação dos dados preenchidos quando houver erro recuperável.
+O público principal é formado por:
 
-### Geração assistida
+- microempreendedores individuais — MEIs;
+- profissionais autônomos;
+- freelancers e profissionais criativos;
+- consultores independentes;
+- profissionais liberais;
+- pequenos prestadores de serviços;
+- microempresas e pequenas empresas;
+- clientes que precisam formalizar relações simples com esses profissionais.
 
-- Envio de uma solicitação estruturada ao serviço de IA desacoplado.
-- Geração de um rascunho vinculado ao tipo de contrato selecionado.
-- Indicação de que o resultado é um rascunho gerado e exige revisão humana.
-- Tratamento previsível de indisponibilidade, limite, falha e resposta inválida.
+O produto é especialmente adequado a usuários que possuem informações práticas sobre a negociação, mas não sabem como organizá-las em um documento profissional.
 
-### Revisão e gerenciamento
+## 6. Posicionamento
 
-- Visualização do rascunho gerado.
-- Edição manual antes de qualquer uso externo.
-- Salvamento, leitura, atualização, listagem e exclusão de rascunhos do usuário.
-- Estados de carregamento, vazio, erro e sucesso.
+O DocAI é uma ferramenta de criação orientada de documentos contratuais, não um escritório de advocacia, serviço de consultoria jurídica ou garantia automática de validade.
 
-### Plano e pagamento
+O documento gerado é um rascunho sujeito a leitura, negociação e revisão humana. Situações reguladas, trabalhistas, societárias, imobiliárias, internacionais ou de alta complexidade podem exigir atendimento profissional especializado.
 
-- Definição de planos e limites somente após decisão comercial aprovada.
-- Integração de cobrança por contrato de pagamentos desacoplado.
-- Nenhuma cobrança deve ser realizada antes de requisitos, preços, eventos e políticas serem aprovados em Sprint própria.
+## 7. Diferenciais
 
-### Exportação e compartilhamento
+### Biblioteca curada
 
-- PDF, download, envio por e-mail ou compartilhamento somente quando documentados em Sprints próprias.
-- A existência dos contratos opcionais do Starter Kit não habilita esses fluxos automaticamente.
+Cada documento precisa resolver um problema reconhecível. A composição, as prioridades e os critérios da biblioteca estão definidos exclusivamente no roadmap oficial.
 
-## 6. Arquitetura do produto
+### Preenchimento orientado
 
-O DocAI seguirá a arquitetura do Starter Kit:
+As perguntas utilizam linguagem simples e solicitam somente informações necessárias. A definição e os limites da Regra dos 3 Minutos pertencem ao roadmap oficial da biblioteca.
 
-- **Apresentação:** rotas App Router, formulários, navegação e estados visuais.
-- **Aplicação:** casos de uso como coletar dados, solicitar geração, revisar e gerenciar rascunhos.
-- **Domínio:** tipos de contrato, campos, validações e regras específicas do DocAI.
-- **Infraestrutura:** Supabase para identidade e persistência quando aprovado, Gemini por adaptador de IA, Stripe por adaptador de pagamentos, Vercel como ambiente de execução e publicação.
-- **Compartilhada:** contratos realmente reutilizáveis, sem incorporar regras de um fornecedor.
+### Jornada conectada
 
-As dependências devem apontar para contratos internos. Nenhuma tela ou regra de domínio poderá depender diretamente de Gemini, Stripe ou APIs de armazenamento.
+O produto deve permitir reaproveitar informações do usuário e de documentos relacionados, reduzindo repetição e favorecendo retorno ao longo de uma relação comercial.
 
-## 7. Integrações aprovadas como direção
+### Qualidade proporcional
 
-As seguintes tecnologias foram escolhidas para planejamento, mas sua implementação depende de Sprints e aprovação próprias:
+O DocAI procura equilibrar facilidade de uso, clareza e proteção. Simplificação de preenchimento não significa retirada de informações juridicamente relevantes.
 
-- **Next.js:** aplicação web baseada no App Router.
-- **Supabase:** autenticação e persistência do produto, atrás de contratos internos e configuração segura.
-- **Gemini:** provedor de IA atrás do contrato de IA do Starter Kit; prompts, limites e tratamento de resposta serão específicos do DocAI e documentados antes da implementação.
-- **Stripe:** pagamentos e assinaturas atrás do contrato de pagamentos; preços, webhooks, estados e reconciliação exigem escopo próprio.
-- **Vercel:** hospedagem e execução; configurações de produção, domínios e deploy exigem autorização operacional separada.
+### Transparência
 
-Nenhum segredo, chave ou credencial deve entrar no repositório. A troca de qualquer fornecedor deve ser possível sem alterar o domínio do produto.
+O usuário deve compreender o propósito do documento, as informações utilizadas e a necessidade de revisar o resultado antes de utilizá-lo.
 
-## 8. Segurança, privacidade e confiabilidade
+## 8. Funcionalidades do produto
 
-- Isolar dados por usuário autenticado e validar autorização no servidor.
-- Não enviar dados de uma conta para outra nem expor conteúdo em mensagens ou logs.
-- Tratar informações inseridas pelo usuário e respostas da IA como dados não confiáveis.
-- Minimizar os dados enviados ao provedor de IA e documentar retenção, finalidade e limitações.
-- Evitar registrar conteúdo contratual integral em logs.
-- Manter segredos exclusivamente em variáveis de ambiente do servidor.
-- Definir política de exclusão, retenção e exportação antes do lançamento.
-- Informar claramente limitações jurídicas, possibilidade de erro e necessidade de revisão.
+O produto pode oferecer, mediante Sprints próprias e aprovadas:
 
-## 9. Requisitos não funcionais
+- descoberta e seleção de documentos pela biblioteca;
+- formulários orientados conforme o documento escolhido;
+- validação das informações fornecidas;
+- geração de rascunho contratual;
+- apresentação do resultado para leitura e revisão;
+- edição e gerenciamento dos documentos do usuário;
+- histórico e recuperação de documentos, quando aprovados;
+- exportação ou impressão, quando aprovadas;
+- reutilização segura de dados do perfil e de documentos anteriores;
+- planos, limites e pagamento, quando houver definição comercial aprovada.
 
-- Interface responsiva e acessível conforme `UI_GUIDELINES.md`.
-- Contratos e serviços testáveis sem depender obrigatoriamente de fornecedores reais.
-- Falhas de IA, persistência e pagamentos traduzidas para estados seguros e recuperáveis.
-- Desempenho suficiente para formular, gerar e revisar sem bloquear operações não relacionadas.
-- Observabilidade somente quando houver necessidade e política de privacidade aprovadas.
-- Dependências e configurações adicionadas apenas com justificativa atual.
-- Documentação de configuração, operação, limites e recuperação mantida junto às entregas autorizadas.
+A presença de uma funcionalidade nesta especificação não autoriza sua implementação. O estado técnico deve ser verificado no código, nos testes e nas Sprints encerradas.
 
-## 10. Fora do escopo inicial
+## 9. Requisitos de experiência
 
-- Aconselhamento jurídico, validação jurídica automática ou garantia de validade contratual.
-- Atendimento a todas as jurisdições, idiomas ou legislações sem análise própria.
-- Assinatura eletrônica, testemunhas, certificação ou reconhecimento de firma.
-- Marketplace de modelos, colaboração em tempo real ou gestão avançada de equipes.
-- Integrações não aprovadas com outros provedores de IA, pagamento, armazenamento ou e-mail.
-- Automação de cobrança sem plano comercial aprovado.
-- Treinamento de modelo próprio, fine-tuning, embeddings ou busca vetorial.
-- Aplicativos nativos, extensão de navegador ou API pública.
-- Analytics de produto, anúncios ou venda de dados.
+O produto deve:
 
-## 11. Critérios de sucesso
+- usar linguagem direta e compreensível;
+- explicar por que uma informação é necessária;
+- evitar perguntas repetidas;
+- preservar respostas em erros recuperáveis;
+- comunicar carregamento, sucesso, ausência e falha;
+- permitir revisão antes do uso do documento;
+- manter acessibilidade e responsividade conforme `UI_GUIDELINES.md`.
 
-O DocAI poderá ser considerado pronto para uma primeira avaliação quando:
+## 10. Segurança, privacidade e confiança
 
-- um usuário autenticado conseguir selecionar um tipo de contrato e preencher os dados necessários;
-- uma solicitação puder ser enviada ao adaptador de IA aprovado sem acoplamento ao domínio;
-- o resultado for apresentado como rascunho editável e revisável;
-- rascunhos forem isolados por usuário e gerenciáveis conforme as operações aprovadas;
-- falhas, limites e ausência de configuração forem compreensíveis;
-- nenhum segredo ou dado de outra conta for exposto;
-- pagamentos e demais integrações permanecerem desativados até suas Sprints;
-- documentação, testes e critérios de aceite refletirem o comportamento real.
+O DocAI deve tratar dados contratuais como informações sensíveis. O produto deve limitar coleta e exposição, isolar dados por usuário, evitar conteúdo sensível em logs e comunicar de forma transparente o uso de serviços externos.
 
-## 12. Regra de autorização
+Políticas de retenção, exclusão, compartilhamento e tratamento por terceiros dependem de decisão e implementação próprias antes do lançamento correspondente.
 
-Esta especificação orienta o produto, mas não autoriza código. Cada capacidade deverá ser convertida em uma Sprint com objetivo, escopo, arquivos autorizados, critérios, validações e aprovação explícita.
+## 11. Fora do escopo
+
+Não fazem parte da proposta do produto:
+
+- substituir advogado ou aconselhamento jurídico individual;
+- garantir validade, resultado judicial ou ausência de risco;
+- aplicar automaticamente o mesmo documento a qualquer profissão ou jurisdição;
+- simplificar relações complexas apenas para ampliar o catálogo;
+- manter modelos duplicados que resolvam o mesmo problema;
+- considerar roadmap ou pesquisa como autorização de implementação.
+
+## 12. Critérios de sucesso do produto
+
+O DocAI gera valor quando o usuário consegue:
+
+- encontrar o documento adequado para um problema real;
+- compreender as perguntas sem conhecimento jurídico avançado;
+- fornecer as informações necessárias com baixo atrito;
+- receber um rascunho profissional e coerente;
+- revisar o conteúdo e compreender suas limitações;
+- reutilizar o produto em outras etapas da mesma relação comercial.
+
+Métricas, metas e prioridades específicas da biblioteca pertencem ao roadmap oficial.
+
+## 13. Regra de autorização
+
+Esta especificação define estratégia de produto, mas não autoriza código, dependência, configuração, integração, publicação ou nova Sprint.
+
+Qualquer implementação exige uma Sprint ativa com objetivo, escopo, arquivos autorizados, critérios de aceitação, validações e aprovação explícita.

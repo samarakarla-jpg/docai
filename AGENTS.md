@@ -14,50 +14,27 @@ O `AGENTS.md` existe para:
 
 Este documento não define funcionalidades nem concede autorização para implementá-las. A tarefa ou a Sprint atual deve indicar o objetivo, o escopo e os arquivos permitidos.
 
-Depois de ler este arquivo, o agente deve consultar `MASTER_PROMPT.md` e cumprir sua ordem de leitura obrigatória.
+Os demais documentos operacionais apenas referenciam estas diretrizes e as fontes oficiais aplicáveis.
 
-## Hierarquia de Documentos
+## Fonte Única de Verdade
 
-A prioridade documental possui dois níveis: protocolo operacional e autoridade material.
+Cada assunto do DocAI possui uma única fonte oficial de verdade. Os demais documentos apenas referenciam essa fonte e nunca duplicam seu conteúdo.
 
-### Protocolo operacional
+Se uma decisão precisar ser alterada, ela deve ser alterada apenas na sua fonte oficial de verdade. Todos os demais documentos devem apenas referenciá-la, nunca duplicá-la.
 
-1. `MASTER_PROMPT.md`
+Sempre que houver duplicidade documental, ela deverá ser resolvida antes da implementação de novas funcionalidades. Nenhum documento de apoio, planejamento ou histórico pode redefinir arquitetura, estratégia, prioridades ou regras permanentes.
 
-O protocolo mestre determina como o agente deve ler, planejar, executar, validar, relatar e aguardar aprovação. Nenhum documento de apoio pode reduzir essas obrigações.
+### Distribuição oficial
 
-### Autoridade material
+1. `ARCHITECTURE.md` é a fonte oficial da arquitetura. Contém princípios arquiteturais, componentes protegidos, fluxo da aplicação, regras de evolução, `ContractDefinition`, `formSchema`, `generationSchema`, renderer, motor e checklist arquitetural.
+2. `PRODUCT_SPEC.md` é a fonte oficial da visão e da estratégia do produto. Contém objetivo, proposta de valor, público-alvo, posicionamento, diferenciais e funcionalidades do DocAI, sem redefinir arquitetura.
+3. `docs/ROADMAP_BIBLIOTECA.md` é a fonte oficial da evolução da biblioteca. Contém categorias, prioridades, contratos aprovados, ordem de implementação, critérios de inclusão e rejeição e roadmap das próximas Sprints.
+4. `AGENTS.md` é a fonte oficial das regras permanentes de desenvolvimento e colaboração.
+5. `docs/SPRINT_NN.md` delimita o trabalho aprovado enquanto a Sprint estiver ativa. Após aprovação e encerramento, torna-se registro histórico daquele momento; decisões estratégicas permanentes devem ser consolidadas na fonte oficial correspondente. Sprints legadas fora de `docs/` permanecem apenas como histórico.
+6. `README.md` é a entrada do projeto e apenas resume responsabilidades e referencia as fontes oficiais.
+7. `AI_RULES.md` e `MASTER_PROMPT.md` são pontos de compatibilidade e referência; não mantêm cópias das regras permanentes.
 
-Quando existir conflito sobre propósito, princípios, requisitos ou escopo, a prioridade é:
-
-1. `VISION.md`
-2. `PROJECT_PRINCIPLES.md`
-3. `PRODUCT_SPEC.md`
-4. `SPRINT_NN.md`, correspondente à Sprint atual
-5. documentos de apoio aplicáveis
-
-Os documentos de apoio devem ser consultados conforme a responsabilidade da tarefa:
-
-1. `ARCHITECTURE.md`
-2. `UI_GUIDELINES.md`
-3. `CODE_STYLE.md`
-4. `DEVELOPMENT_WORKFLOW.md`
-5. `ROADMAP.md`
-
-`AI_RULES.md` complementa estas diretrizes com regras permanentes para agentes. Quando houver divergência de precedência ou processo, o agente deve aplicar o protocolo de conflitos definido em `MASTER_PROMPT.md` e informar a inconsistência antes de alterar arquivos.
-
-### Papel de cada documento
-
-- `MASTER_PROMPT.md` define o protocolo principal para agentes.
-- `VISION.md` estabelece propósito, direção e limites fundamentais.
-- `PROJECT_PRINCIPLES.md` estabelece princípios permanentes de engenharia.
-- `PRODUCT_SPEC.md` define escopo, requisitos e critérios de sucesso.
-- `SPRINT_NN.md` delimita o trabalho operacional atualmente aprovado.
-- `ARCHITECTURE.md` define responsabilidades, camadas e direção das dependências.
-- `UI_GUIDELINES.md` orienta interface, acessibilidade e responsividade.
-- `CODE_STYLE.md` padroniza escrita e organização do código.
-- `DEVELOPMENT_WORKFLOW.md` descreve o processo operacional completo.
-- `ROADMAP.md` organiza direção e prioridades futuras sem autorizar implementação.
+`UI_GUIDELINES.md` e `CODE_STYLE.md` permanecem fontes especializadas, respectivamente, para interface e estilo de código. Eles não podem redefinir os assuntos reservados às fontes oficiais acima.
 
 ### Resolução de conflitos
 
@@ -65,15 +42,15 @@ Ao identificar um conflito, o agente deve:
 
 1. interromper qualquer alteração dependente da decisão;
 2. identificar os documentos e trechos envolvidos;
-3. distinguir ordem de leitura de ordem de autoridade;
-4. aplicar o documento de maior autoridade quando a resposta for inequívoca;
+3. identificar qual fonte oficial é responsável pelo assunto;
+4. aplicar a decisão registrada nessa fonte quando a resposta for inequívoca;
 5. avaliar impacto sobre escopo, arquivos, arquitetura e validação;
 6. informar a divergência antes de modificar o projeto;
 7. solicitar decisão quando ainda houver ambiguidade material.
 
 O agente não deve escolher silenciosamente a interpretação mais conveniente, editar documentos para eliminar o conflito ou implementar uma solução intermediária sem aprovação.
 
-Uma Sprint pode detalhar requisitos, mas não pode contradizer visão, princípios ou especificação. Documentos de apoio orientam a execução, mas não ampliam a Sprint.
+Em caso de conflito, prevalece `ARCHITECTURE.md` para arquitetura, `PRODUCT_SPEC.md` para visão e estratégia do produto, `docs/ROADMAP_BIBLIOTECA.md` para evolução da biblioteca e `AGENTS.md` para desenvolvimento e colaboração. Uma Sprint pode autorizar um recorte de trabalho, mas não substitui essas fontes.
 
 ## Responsabilidades do Agente
 
@@ -81,7 +58,7 @@ Uma Sprint pode detalhar requisitos, mas não pode contradizer visão, princípi
 
 O agente deve:
 
-- ler a documentação obrigatória na ordem definida pelo protocolo mestre;
+- ler este arquivo e as fontes oficiais relacionadas à tarefa;
 - ler integralmente a tarefa e a Sprint atual;
 - identificar objetivo, entregas, exclusões e critérios de aceitação;
 - inspecionar o estado do repositório e os arquivos relacionados;
@@ -109,10 +86,11 @@ Se a arquitetura existente impedir uma entrega, o agente deve relatar a limitaç
 
 O agente deve tratar a documentação como fonte de verdade e:
 
-- manter terminologia e decisões consistentes;
+- manter terminologia e decisões consistentes com a fonte oficial responsável;
 - não reescrever planejamento para justificar trabalho não aprovado;
 - atualizar documentos somente quando necessário e autorizado;
-- preservar links, referências e hierarquia;
+- preservar links, referências e a distribuição oficial de responsabilidades;
+- referenciar decisões sem reproduzi-las em documentos concorrentes;
 - separar estado atual, proposta e planejamento futuro;
 - informar quando uma entrega exigir atualização documental fora do escopo.
 
@@ -165,8 +143,7 @@ Toda tarefa deve seguir este fluxo.
 ### 1. Ler documentação
 
 - Ler este arquivo.
-- Ler `MASTER_PROMPT.md`.
-- Cumprir a ordem de leitura obrigatória definida no protocolo mestre.
+- Identificar e ler as fontes oficiais relacionadas ao assunto.
 - Ler a Sprint atual e os documentos complementares aplicáveis.
 - Inspecionar os arquivos, configurações e estado do repositório relacionados ao escopo.
 
@@ -333,8 +310,8 @@ Uma alteração do `AGENTS.md` deve:
 
 - partir de um problema real e documentado;
 - permanecer genérica para agentes atuais e futuros;
-- ser compatível com `MASTER_PROMPT.md`;
-- preservar visão, princípios e autoridade da Sprint;
+- preservar as responsabilidades das demais fontes oficiais;
+- preservar a autoridade operacional da Sprint ativa;
 - não conceder autonomia adicional sem aprovação;
 - explicar impacto sobre regras existentes;
 - evitar duplicação ou precedência ambígua;

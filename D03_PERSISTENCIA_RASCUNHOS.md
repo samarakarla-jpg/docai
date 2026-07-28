@@ -2,7 +2,7 @@
 
 **Produto:** DocAI  
 **Sprint:** D03 — Persistência de rascunhos  
-**Status:** revisada e aprovada  
+**Status:** registro histórico aprovado; não define estratégia vigente
 **Dependência anterior:** D02 — Identidade e contexto do usuário, aprovada
 
 Esta Sprint define o armazenamento durável dos rascunhos do DocAI e seu isolamento por usuário. A persistência prevista utilizará Supabase somente por meio de contratos internos e após aprovação da implementação. Este documento não autoriza migrations, credenciais, chamadas externas ou código de produção.

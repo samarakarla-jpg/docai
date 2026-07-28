@@ -2,7 +2,7 @@
 
 **Produto:** DocAI
 **Sprint:** D07 — Revisão humana
-**Status:** especificação aguardando aprovação
+**Status:** planejamento histórico substituído; sem autoridade vigente
 **Fase:** revisão do rascunho antes de exportação
 
 ## Objetivo

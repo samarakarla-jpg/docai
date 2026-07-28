@@ -2,7 +2,7 @@
 
 **Produto:** DocAI  
 **Sprint:** D02 — Identidade e contexto do usuário  
-**Status:** revisada e aprovada  
+**Status:** registro histórico aprovado; não define estratégia vigente
 **Dependência anterior:** D01 — Refinamento do domínio, aprovada
 
 Esta Sprint define como o DocAI identifica usuários, autoriza operações e associa documentos ao contexto correto. A implementação deverá preservar a fundação congelada do Starter Kit e manter Supabase Auth atrás de uma fronteira substituível.

@@ -2,10 +2,10 @@
 
 **Produto:** DocAI  
 **Sprint:** D01 — Refinamento do domínio  
-**Status:** revisão documental aguardando aprovação
+**Status:** planejamento histórico substituído; sem autoridade vigente
 **Fase:** preparação funcional antes de integrações
 
-Este documento registra e refina o domínio já existente no repositório. A D01 não introduz mudanças estruturais, integração com Supabase, Gemini, Stripe, Vercel ou outro fornecedor. Sua aprovação não autoriza implementação automática.
+Este documento preserva uma proposta histórica. Estratégia de produto, arquitetura e prioridades vigentes devem ser consultadas nas fontes oficiais indicadas em `AGENTS.md`. A D01 não autoriza implementação.
 
 ## Objetivo da Sprint
 

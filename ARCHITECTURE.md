@@ -14,21 +14,11 @@ A arquitetura descreve:
 
 Este documento não autoriza implementação. Qualquer mudança arquitetural deve estar vinculada a uma necessidade concreta, documentada em uma Sprint e explicitamente aprovada.
 
-## Visão do Produto
+## Limite de responsabilidade
 
-O DocAI é uma plataforma profissional de contratos. Seu objetivo não é ser apenas um gerador, mas oferecer a melhor biblioteca de contratos profissionais para prestadores de serviços, MEIs, autônomos e pequenas empresas.
+A visão, o posicionamento e a estratégia do produto pertencem exclusivamente ao `PRODUCT_SPEC.md`. A evolução e as prioridades da biblioteca pertencem exclusivamente a `docs/ROADMAP_BIBLIOTECA.md`.
 
-Toda decisão técnica deve priorizar:
-
-- simplicidade;
-- escalabilidade;
-- reutilização;
-- baixo acoplamento;
-- manutenção;
-- clareza;
-- qualidade do produto.
-
-Quantidade de funcionalidades ou contratos nunca deve prevalecer sobre qualidade.
+Este documento trata somente das consequências arquiteturais dessas decisões e não as redefine.
 
 ## Filosofia Principal: Configuração Acima de Código
 
@@ -401,7 +391,7 @@ Contém os manifestos, arquivos de configuração e documentos que orientam o de
 
 ### Documentação
 
-Os documentos Markdown na raiz formam a hierarquia de decisão do projeto. Eles definem visão, princípios, especificação, arquitetura, roadmap, Sprints e convenções complementares.
+A distribuição oficial de responsabilidades documentais e as regras de colaboração estão definidas em `AGENTS.md`. Documentos de produto e planejamento não podem redefinir as fronteiras arquiteturais desta Constituição.
 
 Novas pastas devem ser criadas por responsabilidade, não por antecipação. Quando necessárias, podem representar conceitos como componentes compartilhados, serviços, regras de domínio ou adaptadores de infraestrutura, desde que:
 

@@ -2,11 +2,13 @@
 
 **Sprint:** `[NN — nome curto e descritivo]`
 
-**Fase do Roadmap:** `[fase relacionada]`
+**Fase do roadmap da biblioteca:** `[fase relacionada em docs/ROADMAP_BIBLIOTECA.md, quando aplicável]`
 
 **Status:** `[rascunho | em revisão | aprovada | em execução | tecnicamente concluída | encerrada]`
 
-Identifique a Sprint por número e por um nome que represente uma única evolução coerente. Informe a fase correspondente do roadmap e mantenha o status atualizado sem confundir conclusão técnica com aprovação final.
+Identifique a Sprint por número e por um nome que represente uma única evolução coerente. Mantenha o status atualizado sem confundir conclusão técnica com aprovação final. A Sprint deve ser criada em `docs/SPRINT_NN.md`.
+
+Enquanto ativa, a Sprint delimita o trabalho autorizado. Depois de aprovada e encerrada, torna-se registro histórico. Qualquer decisão permanente deve ser consolidada exclusivamente em `ARCHITECTURE.md`, `PRODUCT_SPEC.md`, `docs/ROADMAP_BIBLIOTECA.md` ou `AGENTS.md`, conforme o assunto.
 
 # Objetivo
 
@@ -16,7 +18,7 @@ O objetivo deve:
 
 - resolver uma necessidade atual e documentada;
 - representar uma evolução pequena e verificável;
-- permanecer compatível com a visão, os princípios e a especificação;
+- permanecer compatível com as fontes oficiais aplicáveis;
 - evitar antecipação de funcionalidades futuras;
 - permitir uma avaliação objetiva ao final do trabalho.
 

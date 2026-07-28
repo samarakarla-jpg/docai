@@ -2,7 +2,7 @@
 
 **Produto:** DocAI
 **Sprint:** D04 — Serviço de geração
-**Status:** especificação aguardando aprovação
+**Status:** planejamento histórico substituído; sem autoridade vigente
 **Fase:** aplicação e domínio, sem integrações externas
 
 ## Objetivo
