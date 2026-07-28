@@ -37,6 +37,7 @@ const {
 const expectedModelNames = {
   "contratos-gerais": [
     "Contrato de Prestação de Serviços",
+    "Proposta Comercial com Aceite",
     "Freelancer por Projeto",
     "Consultoria",
     "Compra e Venda",
@@ -157,7 +158,7 @@ describe("DocAI contract library", () => {
       CONTRACT_CATEGORIES.map((category) => category.slug),
     );
 
-    assert.equal(CONTRACT_LIBRARY_MODELS.length, 71);
+    assert.equal(CONTRACT_LIBRARY_MODELS.length, 72);
     assert.ok(
       CONTRACT_LIBRARY_MODELS.every((model) =>
         categorySlugs.has(model.categorySlug),
@@ -205,7 +206,11 @@ describe("DocAI contract library", () => {
       assert.equal(
         formFields.find((field) => field.id === "contractObject")
           ?.defaultValue,
-        model.id === "prestacao-de-servicos" ? undefined : model.name,
+        ["prestacao-de-servicos", "proposta-comercial-com-aceite"].includes(
+          model.id,
+        )
+          ? undefined
+          : model.name,
       );
       assert.deepEqual(
         model.generationSchema.answerFieldIds,

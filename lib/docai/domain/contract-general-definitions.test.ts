@@ -11,6 +11,7 @@ const {
 
 const expectedNames = [
   "Contrato de Prestação de Serviços",
+  "Proposta Comercial com Aceite",
   "Freelancer por Projeto",
   "Consultoria",
   "Compra e Venda",
@@ -20,6 +21,25 @@ const expectedNames = [
   "Parceria Comercial sem Constituição de Sociedade",
   "Licença ou Cessão de Direitos Autorais",
   "Distrato de Contrato",
+] as const;
+
+const proposalSpecificFieldIds = [
+  "clientNeed",
+  "deliverables",
+  "scopeExclusions",
+  "paymentSchedule",
+  "proposalValidity",
+  "acceptanceMethod",
+] as const;
+
+const proposalRiskTerms = [
+  "solução",
+  "escopo",
+  "preço",
+  "prazo",
+  "validade",
+  "aceite",
+  "contrato posterior",
 ] as const;
 
 const serviceSpecificFieldIds = [
@@ -60,8 +80,8 @@ const requiredTargets = {
 } as const;
 
 describe("general contract definitions", () => {
-  it("defines the ten approved pilot contracts in order", () => {
-    assert.equal(GENERAL_CONTRACT_DEFINITIONS.length, 10);
+  it("registers the proposal after services and preserves prior contracts", () => {
+    assert.equal(GENERAL_CONTRACT_DEFINITIONS.length, 11);
     assert.deepEqual(
       GENERAL_CONTRACT_DEFINITIONS.map((definition) => definition.name),
       expectedNames,
@@ -118,7 +138,9 @@ describe("general contract definitions", () => {
       );
       assert.equal(
         contractObject?.defaultValue,
-        definition.id === "prestacao-de-servicos"
+        ["prestacao-de-servicos", "proposta-comercial-com-aceite"].includes(
+          definition.id,
+        )
           ? undefined
           : definition.name,
       );
@@ -227,6 +249,72 @@ describe("general contract definitions", () => {
     for (const term of serviceRiskTerms) {
       assert.ok(guidance.includes(term), term);
     }
+  });
+
+  it("implements the approved proposal fields without duplicating questions", () => {
+    const definition = findDefinition("proposta-comercial-com-aceite");
+    const fields = definition.formSchema.sections.flatMap(
+      (section) => section.fields,
+    );
+    const specificFieldIds = fields
+      .map((field) => field.id)
+      .filter(
+        (fieldId) =>
+          !compatibilityFieldIds.includes(
+            fieldId as (typeof compatibilityFieldIds)[number],
+          ),
+      );
+
+    assert.deepEqual(specificFieldIds, proposalSpecificFieldIds);
+    assert.deepEqual(
+      fields.filter((field) => !field.required).map((field) => field.id),
+      ["scopeExclusions"],
+    );
+  });
+
+  it("keeps the proposal within the simple-language three-minute limit", () => {
+    const businessFields = findDefinition("proposta-comercial-com-aceite")
+      .formSchema.sections.flatMap((section) => section.fields)
+      .filter(
+        (field) =>
+          !compatibilityFieldIds
+            .slice(0, 6)
+            .includes(
+              field.id as (typeof compatibilityFieldIds)[number],
+            ),
+      );
+
+    assert.equal(businessFields.length, 10);
+    assert.ok(businessFields.every((field) => field.label.endsWith("?")));
+    assert.ok(
+      businessFields.every(
+        (field) =>
+          !/(objeto principal|condição econômica|inadimplemento|rescisão|vigência|novação)/i.test(
+            field.label,
+          ),
+      ),
+    );
+  });
+
+  it("covers the approved commercial risks in proposal guidance", () => {
+    const definition = findDefinition("proposta-comercial-com-aceite");
+    const guidance = definition.generationSchema.sections
+      .flatMap((section) => [section.title, section.objective])
+      .join(" ")
+      .toLocaleLowerCase("pt-BR");
+
+    for (const term of proposalRiskTerms) {
+      assert.ok(guidance.includes(term), term);
+    }
+
+    const acceptanceMethod = definition.formSchema.sections
+      .flatMap((section) => section.fields)
+      .find((field) => field.id === "acceptanceMethod");
+    assert.equal(acceptanceMethod?.type, "select");
+    assert.deepEqual(
+      acceptanceMethod.options.map((option) => option.value),
+      ["signed-proposal", "email", "written-message"],
+    );
   });
 });
 

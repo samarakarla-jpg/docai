@@ -116,6 +116,76 @@ export const GENERAL_CONTRACT_DEFINITIONS: readonly ContractDefinition<"contrato
     version: 2,
   }),
   defineGeneralContract({
+    coreFields: {
+      contractObject: {
+        helpText: "Ex.: criação de identidade visual, manutenção mensal ou consultoria financeira.",
+        label: "Qual serviço ou solução você está oferecendo?",
+      },
+      startDate: { label: "Quando o serviço poderá começar?" },
+      term: {
+        helpText: "Ex.: entrega em 15 dias ou execução mensal por 6 meses.",
+        label: "Quando o serviço será entregue ou concluído?",
+      },
+      value: { label: "Qual é o valor da proposta?" },
+    },
+    description:
+      "Apresenta uma oferta comercial clara, com solução, escopo, investimento, prazo, validade e aceite.",
+    detailFields: [
+      textarea("clientNeed", "Qual necessidade do cliente será atendida?"),
+      textarea("deliverables", "O que está incluído na proposta?"),
+      textarea("scopeExclusions", "O que não está incluído na proposta?", false),
+      text("paymentSchedule", "Como o pagamento será feito?"),
+      date("proposalValidity", "Até quando esta proposta é válida?"),
+      select("acceptanceMethod", "Como o cliente poderá aceitar a proposta?", [
+        option("Assinatura desta proposta", "signed-proposal"),
+        option("Aceite por e-mail", "email"),
+        option("Aceite por mensagem escrita", "written-message"),
+      ]),
+    ],
+    id: "proposta-comercial-com-aceite",
+    name: "Proposta Comercial com Aceite",
+    objective:
+      "Registrar uma oferta compreensível e verificável, com solução, escopo, investimento, prazo, validade e aceite sem promessas não informadas.",
+    partyTitles: ["Cliente", "Prestador"],
+    sections: [
+      generationSection(
+        "parties",
+        "Identificação das partes e da proposta",
+        "Identificar cliente, prestador e proposta sem inventar dados ou representantes.",
+      ),
+      generationSection(
+        "need",
+        "Necessidade e solução oferecida",
+        "Relacionar a necessidade informada à solução oferecida sem garantir resultado não declarado.",
+      ),
+      generationSection(
+        "scope",
+        "Escopo, inclusões e exclusões",
+        "Delimitar entregas, itens incluídos e exclusões exclusivamente conforme as respostas.",
+      ),
+      generationSection(
+        "commercial",
+        "Investimento e pagamento",
+        "Registrar preço e forma de pagamento sem criar vencimentos, encargos ou condições ausentes.",
+      ),
+      generationSection(
+        "schedule",
+        "Início e prazo",
+        "Registrar início possível e prazo de entrega ou execução sem prometer cronograma não informado.",
+      ),
+      generationSection(
+        "acceptance",
+        "Validade e aceite",
+        "Definir validade e meio de aceite expresso, sem tratar silêncio como concordância.",
+      ),
+      generationSection(
+        "relationship",
+        "Relação com contrato posterior",
+        "Explicar que a proposta aceita registra a oferta e pode ser detalhada por contrato posterior, sem substituição ou alteração silenciosa do que foi aceito.",
+      ),
+    ],
+  }),
+  defineGeneralContract({
     description:
       "Estrutura um trabalho autônomo por projeto, com entregáveis, revisões, aceite e arquivos finais.",
     detailFields: [
