@@ -24,6 +24,7 @@ type GeneralContractCoreField = Readonly<{
   defaultValue?: string;
   helpText?: string;
   label: string;
+  required?: boolean;
 }>;
 
 type GeneralContractCoreFields = Readonly<{
@@ -182,6 +183,75 @@ export const GENERAL_CONTRACT_DEFINITIONS: readonly ContractDefinition<"contrato
         "relationship",
         "Relação com contrato posterior",
         "Explicar que a proposta aceita registra a oferta e pode ser detalhada por contrato posterior, sem substituição ou alteração silenciosa do que foi aceito.",
+      ),
+    ],
+  }),
+  defineGeneralContract({
+    coreFields: {
+      contractObject: {
+        helpText: "Informe o nome, a data ou outra referência do contrato ou proposta original.",
+        label: "Qual contrato ou proposta será alterado?",
+      },
+      startDate: { label: "Quando a alteração começa a valer?" },
+      term: {
+        helpText: "Deixe em branco se o prazo continuar igual.",
+        label: "Qual será o novo prazo, se houver?",
+        required: false,
+      },
+      value: {
+        helpText: "Informe somente o acréscimo, desconto ou novo valor combinado.",
+        label: "Qual é o impacto no valor?",
+        required: false,
+      },
+    },
+    description:
+      "Registra uma mudança de escopo e seus impactos em preço ou prazo sem substituir o acordo original.",
+    detailFields: [
+      textarea("scopeChange", "O que será alterado?"),
+      textarea("removedScope", "O que deixará de fazer parte do serviço?", false),
+      textarea("changeReason", "Por que a alteração foi solicitada?"),
+      select("priceImpactType", "Como a alteração afeta o preço?", [
+        option("Não altera o preço", "unchanged"),
+        option("Aumenta o preço", "increase"),
+        option("Reduz o preço", "decrease"),
+      ]),
+      text("scheduleImpact", "Como a alteração afeta o cronograma?"),
+    ],
+    id: "termo-de-alteracao-de-escopo",
+    name: "Termo de Alteração de Escopo",
+    objective:
+      "Formalizar uma mudança específica e seus impactos, preservando todas as condições do acordo original que não foram expressamente alteradas.",
+    partyTitles: ["Cliente", "Prestador"],
+    sections: [
+      generationSection(
+        "parties",
+        "Identificação das partes e do acordo",
+        "Identificar as partes e o documento original sem inventar referências.",
+      ),
+      generationSection(
+        "change",
+        "Alteração de escopo",
+        "Descrever apenas inclusões, exclusões ou modificações expressamente informadas e registrar o motivo apresentado.",
+      ),
+      generationSection(
+        "price",
+        "Impacto no preço e pagamento",
+        "Distinguir aumento, redução ou ausência de impacto no preço sem criar valor, vencimento ou encargo ausente.",
+      ),
+      generationSection(
+        "schedule",
+        "Impacto no prazo e cronograma",
+        "Registrar a data de eficácia, o impacto real no cronograma e o novo prazo somente quando informado.",
+      ),
+      generationSection(
+        "preservation",
+        "Condições preservadas",
+        "Manter as demais condições do acordo original e evitar substituição integral ou novação presumida.",
+      ),
+      generationSection(
+        "acceptance",
+        "Aceite e disposições finais",
+        "Registrar concordância de ambas as partes e impedir alteração unilateral do acordo.",
       ),
     ],
   }),
@@ -531,17 +601,27 @@ function contractDetails(
       text(
         "contractObject",
         coreFields.contractObject.label,
-        true,
+        coreFields.contractObject.required ?? true,
         "full",
         coreFields.contractObject.defaultValue,
         coreFields.contractObject.helpText,
       ),
-      money("value", coreFields.value.label),
-      date("startDate", coreFields.startDate.label),
+      money(
+        "value",
+        coreFields.value.label,
+        coreFields.value.required ?? true,
+        coreFields.value.helpText,
+      ),
+      date(
+        "startDate",
+        coreFields.startDate.label,
+        coreFields.startDate.required ?? true,
+        coreFields.startDate.helpText,
+      ),
       text(
         "term",
         coreFields.term.label,
-        true,
+        coreFields.term.required ?? true,
         "half",
         coreFields.term.defaultValue,
         coreFields.term.helpText,
@@ -572,17 +652,28 @@ function textarea(
   return { id, label, layout: "full", required, rows: 4, type: "textarea" };
 }
 
-function date(id: string, label: string): ContractFormFieldSchema {
-  return { id, label, layout: "half", required: true, type: "date" };
+function date(
+  id: string,
+  label: string,
+  required = true,
+  helpText?: string,
+): ContractFormFieldSchema {
+  return { helpText, id, label, layout: "half", required, type: "date" };
 }
 
-function money(id: string, label: string): ContractFormFieldSchema {
+function money(
+  id: string,
+  label: string,
+  required = true,
+  helpText?: string,
+): ContractFormFieldSchema {
   return {
     currency: "BRL",
+    helpText,
     id,
     label,
     layout: "half",
-    required: true,
+    required,
     type: "money",
   };
 }

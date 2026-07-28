@@ -12,6 +12,7 @@ const {
 const expectedNames = [
   "Contrato de Prestação de Serviços",
   "Proposta Comercial com Aceite",
+  "Termo de Alteração de Escopo",
   "Freelancer por Projeto",
   "Consultoria",
   "Compra e Venda",
@@ -21,6 +22,23 @@ const expectedNames = [
   "Parceria Comercial sem Constituição de Sociedade",
   "Licença ou Cessão de Direitos Autorais",
   "Distrato de Contrato",
+] as const;
+
+const scopeChangeSpecificFieldIds = [
+  "scopeChange",
+  "removedScope",
+  "changeReason",
+  "priceImpactType",
+  "scheduleImpact",
+] as const;
+
+const scopeChangeRiskTerms = [
+  "escopo",
+  "preço",
+  "prazo",
+  "aceite",
+  "unilateral",
+  "novação",
 ] as const;
 
 const proposalSpecificFieldIds = [
@@ -81,7 +99,7 @@ const requiredTargets = {
 
 describe("general contract definitions", () => {
   it("registers the proposal after services and preserves prior contracts", () => {
-    assert.equal(GENERAL_CONTRACT_DEFINITIONS.length, 11);
+    assert.equal(GENERAL_CONTRACT_DEFINITIONS.length, 12);
     assert.deepEqual(
       GENERAL_CONTRACT_DEFINITIONS.map((definition) => definition.name),
       expectedNames,
@@ -138,9 +156,11 @@ describe("general contract definitions", () => {
       );
       assert.equal(
         contractObject?.defaultValue,
-        ["prestacao-de-servicos", "proposta-comercial-com-aceite"].includes(
-          definition.id,
-        )
+        [
+          "prestacao-de-servicos",
+          "proposta-comercial-com-aceite",
+          "termo-de-alteracao-de-escopo",
+        ].includes(definition.id)
           ? undefined
           : definition.name,
       );
@@ -314,6 +334,72 @@ describe("general contract definitions", () => {
     assert.deepEqual(
       acceptanceMethod.options.map((option) => option.value),
       ["signed-proposal", "email", "written-message"],
+    );
+  });
+
+  it("implements only the approved scope-change questions", () => {
+    const definition = findDefinition("termo-de-alteracao-de-escopo");
+    const fields = definition.formSchema.sections.flatMap(
+      (section) => section.fields,
+    );
+    const specificFieldIds = fields
+      .map((field) => field.id)
+      .filter(
+        (fieldId) =>
+          !compatibilityFieldIds.includes(
+            fieldId as (typeof compatibilityFieldIds)[number],
+          ),
+      );
+
+    assert.deepEqual(specificFieldIds, scopeChangeSpecificFieldIds);
+    assert.deepEqual(
+      fields.filter((field) => !field.required).map((field) => field.id),
+      ["value", "term", "removedScope"],
+    );
+  });
+
+  it("keeps scope changes within the simple-language three-minute limit", () => {
+    const businessFields = findDefinition("termo-de-alteracao-de-escopo")
+      .formSchema.sections.flatMap((section) => section.fields)
+      .filter(
+        (field) =>
+          !compatibilityFieldIds
+            .slice(0, 6)
+            .includes(
+              field.id as (typeof compatibilityFieldIds)[number],
+            ),
+      );
+
+    assert.equal(businessFields.length, 9);
+    assert.ok(businessFields.every((field) => field.label.endsWith("?")));
+    assert.ok(
+      businessFields.every(
+        (field) =>
+          !/(objeto principal|condição econômica|inadimplemento|rescisão|vigência|novação)/i.test(
+            field.label,
+          ),
+      ),
+    );
+  });
+
+  it("covers scope-change risks with explicit price choices", () => {
+    const definition = findDefinition("termo-de-alteracao-de-escopo");
+    const guidance = definition.generationSchema.sections
+      .flatMap((section) => [section.title, section.objective])
+      .join(" ")
+      .toLocaleLowerCase("pt-BR");
+
+    for (const term of scopeChangeRiskTerms) {
+      assert.ok(guidance.includes(term), term);
+    }
+
+    const priceImpactType = definition.formSchema.sections
+      .flatMap((section) => section.fields)
+      .find((field) => field.id === "priceImpactType");
+    assert.equal(priceImpactType?.type, "select");
+    assert.deepEqual(
+      priceImpactType.options.map((option) => option.value),
+      ["unchanged", "increase", "decrease"],
     );
   });
 });
