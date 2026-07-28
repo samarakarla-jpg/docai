@@ -13,6 +13,7 @@ export interface ContractParty {
 }
 
 interface BaseContractContent {
+  readonly definitionContext?: ContractGenerationDefinitionContext;
   readonly type: ContractType;
   readonly parties: readonly ContractParty[];
   readonly jurisdiction?: string;
@@ -56,6 +57,36 @@ export interface ContractTemplateContent {
   readonly type: ContractType;
   readonly title: string;
   readonly instructions: string;
+}
+
+export type ContractDefinitionReviewStatus = "initial-validation" | "reviewed";
+
+export interface ContractGenerationAnswer {
+  readonly fieldId: string;
+  readonly label: string;
+  readonly value: string;
+}
+
+export interface ContractGenerationSection {
+  readonly id: string;
+  readonly objective: string;
+  readonly title: string;
+}
+
+export interface ContractGenerationContextParty extends ContractParty {
+  readonly address?: string;
+  readonly role: string;
+}
+
+export interface ContractGenerationDefinitionContext {
+  readonly answers: readonly ContractGenerationAnswer[];
+  readonly definitionId: string;
+  readonly definitionVersion: number;
+  readonly documentTitle: string;
+  readonly objective: string;
+  readonly parties: readonly ContractGenerationContextParty[];
+  readonly reviewStatus: ContractDefinitionReviewStatus;
+  readonly sections: readonly ContractGenerationSection[];
 }
 
 export interface ContractGenerationRequest {

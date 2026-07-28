@@ -21,10 +21,23 @@ export type CreateSavedContractInput = Readonly<{
 
 export class ContractPersistenceError extends Error {
   readonly code = "STORAGE_FAILURE" as const;
+  readonly providerCode?: string;
+  readonly providerMessage?: string;
+  readonly status?: number;
 
-  constructor(message: string) {
+  constructor(
+    message: string,
+    details?: Readonly<{
+      code?: string;
+      message?: string;
+      status?: number;
+    }>,
+  ) {
     super(message);
     this.name = "ContractPersistenceError";
+    this.providerCode = details?.code;
+    this.providerMessage = details?.message;
+    this.status = details?.status;
   }
 }
 
@@ -48,7 +61,11 @@ export class SupabaseContractRepository {
       .single();
 
     if (error) {
-      throw new ContractPersistenceError("Unable to save the contract.");
+      throw new ContractPersistenceError("Unable to save the contract.", {
+        code: error.code,
+        message: error.message,
+        status: readStatus(error),
+      });
     }
 
     return parseContractRow(data);
@@ -129,4 +146,12 @@ function isNonBlankString(value: unknown): value is string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function readStatus(value: unknown): number | undefined {
+  if (!isRecord(value) || typeof value.status !== "number") {
+    return undefined;
+  }
+
+  return value.status;
 }

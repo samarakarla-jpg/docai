@@ -14,6 +14,10 @@ type SidebarProps = Readonly<{
 
 const navigationItems = [
   {
+    href: "/dashboard/library",
+    label: "Biblioteca de Contratos",
+  },
+  {
     href: "/dashboard/contracts",
     label: "Meus contratos",
   },

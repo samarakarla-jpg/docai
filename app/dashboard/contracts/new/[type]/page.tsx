@@ -2,6 +2,11 @@ import { notFound } from "next/navigation";
 
 import { ContractDetailsForm } from "@/components/docai/contracts/contract-details-form";
 import type { ContractType } from "@/lib/docai/domain/contract-models";
+import {
+  getContractCategory,
+  getContractLibraryModel,
+} from "@/lib/docai/domain/contract-library";
+import { createStandardContractFormSchema } from "@/lib/docai/domain/contract-form-schema";
 
 const contractTypeLabels: Record<ContractType, string> = {
   services: "Prestação de Serviços",
@@ -14,10 +19,16 @@ type ContractFormPageProps = {
   params: Promise<{
     type: string;
   }>;
+  searchParams: Promise<{
+    category?: string | string[];
+    model?: string | string[];
+    name?: string | string[];
+  }>;
 };
 
 export default async function ContractFormPage({
   params,
+  searchParams,
 }: ContractFormPageProps) {
   const { type: requestedType } = await params;
 
@@ -26,6 +37,34 @@ export default async function ContractFormPage({
   }
 
   const type = requestedType as ContractType;
+  const query = await searchParams;
+  const hasLibraryContext =
+    query.category !== undefined ||
+    query.model !== undefined ||
+    query.name !== undefined;
+  const categorySlug = readSingleQueryValue(query.category);
+  const modelId = readSingleQueryValue(query.model);
+  const modelName = readSingleQueryValue(query.name);
+  const selectedModel =
+    categorySlug && modelId
+      ? getContractLibraryModel(categorySlug, modelId)
+      : undefined;
+  const selectedCategory = selectedModel
+    ? getContractCategory(selectedModel.categorySlug)
+    : undefined;
+
+  if (
+    hasLibraryContext &&
+    (!categorySlug ||
+      !modelId ||
+      !modelName ||
+      !selectedModel ||
+      !selectedCategory ||
+      selectedModel.name !== modelName ||
+      selectedModel.contractType !== type)
+  ) {
+    notFound();
+  }
 
   return (
     <section
@@ -44,7 +83,30 @@ export default async function ContractFormPage({
         </p>
       </div>
 
-      <ContractDetailsForm type={type} />
+      <ContractDetailsForm
+        formSchema={
+          selectedModel?.formSchema ?? createStandardContractFormSchema()
+        }
+        model={
+          selectedModel && selectedCategory
+            ? {
+                categoryName: selectedCategory.name,
+                categorySlug: selectedModel.categorySlug,
+                id: selectedModel.id,
+                name: selectedModel.name,
+              }
+            : undefined
+        }
+        type={type}
+      />
     </section>
   );
+}
+
+function readSingleQueryValue(
+  value: string | string[] | undefined,
+): string | undefined {
+  return typeof value === "string" && value.trim().length > 0
+    ? value
+    : undefined;
 }

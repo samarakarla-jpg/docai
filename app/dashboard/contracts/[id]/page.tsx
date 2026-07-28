@@ -110,6 +110,38 @@ export default async function ContractPage({ params }: ContractPageProps) {
             {contract.content}
           </div>
         </article>
+
+        <section
+          aria-labelledby="contract-signatures-title"
+          className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8"
+        >
+          <h2
+            className="text-sm font-semibold text-slate-950"
+            id="contract-signatures-title"
+          >
+            Assinaturas
+          </h2>
+          <div className="mt-10 grid gap-10 sm:grid-cols-2 sm:gap-8">
+            <div>
+              <div className="h-12 border-b border-slate-500" />
+              <p className="mt-3 text-center text-sm font-medium text-slate-700">
+                Contratante
+              </p>
+            </div>
+            <div>
+              <div className="h-12 border-b border-slate-500" />
+              <p className="mt-3 text-center text-sm font-medium text-slate-700">
+                Contratado
+              </p>
+            </div>
+          </div>
+          <div className="mt-10 max-w-xs">
+            <div className="h-10 border-b border-slate-500" />
+            <p className="mt-3 text-center text-sm font-medium text-slate-700">
+              Data da assinatura
+            </p>
+          </div>
+        </section>
       </div>
 
       <style>{`
@@ -171,6 +203,12 @@ export default async function ContractPage({ params }: ContractPageProps) {
             margin-top: 8mm;
             overflow: visible;
             box-shadow: none;
+          }
+
+          #printable-contract > section {
+            margin-top: 8mm;
+            box-shadow: none;
+            break-inside: avoid;
           }
         }
       `}</style>

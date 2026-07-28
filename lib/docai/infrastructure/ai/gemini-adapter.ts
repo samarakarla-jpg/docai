@@ -1,7 +1,7 @@
 import type { AiAdapter, AiRequest, AiResult } from "../../../integrations/ai";
 import type { OptionalCapabilityStatus } from "../../../integrations/optional-capability";
 
-const DEFAULT_MODEL = "gemini-3.5-flash";
+const DEFAULT_MODEL = "gemini-flash-latest";
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_ATTEMPTS = 1;
 const RETRY_DELAY_MS = 250;
@@ -20,15 +20,25 @@ export type GeminiAdapterErrorCode =
   | "DISABLED"
   | "INVALID_CONFIGURATION"
   | "PROVIDER_FAILURE"
-  | "INVALID_RESPONSE";
+  | "INVALID_RESPONSE"
+  | "TIMEOUT";
 
 export class GeminiAdapterError extends Error {
   readonly code: GeminiAdapterErrorCode;
+  readonly providerMessage?: string;
+  readonly status?: number;
 
-  constructor(code: GeminiAdapterErrorCode, message: string) {
+  constructor(
+    code: GeminiAdapterErrorCode,
+    message: string,
+    status?: number,
+    providerMessage?: string,
+  ) {
     super(message);
     this.name = "GeminiAdapterError";
     this.code = code;
+    this.providerMessage = providerMessage;
+    this.status = status;
   }
 }
 
@@ -84,6 +94,8 @@ export class GeminiAdapter implements AiAdapter {
           throw new GeminiAdapterError(
             "PROVIDER_FAILURE",
             "The AI provider could not generate the contract.",
+            response.status,
+            await readProviderMessage(response),
           );
         }
 
@@ -91,6 +103,13 @@ export class GeminiAdapter implements AiAdapter {
       } catch (error) {
         if (error instanceof GeminiAdapterError) {
           throw error;
+        }
+
+        if (isAbortError(error)) {
+          throw new GeminiAdapterError(
+            "TIMEOUT",
+            "The AI provider request timed out.",
+          );
         }
 
         if (attempt < this.maxAttempts) {
@@ -242,6 +261,21 @@ async function extractText(response: Response): Promise<string> {
   return output;
 }
 
+async function readProviderMessage(response: Response): Promise<string | undefined> {
+  try {
+    const payload: unknown = await response.json();
+
+    if (!isRecord(payload) || !isRecord(payload.error)) {
+      return undefined;
+    }
+
+    const message = payload.error.message;
+    return typeof message === "string" ? message.slice(0, 500) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function parseNumber(value: string | undefined, fallback: number): number {
   if (value === undefined || value.trim() === "") {
     return fallback;
@@ -256,6 +290,13 @@ function isTransientStatus(status: number): boolean {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function isAbortError(error: unknown): boolean {
+  return (
+    isRecord(error) &&
+    error.name === "AbortError"
+  );
 }
 
 function delay(milliseconds: number): Promise<void> {

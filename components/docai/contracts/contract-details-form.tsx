@@ -9,8 +9,16 @@ import {
 } from "@/app/actions/generate-contract";
 import { ContractForm } from "@/components/docai/contracts/contract-form";
 import type { ContractType } from "@/lib/docai/domain/contract-models";
+import type { ContractFormSchema } from "@/lib/docai/domain/contract-definition";
 
 type ContractDetailsFormProps = Readonly<{
+  formSchema: ContractFormSchema;
+  model?: Readonly<{
+    categoryName: string;
+    categorySlug: string;
+    id: string;
+    name: string;
+  }>;
   type: ContractType;
 }>;
 
@@ -18,7 +26,11 @@ const INITIAL_STATE: GenerateContractActionState = {
   status: "idle",
 };
 
-export function ContractDetailsForm({ type }: ContractDetailsFormProps) {
+export function ContractDetailsForm({
+  formSchema,
+  model,
+  type,
+}: ContractDetailsFormProps) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState(
     generateContract,
@@ -37,9 +49,39 @@ export function ContractDetailsForm({ type }: ContractDetailsFormProps) {
       className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
     >
       <input name="type" type="hidden" value={type} />
+      {model ? (
+        <>
+          <input
+            name="definitionCategory"
+            type="hidden"
+            value={model.categorySlug}
+          />
+          <input name="definitionId" type="hidden" value={model.id} />
+        </>
+      ) : null}
+      {model ? (
+        <section
+          aria-labelledby="selected-library-model-title"
+          className="mb-8 rounded-xl border border-blue-200 bg-blue-50 p-4"
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-800">
+            Modelo selecionado
+          </p>
+          <h2
+            className="mt-1 text-lg font-semibold text-slate-950"
+            id="selected-library-model-title"
+          >
+            {model.name}
+          </h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Categoria: {model.categoryName}
+          </p>
+        </section>
+      ) : null}
       <ContractForm
         disabled={pending}
         fieldErrors={state.fieldErrors}
+        schema={formSchema}
         type={type}
       />
       {state.message ? (

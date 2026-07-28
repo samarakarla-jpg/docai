@@ -1,166 +1,296 @@
 "use client";
 
+import type { ChangeEvent } from "react";
+
+import type {
+  CheckboxFormFieldSchema,
+  ContractFormFieldSchema,
+  ContractFormSchema,
+  SelectFormFieldSchema,
+  TextAreaFormFieldSchema,
+} from "@/lib/docai/domain/contract-definition";
+import { createStandardContractFormSchema } from "@/lib/docai/domain/contract-form-schema";
 import type { ContractType } from "@/lib/docai/domain/contract-models";
 
 type ContractFormProps = Readonly<{
-  type: ContractType | "";
-  fieldErrors?: Readonly<Record<string, string>>;
   disabled?: boolean;
+  fieldErrors?: Readonly<Record<string, string>>;
+  schema?: ContractFormSchema;
+  type: ContractType | "";
 }>;
 
 export function ContractForm({
-  fieldErrors,
   disabled,
+  fieldErrors,
+  schema,
 }: ContractFormProps) {
+  const formSchema = schema ?? createStandardContractFormSchema();
+
   return (
     <fieldset className="space-y-8" disabled={disabled}>
       <legend className="sr-only">Dados do contrato</legend>
 
-      <section aria-labelledby="contractor-title">
-        <h2
-          className="text-lg font-semibold text-slate-950"
-          id="contractor-title"
-        >
-          Contratante (seus dados)
-        </h2>
-        <div className="mt-4 grid gap-5 sm:grid-cols-2">
-          <TextField
-            error={fieldErrors?.contractorName}
-            label="Nome do contratante"
-            name="contractorName"
-          />
-          <TextField
-            error={fieldErrors?.contractorDocument}
-            label="CPF/CNPJ do contratante"
-            name="contractorDocument"
-          />
-          <div className="sm:col-span-2">
-            <TextField
-              error={fieldErrors?.contractorAddress}
-              label="Endereço do contratante"
-              name="contractorAddress"
-            />
-          </div>
-        </div>
-      </section>
+      {formSchema.sections.map((section) => {
+        const titleId = `contract-form-section-${section.id}`;
 
-      <section aria-labelledby="contracted-title">
-        <h2
-          className="text-lg font-semibold text-slate-950"
-          id="contracted-title"
-        >
-          Contratado (dados da pessoa que realizará o serviço)
-        </h2>
-        <div className="mt-4 grid gap-5 sm:grid-cols-2">
-          <TextField
-            error={fieldErrors?.contractedName}
-            label="Nome do contratado"
-            name="contractedName"
-          />
-          <TextField
-            error={fieldErrors?.contractedDocument}
-            label="CPF/CNPJ do contratado"
-            name="contractedDocument"
-          />
-          <div className="sm:col-span-2">
-            <TextField
-              error={fieldErrors?.contractedAddress}
-              label="Endereço do contratado"
-              name="contractedAddress"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section aria-labelledby="contract-details-title">
-        <h2
-          className="text-lg font-semibold text-slate-950"
-          id="contract-details-title"
-        >
-          Dados do contrato
-        </h2>
-        <div className="mt-4 grid gap-5 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <TextField
-              description="Ex.: pintura de uma casa, instalação de ar-condicionado, criação de um site, aulas particulares ou consultoria."
-              error={fieldErrors?.contractObject}
-              label="Qual é o serviço?"
-              name="contractObject"
-            />
-          </div>
-          <TextField
-            description="Ex.: 1500"
-            error={fieldErrors?.value}
-            inputMode="decimal"
-            label="Qual é o valor do serviço?"
-            name="value"
-          />
-          <TextField
-            error={fieldErrors?.startDate}
-            label="Data de início"
-            name="startDate"
-            type="date"
-          />
-          <TextField
-            description="Ex.: serviço único em 15 dias; 1 vez por semana durante 3 meses; mensal por 12 meses."
-            error={fieldErrors?.term}
-            label="Qual é a duração ou frequência do serviço?"
-            name="term"
-          />
-        </div>
-      </section>
+        return (
+          <section aria-labelledby={titleId} key={section.id}>
+            <h2
+              className="text-lg font-semibold text-slate-950"
+              id={titleId}
+            >
+              {section.title}
+            </h2>
+            {section.description ? (
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                {section.description}
+              </p>
+            ) : null}
+            <div className="mt-4 grid gap-5 sm:grid-cols-2">
+              {section.fields.map((field) => (
+                <div
+                  className={field.layout === "full" ? "sm:col-span-2" : undefined}
+                  key={field.id}
+                >
+                  <FormField
+                    error={fieldErrors?.[field.id]}
+                    field={field}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })}
     </fieldset>
   );
 }
 
-type TextFieldProps = Readonly<{
-  description?: string;
+type FormFieldProps = Readonly<{
   error?: string;
-  inputMode?: "decimal";
-  label: string;
-  name: string;
-  type?: "date" | "text";
+  field: ContractFormFieldSchema;
 }>;
 
-function TextField({
-  description,
+function FormField({ error, field }: FormFieldProps) {
+  switch (field.type) {
+    case "textarea":
+      return <TextAreaField error={error} field={field} />;
+    case "select":
+      return <SelectField error={error} field={field} />;
+    case "checkbox":
+      return <CheckboxField error={error} field={field} />;
+    case "money":
+      return (
+        <InputField
+          error={error}
+          field={field}
+          inputMode="decimal"
+          onChange={formatCurrencyInput}
+          type="text"
+        />
+      );
+    case "number":
+      return (
+        <InputField
+          error={error}
+          field={field}
+          max={field.max}
+          min={field.min}
+          type="number"
+        />
+      );
+    case "date":
+      return <InputField error={error} field={field} type="date" />;
+    case "text":
+      return (
+        <InputField
+          autoComplete={field.autocomplete}
+          error={error}
+          field={field}
+          type="text"
+        />
+      );
+  }
+}
+
+type InputFieldProps = Readonly<{
+  autoComplete?: string;
+  error?: string;
+  field: Exclude<
+    ContractFormFieldSchema,
+    TextAreaFormFieldSchema | SelectFormFieldSchema | CheckboxFormFieldSchema
+  >;
+  inputMode?: "decimal";
+  max?: number;
+  min?: number;
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+  type: "date" | "number" | "text";
+}>;
+
+function InputField({
+  autoComplete,
   error,
+  field,
   inputMode,
-  label,
-  name,
-  type = "text",
-}: TextFieldProps) {
-  const errorId = `${name}-error`;
+  max,
+  min,
+  onChange,
+  type,
+}: InputFieldProps) {
+  const descriptionId = field.helpText ? `${field.id}-description` : undefined;
+  const errorId = error ? `${field.id}-error` : undefined;
 
   return (
-    <div>
-      <label className="text-sm font-medium text-slate-800" htmlFor={name}>
-        {label}
+    <>
+      <label className="text-sm font-medium text-slate-800" htmlFor={field.id}>
+        {field.label}
       </label>
       <input
-        aria-describedby={
-          [description ? `${name}-description` : undefined, error ? errorId : undefined]
-            .filter(Boolean)
-            .join(" ") || undefined
-        }
+        aria-describedby={joinIds(descriptionId, errorId)}
         aria-invalid={Boolean(error)}
+        autoComplete={autoComplete}
         className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
-        id={name}
+        defaultValue={field.defaultValue}
+        id={field.id}
         inputMode={inputMode}
-        name={name}
-        required
+        max={max}
+        min={min}
+        name={field.id}
+        onChange={onChange}
+        required={field.required}
         type={type}
       />
-      {description ? (
-        <p className="mt-2 text-sm text-slate-600" id={`${name}-description`}>
-          {description}
+      <FieldMessages error={error} field={field} />
+    </>
+  );
+}
+
+function TextAreaField({
+  error,
+  field,
+}: Readonly<{ error?: string; field: TextAreaFormFieldSchema }>) {
+  const descriptionId = field.helpText ? `${field.id}-description` : undefined;
+  const errorId = error ? `${field.id}-error` : undefined;
+
+  return (
+    <>
+      <label className="text-sm font-medium text-slate-800" htmlFor={field.id}>
+        {field.label}
+      </label>
+      <textarea
+        aria-describedby={joinIds(descriptionId, errorId)}
+        aria-invalid={Boolean(error)}
+        className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
+        defaultValue={field.defaultValue}
+        id={field.id}
+        name={field.id}
+        required={field.required}
+        rows={field.rows ?? 4}
+      />
+      <FieldMessages error={error} field={field} />
+    </>
+  );
+}
+
+function SelectField({
+  error,
+  field,
+}: Readonly<{ error?: string; field: SelectFormFieldSchema }>) {
+  const descriptionId = field.helpText ? `${field.id}-description` : undefined;
+  const errorId = error ? `${field.id}-error` : undefined;
+
+  return (
+    <>
+      <label className="text-sm font-medium text-slate-800" htmlFor={field.id}>
+        {field.label}
+      </label>
+      <select
+        aria-describedby={joinIds(descriptionId, errorId)}
+        aria-invalid={Boolean(error)}
+        className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
+        defaultValue={field.defaultValue ?? ""}
+        id={field.id}
+        name={field.id}
+        required={field.required}
+      >
+        <option value="">Selecione uma opção</option>
+        {field.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <FieldMessages error={error} field={field} />
+    </>
+  );
+}
+
+function CheckboxField({
+  error,
+  field,
+}: Readonly<{ error?: string; field: CheckboxFormFieldSchema }>) {
+  const descriptionId = field.helpText ? `${field.id}-description` : undefined;
+  const errorId = error ? `${field.id}-error` : undefined;
+
+  return (
+    <>
+      <div className="flex items-start gap-3">
+        <input
+          aria-describedby={joinIds(descriptionId, errorId)}
+          aria-invalid={Boolean(error)}
+          className="mt-1 size-4 rounded border-slate-300 text-slate-950 focus:ring-2 focus:ring-slate-500"
+          defaultChecked={field.defaultValue === "true"}
+          id={field.id}
+          name={field.id}
+          required={field.required}
+          type="checkbox"
+          value="true"
+        />
+        <label className="text-sm font-medium text-slate-800" htmlFor={field.id}>
+          {field.label}
+        </label>
+      </div>
+      <FieldMessages error={error} field={field} />
+    </>
+  );
+}
+
+function FieldMessages({
+  error,
+  field,
+}: Readonly<{ error?: string; field: ContractFormFieldSchema }>) {
+  return (
+    <>
+      {field.helpText ? (
+        <p className="mt-2 text-sm text-slate-600" id={`${field.id}-description`}>
+          {field.helpText}
         </p>
       ) : null}
       {error ? (
-        <p className="mt-2 text-sm text-red-700" id={errorId}>
+        <p className="mt-2 text-sm text-red-700" id={`${field.id}-error`}>
           {error}
         </p>
       ) : null}
-    </div>
+    </>
   );
+}
+
+function joinIds(...ids: readonly (string | undefined)[]): string | undefined {
+  const value = ids.filter((id): id is string => id !== undefined).join(" ");
+  return value || undefined;
+}
+
+function formatCurrencyInput(event: ChangeEvent<HTMLInputElement>): void {
+  const digits = event.currentTarget.value.replace(/\D/g, "");
+
+  if (!digits) {
+    event.currentTarget.value = "";
+    return;
+  }
+
+  event.currentTarget.value = (Number(digits) / 100).toLocaleString("pt-BR", {
+    currency: "BRL",
+    minimumFractionDigits: 2,
+    style: "currency",
+  });
 }

@@ -1,10 +1,13 @@
 "use server";
 
 import { createReadOnlyAuthClient } from "@/lib/auth/server";
+import { createSchemaGenerationRequest } from "@/lib/docai/application/create-schema-generation-request";
+import { getContractLibraryModel } from "@/lib/docai/domain/contract-library";
 import { createGeminiAdapterFromEnvironment } from "@/lib/docai/infrastructure/ai/gemini-adapter";
 import { createSupabaseContractRepository } from "@/lib/docai/infrastructure/persistence/supabase-contract-repository";
 import type {
   ContractContent,
+  ContractGenerationRequest,
   ContractType,
 } from "@/lib/docai/domain/contract-models";
 import { AIService } from "@/lib/docai/services/ai-service";
@@ -52,12 +55,13 @@ export async function generateContract(
     };
   }
 
+  let stage = "initialization";
+
   try {
-    const aiService = new AIService(createGeminiAdapterFromEnvironment());
-    const result = await aiService.generateContract({
-      content: createContractContent(parsed.type, parsed.values),
-      type: parsed.type,
-    });
+    stage = "gemini";
+    const aiAdapter = createGeminiAdapterFromEnvironment();
+    const aiService = new AIService(aiAdapter);
+    const result = await aiService.generateContract(parsed.request);
 
     if (typeof result.output !== "string" || !result.output.trim()) {
       return {
@@ -66,19 +70,23 @@ export async function generateContract(
       };
     }
 
+    stage = "authentication";
     const supabase = await createReadOnlyAuthClient();
     const { data, error } = await supabase.auth.getClaims();
     const userId = data?.claims.sub;
 
     if (error || typeof userId !== "string" || !userId.trim()) {
-      throw new Error("Authenticated user is unavailable.");
+      throw new Error("Authenticated user is unavailable.", {
+        cause: error ?? undefined,
+      });
     }
 
+    stage = "persistence";
     const repository = await createSupabaseContractRepository();
     const savedContract = await repository.create({
       content: result.output.trim(),
-      title: contractTypeLabels[parsed.type],
-      type: parsed.type,
+      title: parsed.documentTitle,
+      type: parsed.request.type,
       userId,
     });
 
@@ -88,13 +96,89 @@ export async function generateContract(
       },
       status: "success",
     };
-  } catch {
+  } catch (error) {
+    console.error("[generateContract] generation failed", {
+      error: describeSafeError(error),
+      stage,
+    });
+
     return {
       message:
         "Não foi possível gerar e salvar o contrato. Verifique a configuração e tente novamente.",
       status: "error",
     };
   }
+}
+
+function describeSafeError(error: unknown): Readonly<{
+  causes?: readonly Readonly<Record<string, unknown>>[];
+  code?: string;
+  message: string;
+  name: string;
+  providerMessage?: string;
+  status?: number;
+}> {
+  const causes: Array<Readonly<Record<string, unknown>>> = [];
+  let current: unknown = error;
+  let first:
+    | Readonly<{
+        code?: string;
+        message: string;
+        name: string;
+        providerMessage?: string;
+        providerCode?: string;
+        status?: number;
+      }>
+    | undefined;
+
+  for (let depth = 0; depth < 3 && current instanceof Error; depth += 1) {
+    const details: {
+      code?: string;
+      message: string;
+      name: string;
+      providerMessage?: string;
+      providerCode?: string;
+      status?: number;
+    } = {
+      message: current.message,
+      name: current.name,
+    };
+
+    if ("code" in current && typeof current.code === "string") {
+      details.code = current.code;
+    }
+
+    if ("status" in current && typeof current.status === "number") {
+      details.status = current.status;
+    }
+
+    if (
+      "providerMessage" in current &&
+      typeof current.providerMessage === "string"
+    ) {
+      details.providerMessage = current.providerMessage;
+    }
+
+    if (
+      "providerCode" in current &&
+      typeof current.providerCode === "string"
+    ) {
+      details.providerCode = current.providerCode;
+    }
+
+    if (!first) {
+      first = details;
+    } else {
+      causes.push(details);
+    }
+
+    current = "cause" in current ? current.cause : undefined;
+  }
+
+  return {
+    ...(first ?? { message: "Unknown error", name: "UnknownError" }),
+    ...(causes.length > 0 ? { causes } : {}),
+  };
 }
 
 type FormValues = Record<(typeof FIELD_NAMES)[number], string>;
@@ -105,12 +189,43 @@ type ParsedForm =
       valid: false;
     }>
   | Readonly<{
-      type: ContractType;
+      documentTitle: string;
+      request: ContractGenerationRequest;
       valid: true;
-      values: FormValues;
     }>;
 
 function parseFormData(formData: FormData): ParsedForm {
+  const definitionCategory = readText(formData.get("definitionCategory"));
+  const definitionId = readText(formData.get("definitionId"));
+
+  if (definitionCategory || definitionId) {
+    return parseDefinitionFormData(definitionCategory, definitionId, formData);
+  }
+
+  return parseLegacyFormData(formData);
+}
+
+function parseDefinitionFormData(
+  category: string,
+  definitionId: string,
+  formData: FormData,
+): ParsedForm {
+  const type = parseContractType(formData.get("type"));
+  const definition = getContractLibraryModel(category, definitionId);
+
+  if (!type || !definition || definition.contractType !== type) {
+    return {
+      fieldErrors: {
+        type: "Selecione um modelo de contrato válido.",
+      },
+      valid: false,
+    };
+  }
+
+  return createSchemaGenerationRequest(definition, formData);
+}
+
+function parseLegacyFormData(formData: FormData): ParsedForm {
   const type = parseContractType(formData.get("type"));
   const values = Object.fromEntries(
     FIELD_NAMES.map((fieldName) => [fieldName, readText(formData.get(fieldName))]),
@@ -127,9 +242,18 @@ function parseFormData(formData: FormData): ParsedForm {
     fieldErrors.type = "Selecione um tipo de contrato válido.";
   }
 
-  return type && Object.keys(fieldErrors).length === 0
-    ? { type, valid: true, values }
-    : { fieldErrors, valid: false };
+  if (!type || Object.keys(fieldErrors).length > 0) {
+    return { fieldErrors, valid: false };
+  }
+
+  return {
+    documentTitle: contractTypeLabels[type],
+    request: {
+      content: createContractContent(type, values),
+      type,
+    },
+    valid: true,
+  };
 }
 
 function createContractContent(

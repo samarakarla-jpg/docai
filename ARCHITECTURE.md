@@ -1,8 +1,8 @@
-# Arquitetura Oficial do SaaS Starter Kit
+# Constituição Arquitetural do DocAI
 
 ## Objetivo
 
-Este documento define a arquitetura oficial do SaaS Starter Kit e os limites que devem orientar sua evolução. Seu objetivo é manter a fundação simples, compreensível, modular e reutilizável, sem antecipar funcionalidades ou decisões pertencentes aos produtos criados a partir dela.
+Este documento é a referência oficial de arquitetura do DocAI. Ele define os princípios constitucionais, as fronteiras protegidas e o padrão obrigatório para evolução da biblioteca de contratos sobre a fundação do SaaS Starter Kit.
 
 A arquitetura descreve:
 
@@ -14,20 +14,326 @@ A arquitetura descreve:
 
 Este documento não autoriza implementação. Qualquer mudança arquitetural deve estar vinculada a uma necessidade concreta, documentada em uma Sprint e explicitamente aprovada.
 
+## Visão do Produto
+
+O DocAI é uma plataforma profissional de contratos. Seu objetivo não é ser apenas um gerador, mas oferecer a melhor biblioteca de contratos profissionais para prestadores de serviços, MEIs, autônomos e pequenas empresas.
+
+Toda decisão técnica deve priorizar:
+
+- simplicidade;
+- escalabilidade;
+- reutilização;
+- baixo acoplamento;
+- manutenção;
+- clareza;
+- qualidade do produto.
+
+Quantidade de funcionalidades ou contratos nunca deve prevalecer sobre qualidade.
+
+## Filosofia Principal: Configuração Acima de Código
+
+Este é o princípio mais importante do projeto. Quando for possível escolher entre adicionar lógica ao código ou enriquecer a configuração de um contrato, a escolha padrão e obrigatória é enriquecer a configuração.
+
+A arquitetura é orientada por metadados. Regras específicas não devem ficar espalhadas em componentes, rotas, actions, serviços ou adaptadores.
+
+## Regra de Ouro
+
+Adicionar um novo contrato nunca deve exigir alteração na arquitetura. A inclusão deve ocorrer somente por configuração.
+
+Se um contrato exigir mudança estrutural, o trabalho deve ser classificado como mudança arquitetural, documentado separadamente e aprovado antes da implementação. Ele não pode ser apresentado como simples evolução da biblioteca.
+
+## Um Único Motor
+
+Existe apenas um motor de geração. Ele deve permanecer genérico e nunca conhecer:
+
+- categorias;
+- profissões;
+- modelos;
+- nomes ou IDs de contratos específicos.
+
+O motor recebe um pedido estruturado produzido pela interpretação da definição. Não escolhe regras de contrato.
+
+## Um Único Renderer
+
+Existe apenas um renderer de formulário. Não devem ser criados componentes ou formulários específicos por contrato.
+
+Toda renderização deve ser baseada exclusivamente no `formSchema`. O renderer conhece apenas o vocabulário genérico de campos.
+
+## `ContractDefinition`: Fonte Única de Verdade
+
+Toda inteligência específica pertence à `ContractDefinition`. Cada definição deve representar:
+
+- ID estável, usado também como slug do modelo na arquitetura atual;
+- categoria por `categorySlug`;
+- nome, descrição e objetivo;
+- `ContractType` compatível com o motor;
+- `formSchema`;
+- `generationSchema`;
+- validações e valores padrão incorporados aos campos;
+- bindings de participantes e conteúdo;
+- versão, estado de revisão e demais metadados aprovados.
+
+Nenhuma dessas regras deve ser duplicada em outras camadas.
+
+## `formSchema`
+
+O `formSchema` define completamente a coleta e a apresentação dos dados:
+
+- seções e ordem;
+- campos e IDs;
+- tipos;
+- obrigatoriedade;
+- máscaras e placeholders, quando fizerem parte do vocabulário genérico aprovado;
+- validações declarativas;
+- layout;
+- ajuda ao usuário;
+- valores padrão.
+
+O renderer apenas interpreta o schema. Validações relevantes também devem ser aplicadas no servidor a partir da mesma definição.
+
+## `generationSchema`
+
+O `generationSchema` define tudo que é específico da preparação do contrato para o motor:
+
+- estrutura contratual e ordem das seções;
+- respostas autorizadas;
+- participantes e papéis;
+- bindings;
+- título do documento;
+- textos estruturais e instruções aprovadas, quando aplicáveis;
+- objetivos das seções;
+- estado de revisão;
+- regras declarativas de geração.
+
+O motor somente interpreta o pedido estruturado resultante desse schema.
+
+## Renderer
+
+O renderer percorre as seções e os campos do `formSchema`. É proibido introduzir nele:
+
+```text
+if (contract...)
+switch (contract...)
+if (category...)
+switch (category...)
+```
+
+Condições sobre discriminadores genéricos, como `field.type`, são permitidas porque pertencem ao vocabulário estável do renderer, não a um contrato.
+
+## Motor de Geração
+
+O motor permanece genérico. É proibido criar condições por contrato, categoria, profissão ou modelo.
+
+Toda decisão específica — campos, seções, objetivos, bindings e instruções — deve permanecer dentro da definição.
+
+## Inclusão de Novos Contratos
+
+Para adicionar um contrato deve ser necessário apenas:
+
+1. Criar a nova `ContractDefinition`.
+2. Registrar a definição no catálogo da categoria.
+3. Criar os testes correspondentes.
+
+Nada mais.
+
+## Componentes Protegidos
+
+Adicionar um contrato não deve exigir alterações em:
+
+- Server Action;
+- renderer;
+- motor;
+- rotas;
+- PDF;
+- persistência;
+- histórico;
+- autenticação;
+- Stripe;
+- Supabase;
+- IA e prompts globais;
+- adaptadores;
+- infraestrutura;
+- serviços compartilhados;
+- contratos centrais de domínio.
+
+Se qualquer fronteira protegida precisar mudar, a proposta deve ser tratada como mudança arquitetural.
+
+## Compatibilidade
+
+Toda evolução deve preservar contratos existentes, acesso direto, histórico, documentos persistidos e formatos já aceitos pelo motor. Uma nova definição não pode alterar silenciosamente o significado de uma definição anterior.
+
+Mudanças intencionais em um contrato existente devem considerar versão, migração, impacto sobre URLs, dados persistidos e testes.
+
+## Escalabilidade
+
+A arquitetura deve suportar centenas de contratos. O crescimento da biblioteca não deve aumentar a complexidade das camadas de execução.
+
+Mais contratos significam mais definições e testes, não mais rotas, actions, componentes ou motores.
+
+## Reutilização
+
+Devem ser reutilizados:
+
+- renderer;
+- componentes;
+- motor;
+- vocabulário de schemas;
+- infraestrutura;
+- validações genéricas;
+- serviços.
+
+Duplicação estrutural deve ser evitada. Reutilização não autoriza abstrações especulativas ou genéricas sem necessidade comprovada.
+
+## Simplicidade
+
+Preferir sempre:
+
+- menos código;
+- menos dependências;
+- menos acoplamento;
+- mais configuração declarativa;
+- fronteiras pequenas e explícitas.
+
+Over engineering deve ser evitado.
+
+## Evolução Arquitetural
+
+Mudanças arquiteturais somente podem ocorrer com benefício claro e atual para simplicidade, manutenção, reutilização ou escalabilidade.
+
+Nunca se deve modificar a arquitetura para acomodar somente um contrato específico. A necessidade, alternativas, impacto, compatibilidade, arquivos e validação devem ser documentados e aprovados antes da implementação.
+
+## Qualidade do Produto
+
+O diferencial do DocAI é qualidade. Cada contrato deve:
+
+- resolver um problema real;
+- possuir excelente experiência de preenchimento;
+- possuir estrutura jurídica submetida à revisão adequada;
+- utilizar linguagem clara;
+- reutilizar integralmente a arquitetura existente;
+- permanecer identificado como conteúdo inicial enquanto não houver revisão jurídica formal.
+
+Qualidade sempre vence quantidade.
+
+## Fluxo Oficial
+
+```text
+Biblioteca
+    ↓
+Categoria
+    ↓
+ContractDefinition
+    ↓
+formSchema
+    ↓
+Renderer genérico
+    ↓
+Validação genérica
+    ↓
+generationSchema
+    ↓
+Motor genérico
+    ↓
+PDF
+    ↓
+Histórico
+```
+
+Autenticação e autorização protegem o fluxo; persistência e adaptadores continuam como fronteiras de infraestrutura desacopladas.
+
+## Checklist Obrigatório para Pull Requests
+
+Antes de aprovar uma Pull Request, verificar:
+
+- [ ] Existe algum `if` baseado em contrato?
+- [ ] Existe algum `switch` baseado em categoria ou contrato?
+- [ ] Algum componente foi duplicado?
+- [ ] Algum formulário específico foi criado?
+- [ ] Alguma rota foi criada apenas para um contrato?
+- [ ] Algum contrato exigiu alterar o motor?
+- [ ] Algum contrato exigiu alterar a Server Action?
+- [ ] Algum contrato exigiu alterar infraestrutura?
+- [ ] Existe lógica específica fora da `ContractDefinition`?
+- [ ] A compatibilidade com definições anteriores foi demonstrada?
+- [ ] Os testes da definição cobrem campos, bindings e seções?
+
+Se qualquer uma das nove primeiras respostas for positiva, a alteração deve ser interrompida e revisada como possível mudança arquitetural.
+
+## Princípios de Engenharia
+
+Aplicam-se permanentemente:
+
+- SOLID;
+- DRY — Don't Repeat Yourself;
+- KISS — Keep It Simple;
+- Separation of Concerns;
+- Composition over Inheritance;
+- Configuration over Code.
+
+Esses princípios devem ser aplicados com proporcionalidade. DRY não justifica abstração prematura, e SOLID não justifica multiplicação desnecessária de camadas.
+
+## Compromisso Arquitetural
+
+A arquitetura do DocAI está oficialmente estabilizada. A partir deste registro, o foco passa a ser:
+
+- evolução da biblioteca;
+- melhoria de `formSchema`;
+- melhoria de `generationSchema`;
+- melhoria da experiência do usuário;
+- melhoria da qualidade jurídica após revisão apropriada.
+
+Não devem ocorrer mudanças arquiteturais sem justificativa técnica consistente e aprovação explícita.
+
+## Princípio Final
+
+O melhor código é aquele que não precisa ser alterado quando um novo contrato é adicionado.
+
+Um novo contrato deve exigir somente:
+
+- nova `ContractDefinition`;
+- seu `formSchema`;
+- seu `generationSchema`;
+- registro no catálogo;
+- testes.
+
+Nada mais.
+
+## Estado de Alinhamento com a Implementação
+
+A Constituição corresponde à arquitetura implementada:
+
+- existe um único renderer orientado por `formSchema`;
+- existe um interpretador genérico entre definição e motor;
+- a Server Action resolve a definição no servidor e não contém lógica por ID de contrato;
+- objetivo, participantes, bindings, respostas e seções seguem no contexto de geração;
+- contratos da biblioteca compartilham rotas, motor, persistência e PDF;
+- o fluxo histórico permanece compatível.
+
+Na implementação atual, `id` é o slug estável do contrato e `categorySlug` identifica a categoria; não existe uma propriedade `slug` duplicada. Máscaras e placeholders ainda não fazem parte do vocabulário tipado porque nenhum contrato aprovado os exige. Caso se tornem necessários de forma genérica, a ampliação do vocabulário de schema deverá ser tratada como mudança arquitetural própria, nunca como exceção local de um contrato.
+
+Os quatro `ContractType` existentes (`services`, `sale`, `rental` e `loan`) constituem a fronteira atual do motor. Adicionar definições compatíveis com esses tipos é evolução da biblioteca. Criar um quinto tipo fundamental é mudança arquitetural.
+
+## Referência Técnica da Implementação
+
+As seções seguintes registram como os princípios constitucionais se materializam na estrutura atual do projeto. Elas complementam a Constituição sem ampliar o escopo de uma Sprint nem autorizar alterações por si mesmas.
+
 ## Visão Geral da Arquitetura
 
-O Starter Kit utiliza uma aplicação web baseada em Next.js com App Router, React, TypeScript e Tailwind CSS. A fundação atual contém somente a estrutura necessária para renderizar uma interface inicial neutra e executável.
+O projeto utiliza Next.js com App Router, React, TypeScript e Tailwind CSS. O Starter Kit fornece a fundação técnica; o DocAI acrescenta domínio, aplicação, autenticação, persistência, geração assistida e interface específica por meio de Sprints aprovadas.
 
-No estágio atual, a arquitetura é deliberadamente pequena:
+No estágio atual, a arquitetura permanece modular:
 
 - o App Router organiza o ponto de entrada da aplicação;
 - o layout raiz define a estrutura comum do documento;
-- a página inicial representa a camada de apresentação;
-- os estilos globais estabelecem apenas os fundamentos visuais;
+- rotas e componentes representam a camada de apresentação;
+- módulos de aplicação coordenam autorização, rascunhos e geração;
+- o domínio contém contratos, schemas e regras do DocAI;
+- adaptadores isolam autenticação, persistência e IA;
+- os estilos globais estabelecem os fundamentos visuais;
 - os arquivos de configuração sustentam a stack aprovada;
 - a documentação orienta decisões, escopo e evolução.
 
-Não existem, na fundação atual, camadas de domínio, serviços de aplicação, persistência ou integrações. Essas responsabilidades somente devem ser introduzidas quando uma Sprint aprovada demonstrar sua necessidade.
+Essas capacidades específicas pertencem ao DocAI e não ampliam automaticamente a fundação reutilizável. Novas responsabilidades continuam dependendo de necessidade e Sprint aprovadas.
 
 A arquitetura evolutiva adota separação por responsabilidades. Interface, aplicação, domínio e infraestrutura devem permanecer desacoplados sempre que essas camadas passarem a existir. Dependências devem apontar para conceitos mais estáveis, evitando que regras centrais dependam de detalhes externos.
 
@@ -80,6 +386,14 @@ Contém as rotas, os layouts, as páginas e os estilos globais organizados pelo 
 ### `public/`
 
 É reservada para arquivos estáticos públicos realmente utilizados. Recursos demonstrativos, duplicados ou sem referência não devem permanecer no projeto.
+
+### `components/`
+
+Contém componentes de apresentação reutilizados pelas rotas. Renderers permanecem neutros em relação a IDs de contratos e recebem schemas declarativos.
+
+### `lib/`
+
+Contém domínio, casos de uso, serviços, contratos internos e adaptadores de infraestrutura. Regras específicas de contratos pertencem às definições do domínio; fornecedores permanecem isolados em infraestrutura.
 
 ### Raiz do projeto
 
@@ -148,7 +462,7 @@ Em uma operação completa, o fluxo esperado é:
 7. o resultado retorna à camada de apresentação;
 8. a interface exibe estados de sucesso, ausência, carregamento ou erro conforme o requisito aprovado.
 
-Na fundação atual, o fluxo termina na renderização da página inicial, pois não existem entrada de usuário, estado de negócio, persistência ou serviços externos.
+No DocAI, esse fluxo alcança geração assistida, persistência, revisão e exportação. Cada capacidade continua atrás de contratos internos e deve preservar isolamento por usuário e revisão humana.
 
 Regras permanentes para dados:
 
@@ -214,7 +528,7 @@ Regras para configurações:
 
 Configurações específicas de fornecedor devem ficar próximas ao adaptador correspondente e não se espalhar pelas camadas internas. A existência desta seção não autoriza criar variáveis, arquivos de ambiente ou novos mecanismos de configuração.
 
-## Escalabilidade
+## Escalabilidade Técnica e Operacional
 
 Escalabilidade deve responder a evidências, requisitos e medições. O Starter Kit não deve assumir antecipadamente volume de usuários, carga, disponibilidade, distribuição geográfica ou requisitos de processamento.
 
@@ -274,3 +588,373 @@ Uma decisão bem-sucedida pode ser formalizada como padrão quando demonstrar cl
 Mudanças incompatíveis devem incluir estratégia de transição e não podem ser introduzidas silenciosamente. A arquitetura oficial deve continuar coerente com a visão, os princípios, a especificação e o roadmap.
 
 Nenhuma fase futura do roadmap, por si só, autoriza a criação de novas camadas ou capacidades.
+
+## Arquitetura Estabilizada do Catálogo DocAI
+
+O catálogo de contratos do DocAI utiliza definições declarativas sobre o motor único de geração. Esta é a arquitetura estabilizada para evolução da biblioteca: novos contratos devem ser dados de domínio, não novos fluxos de aplicação.
+
+```text
+Biblioteca
+    ↓
+ContractDefinition
+    ↓
+formSchema
+    ↓
+renderer único de formulário
+    ↓
+generationSchema
+    ↓
+interpretador genérico da aplicação
+    ↓
+motor de geração existente
+    ↓
+persistência, revisão e PDF existentes
+```
+
+### Fonte de verdade
+
+Uma `ContractDefinition` concentra todas as informações específicas de um contrato:
+
+- identidade, categoria, versão, nome, descrição e objetivo;
+- `formSchema`, com seções, campos, tipos, rótulos, ajuda, obrigatoriedade, layout e valores iniciais;
+- `generationSchema`, com título do documento, respostas autorizadas, participantes, bindings para o formato do motor, seções esperadas e estado de revisão;
+- estrutura resumida apresentada na biblioteca.
+
+Nenhuma regra específica de um modelo deve ser adicionada à rota, ao renderer, à Server Action, ao serviço de IA, ao adaptador Gemini, à persistência ou ao PDF.
+
+### Responsabilidades
+
+| Elemento | Responsabilidade | Não pode conhecer |
+| --- | --- | --- |
+| Biblioteca | Listar e localizar definições | Regras de formulário ou geração fora da definição |
+| `ContractDefinition` | Declarar integralmente um modelo | Framework, fornecedor ou persistência |
+| Renderer | Renderizar qualquer `formSchema` suportado | IDs de contratos ou regras jurídicas |
+| Interpretador de geração | Validar o formulário e aplicar bindings declarados | Nomes ou IDs de contratos |
+| Server Action | Resolver a definição no servidor e coordenar o caso de uso | Regras específicas por modelo |
+| Motor e IA | Gerar a partir do pedido estruturado | Rotas, componentes ou catálogo |
+| PDF | Exportar o rascunho persistido | Origem ou definição do formulário |
+
+O cliente envia somente o identificador da definição e as respostas. A Server Action resolve novamente a definição no catálogo do servidor; schemas ou bindings enviados pelo cliente nunca são aceitos como fonte de verdade.
+
+### `formSchema`
+
+O `formSchema` é a única fonte de verdade para a interface. Seus campos são renderizados pelo componente compartilhado conforme o discriminador `type`.
+
+Os tipos atualmente suportados são:
+
+- `text`;
+- `textarea`;
+- `date`;
+- `money`;
+- `number`;
+- `select`;
+- `checkbox`.
+
+IDs de campos devem ser únicos dentro da definição. Campos obrigatórios são validados no servidor a partir do próprio schema. Um campo não deve ser incluído apenas para apresentação se sua resposta for necessária à geração.
+
+### Renderer genérico
+
+O renderer percorre `formSchema.sections` e, dentro de cada seção, percorre `fields`. O discriminador `field.type` seleciona somente o controle visual genérico correspondente. Rótulo, ajuda, valor inicial, obrigatoriedade, opções, limites e layout vêm do schema.
+
+O renderer pode possuir um `switch` sobre os tipos genéricos de campo (`text`, `select`, `date` etc.), pois essa decisão pertence ao vocabulário estável da interface. Ele nunca pode possuir condição baseada em `definition.id`, nome, categoria ou tipo jurídico do contrato.
+
+### `generationSchema`
+
+O `generationSchema` declara:
+
+- `answerFieldIds`: campos autorizados a entrar no contexto de geração;
+- `partyBindings`: campos que identificam os participantes e seus papéis;
+- `contentBindings`: adaptação declarativa aos quatro formatos já aceitos pelo motor;
+- `sections`: estrutura esperada do rascunho e objetivo de cada seção;
+- `documentTitle`: título usado na geração e persistência;
+- `reviewStatus`: nível de revisão do conteúdo estrutural;
+- `contractType`: formato compatível do motor.
+
+Os bindings são interpretados por `create-schema-generation-request.ts`. Esse módulo possui uma tabela fixa por `ContractType`, mas nenhuma condição por contrato. Uma nova definição dentro dos tipos existentes não exige alteração nele.
+
+### Motor genérico e desacoplado
+
+O motor recebe um `ContractGenerationRequest` com o formato compatível atual e um `definitionContext` dentro de `content`. Esse contexto contém objetivo, versão, título, participantes, respostas autorizadas, seções e estado de revisão. O motor não consulta catálogo, rota ou componente e não precisa reconhecer o ID do contrato.
+
+O interpretador aplica os bindings antes de chamar o motor. Por isso, detalhes como “qual campo representa o escopo” ou “quais seções um NDA precisa” permanecem na definição. O serviço de IA, seu adaptador, a persistência e o PDF operam sobre os mesmos contratos internos independentemente do modelo escolhido.
+
+### Compatibilidade
+
+O fluxo direto de criação, sem origem na biblioteca, continua utilizando os dez campos históricos e os quatro conteúdos existentes: `services`, `sale`, `rental` e `loan`.
+
+Definições da biblioteca podem acrescentar perguntas específicas. Todas as respostas autorizadas seguem no `definitionContext`, enquanto os bindings mantêm o formato esperado pelo motor atual. Assim, contratos existentes continuam funcionando e contratos novos carregam contexto específico sem duplicar o motor.
+
+Criar um novo tipo fundamental além dos quatro `ContractType` atuais constitui mudança de domínio e não é equivalente a cadastrar um novo modelo. A expansão normal do catálogo deve reutilizar um tipo compatível existente.
+
+## Como Adicionar um Novo Contrato
+
+Adicionar um contrato deve exigir somente uma nova `ContractDefinition`, seu registro no catálogo e testes correspondentes.
+
+### 1. Criar a definição
+
+Mantenha a definição no módulo da categoria correspondente. O exemplo abaixo é completo e pode ser adaptado sem criar componentes, rotas ou lógica de geração.
+
+```ts
+import type { ContractDefinition } from "./contract-definition";
+
+export const contratoDeTraducao: ContractDefinition<"contratos-gerais"> = {
+  categorySlug: "contratos-gerais",
+  contractType: "services",
+  description: "Organiza um serviço de tradução com idioma, entrega e revisão definidos.",
+  formSchema: {
+    sections: [
+      {
+        id: "contractor",
+        title: "Contratante",
+        fields: [
+          {
+            id: "contractorName",
+            label: "Nome do contratante",
+            layout: "half",
+            required: true,
+            type: "text",
+          },
+          {
+            id: "contractorDocument",
+            label: "CPF/CNPJ do contratante",
+            layout: "half",
+            required: true,
+            type: "text",
+          },
+          {
+            id: "contractorAddress",
+            label: "Endereço do contratante",
+            layout: "full",
+            required: true,
+            type: "text",
+          },
+        ],
+      },
+      {
+        id: "contracted",
+        title: "Tradutor",
+        fields: [
+          {
+            id: "contractedName",
+            label: "Nome do tradutor",
+            layout: "half",
+            required: true,
+            type: "text",
+          },
+          {
+            id: "contractedDocument",
+            label: "CPF/CNPJ do tradutor",
+            layout: "half",
+            required: true,
+            type: "text",
+          },
+          {
+            id: "contractedAddress",
+            label: "Endereço do tradutor",
+            layout: "full",
+            required: true,
+            type: "text",
+          },
+        ],
+      },
+      {
+        id: "contract-details",
+        title: "Dados da tradução",
+        fields: [
+          {
+            defaultValue: "Tradução de documento",
+            id: "contractObject",
+            label: "Objeto principal",
+            layout: "full",
+            required: true,
+            type: "text",
+          },
+          {
+            currency: "BRL",
+            id: "value",
+            label: "Valor",
+            layout: "half",
+            required: true,
+            type: "money",
+          },
+          {
+            id: "startDate",
+            label: "Data de início",
+            layout: "half",
+            required: true,
+            type: "date",
+          },
+          {
+            id: "term",
+            label: "Prazo de entrega",
+            layout: "half",
+            required: true,
+            type: "text",
+          },
+          {
+            id: "sourceLanguage",
+            label: "Idioma de origem",
+            layout: "half",
+            required: true,
+            type: "text",
+          },
+          {
+            id: "targetLanguage",
+            label: "Idioma de destino",
+            layout: "half",
+            required: true,
+            type: "text",
+          },
+          {
+            id: "materialDescription",
+            label: "Material e formato a traduzir",
+            layout: "full",
+            required: true,
+            rows: 4,
+            type: "textarea",
+          },
+          {
+            id: "revisionRounds",
+            label: "Rodadas de revisão incluídas",
+            layout: "half",
+            min: 0,
+            required: true,
+            type: "number",
+          },
+        ],
+      },
+    ],
+  },
+  generationSchema: {
+    answerFieldIds: [
+      "contractorName",
+      "contractorDocument",
+      "contractorAddress",
+      "contractedName",
+      "contractedDocument",
+      "contractedAddress",
+      "contractObject",
+      "value",
+      "startDate",
+      "term",
+      "sourceLanguage",
+      "targetLanguage",
+      "materialDescription",
+      "revisionRounds",
+    ],
+    contentBindings: [
+      { sourceFieldId: "contractorAddress", target: "contractorAddress" },
+      { sourceFieldId: "contractedAddress", target: "contractedAddress" },
+      { sourceFieldId: "startDate", target: "startDate" },
+      { sourceFieldId: "contractObject", target: "scope" },
+      { sourceFieldId: "value", target: "compensation" },
+      { sourceFieldId: "term", target: "term" },
+    ],
+    contractType: "services",
+    documentTitle: "Contrato de Serviços de Tradução",
+    partyBindings: [
+      {
+        addressFieldId: "contractorAddress",
+        identifierFieldId: "contractorDocument",
+        nameFieldId: "contractorName",
+        role: "Contratante",
+      },
+      {
+        addressFieldId: "contractedAddress",
+        identifierFieldId: "contractedDocument",
+        nameFieldId: "contractedName",
+        role: "Tradutor",
+      },
+    ],
+    reviewStatus: "initial-validation",
+    sections: [
+      {
+        id: "parties",
+        objective: "Identificar contratante e tradutor.",
+        title: "Identificação das partes",
+      },
+      {
+        id: "scope",
+        objective: "Delimitar material, idiomas e formato da tradução.",
+        title: "Objeto e escopo",
+      },
+      {
+        id: "delivery",
+        objective: "Organizar prazo, formato de entrega e revisões.",
+        title: "Entrega e revisões",
+      },
+      {
+        id: "payment",
+        objective: "Registrar valor e condições de pagamento.",
+        title: "Remuneração",
+      },
+      {
+        id: "final",
+        objective: "Organizar responsabilidades e encerramento para revisão.",
+        title: "Responsabilidades e encerramento",
+      },
+    ],
+  },
+  id: "servicos-de-traducao",
+  name: "Serviços de Tradução",
+  objective: "Definir material, idiomas, prazo, revisões e remuneração de uma tradução.",
+  structure: [
+    "Identificação das partes",
+    "Objeto e escopo",
+    "Entrega e revisões",
+    "Remuneração",
+    "Responsabilidades e encerramento",
+  ],
+  version: 1,
+};
+```
+
+### 2. Registrar no catálogo
+
+Inclua a definição na coleção exportada pela categoria. O registro não pode criar rota, componente, action, prompt ou serviço específico.
+
+```ts
+export const GENERAL_CONTRACT_DEFINITIONS = [
+  // definições existentes
+  contratoDeTraducao,
+] as const;
+```
+
+### 3. Testar a definição
+
+Os testes devem confirmar:
+
+- ID único, categoria, versão, descrição e objetivo;
+- IDs de campos únicos;
+- defaults intencionais e editáveis;
+- referências do `generationSchema` existentes no `formSchema`;
+- bindings obrigatórios para o `contractType` escolhido;
+- seções coerentes com `structure`;
+- estado `initial-validation` enquanto não houver revisão jurídica formal;
+- presença da definição na ordem aprovada do catálogo.
+
+Um teste mínimo deve localizar a definição, comparar os campos declarados com `answerFieldIds` e garantir que todos os bindings referenciem campos existentes. Os testes do interpretador devem conseguir criar um pedido de geração preenchendo o schema sem qualquer caso especial para o novo ID.
+
+### 4. Não alterar a estrutura
+
+Uma inclusão comum no catálogo não deve modificar:
+
+- `app/actions/generate-contract.ts`;
+- `lib/docai/domain/contract-models.ts`;
+- renderer de formulário;
+- rotas;
+- serviços ou adaptadores de IA;
+- persistência, histórico ou PDF;
+- dependências e configurações.
+
+Se uma definição não puder ser expressa pelos tipos de campo ou pelos quatro `ContractType` existentes, isso representa uma necessidade arquitetural nova. Ela deve ser documentada e aprovada separadamente, nunca contornada com lógica específica espalhada pelo fluxo.
+
+### Regras contra lógica específica espalhada
+
+- É proibido testar `definition.id`, `definition.name` ou categoria em componentes, rotas, actions, serviços, adaptadores e exportadores para alterar comportamento.
+- É proibido criar `if`, `switch`, mapa de handlers ou factory indexada por ID de contrato fora do módulo declarativo da categoria.
+- `switch` é permitido somente sobre discriminadores genéricos e fechados, como `field.type` no renderer.
+- A tabela por `ContractType` no interpretador representa o contrato estável do motor e não deve crescer por modelo.
+- Rótulos, defaults, perguntas, participantes, seções, objetivos e bindings devem permanecer dentro da `ContractDefinition`.
+- Dados externos devem ser validados pelo schema resolvido no servidor; o cliente nunca escolhe regras de geração.
+- Uma necessidade que não caiba em uma definição deve ser tratada como proposta arquitetural separada, não como exceção local.
