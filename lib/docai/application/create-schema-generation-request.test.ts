@@ -132,6 +132,8 @@ describe("createSchemaGenerationRequest", () => {
       for (const field of pilotDefinition.formSchema.sections.flatMap(
         (section) => section.fields,
       )) {
+        if (!field.required) continue;
+
         if (field.type === "select") {
           formData.set(field.id, field.options[0].value);
         } else if (field.type === "date") {

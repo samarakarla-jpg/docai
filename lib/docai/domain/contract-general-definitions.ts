@@ -8,6 +8,7 @@ import type { ContractGenerationSection, ContractType } from "./contract-models"
 
 type GeneralContractConfiguration = Readonly<{
   contractType?: ContractType;
+  coreFields?: GeneralContractCoreFields;
   description: string;
   detailFields: readonly ContractFormFieldSchema[];
   engineBindings?: readonly ContractGenerationContentBinding[];
@@ -16,6 +17,20 @@ type GeneralContractConfiguration = Readonly<{
   objective: string;
   partyTitles?: readonly [string, string];
   sections: readonly ContractGenerationSection[];
+  version?: number;
+}>;
+
+type GeneralContractCoreField = Readonly<{
+  defaultValue?: string;
+  helpText?: string;
+  label: string;
+}>;
+
+type GeneralContractCoreFields = Readonly<{
+  contractObject: GeneralContractCoreField;
+  startDate: GeneralContractCoreField;
+  term: GeneralContractCoreField;
+  value: GeneralContractCoreField;
 }>;
 
 const standardEngineBindings: Readonly<
@@ -45,30 +60,60 @@ const standardEngineBindings: Readonly<
 
 export const GENERAL_CONTRACT_DEFINITIONS: readonly ContractDefinition<"contratos-gerais">[] = [
   defineGeneralContract({
+    coreFields: {
+      contractObject: {
+        helpText: "Ex.: manutenção mensal, criação de um site ou aulas particulares.",
+        label: "Qual serviço será realizado?",
+      },
+      startDate: { label: "Quando o serviço começa?" },
+      term: {
+        helpText: "Ex.: entrega em 15 dias ou atendimento mensal por 6 meses.",
+        label: "Qual é o prazo ou a frequência do serviço?",
+      },
+      value: { label: "Qual o valor combinado?" },
+    },
     description:
       "Organiza a contratação de serviços, com escopo, entregas, remuneração e condições de execução.",
     detailFields: [
-      textarea("deliverables", "Quais entregas devem ser realizadas?"),
-      textarea("acceptanceCriteria", "Como as entregas serão conferidas e aceitas?"),
-      text("paymentSchedule", "Quando e como o pagamento será realizado?"),
-      select("expensesResponsibility", "Quem arcará com despesas da execução?", [
+      textarea("deliverables", "O que será entregue?"),
+      textarea("scopeExclusions", "O que não está incluído no serviço?", false),
+      textarea(
+        "acceptanceCriteria",
+        "Como o cliente confirmará que a entrega está correta?",
+      ),
+      text("paymentSchedule", "Como e quando o pagamento será feito?"),
+      text("cancellationNotice", "Como qualquer parte poderá cancelar?"),
+      select("expensesResponsibility", "Quem pagará as despesas do serviço?", [
         option("Cada parte arca com suas despesas", "own-expenses"),
         option("Contratante", "contractor"),
         option("Contratado, com reembolso aprovado", "contracted-reimbursed"),
       ]),
     ],
     id: "prestacao-de-servicos",
-    name: "Prestação de Serviços",
+    name: "Contrato de Prestação de Serviços",
     objective:
       "Registrar com clareza o serviço contratado, as entregas, responsabilidades, remuneração e condições de encerramento.",
     sections: [
       generationSection("parties", "Identificação das partes", "Identificar contratante e contratado."),
       generationSection("object", "Objeto e escopo", "Delimitar os serviços e o que não está incluído."),
       generationSection("deliveries", "Entregas e aceite", "Organizar entregas, prazos e critérios de aceite."),
-      generationSection("payment", "Preço, pagamento e despesas", "Registrar remuneração, vencimentos e despesas."),
-      generationSection("responsibilities", "Responsabilidades das partes", "Distribuir deveres necessários à execução."),
-      generationSection("termination", "Prazo e encerramento", "Organizar vigência, rescisão e efeitos do encerramento."),
+      generationSection(
+        "payment",
+        "Preço, pagamento e despesas",
+        "Registrar valor, vencimentos, despesas e consequências proporcionais do atraso, sem inventar percentuais não informados.",
+      ),
+      generationSection(
+        "responsibilities",
+        "Responsabilidades das partes",
+        "Distribuir deveres de colaboração, execução, comunicação e aceite de forma equilibrada.",
+      ),
+      generationSection(
+        "termination",
+        "Prazo e encerramento",
+        "Organizar cancelamento, aviso, pagamento do que já foi realizado e devoluções necessárias.",
+      ),
     ],
+    version: 2,
   }),
   defineGeneralContract({
     description:
@@ -321,7 +366,11 @@ function defineGeneralContract(
   const formSchema = {
     sections: [
       ...partySections(configuration.partyTitles),
-      contractDetails(configuration.name, configuration.detailFields),
+      contractDetails(
+        configuration.name,
+        configuration.detailFields,
+        configuration.coreFields,
+      ),
     ],
   } as const;
 
@@ -363,7 +412,7 @@ function defineGeneralContract(
     name: configuration.name,
     objective: configuration.objective,
     structure: configuration.sections.map((section) => section.title),
-    version: 1,
+    version: configuration.version ?? 1,
   };
 }
 
@@ -395,13 +444,38 @@ function partySections(
 function contractDetails(
   contractName: string,
   specificFields: readonly ContractFormFieldSchema[],
+  configuredCoreFields?: GeneralContractCoreFields,
 ): ContractFormSectionSchema {
+  const coreFields = configuredCoreFields ?? {
+    contractObject: {
+      defaultValue: contractName,
+      label: "Objeto principal do contrato",
+    },
+    startDate: { label: "Data de início, eficácia ou entrega" },
+    term: { label: "Prazo, duração ou frequência" },
+    value: { label: "Valor ou condição econômica principal" },
+  };
+
   return {
     fields: [
-      text("contractObject", "Objeto principal do contrato", true, "full", contractName),
-      money("value", "Valor ou condição econômica principal"),
-      date("startDate", "Data de início, eficácia ou entrega"),
-      text("term", "Prazo, duração ou frequência", true, "half"),
+      text(
+        "contractObject",
+        coreFields.contractObject.label,
+        true,
+        "full",
+        coreFields.contractObject.defaultValue,
+        coreFields.contractObject.helpText,
+      ),
+      money("value", coreFields.value.label),
+      date("startDate", coreFields.startDate.label),
+      text(
+        "term",
+        coreFields.term.label,
+        true,
+        "half",
+        coreFields.term.defaultValue,
+        coreFields.term.helpText,
+      ),
       ...specificFields,
     ],
     id: "contract-details",
@@ -415,8 +489,9 @@ function text(
   required = true,
   layout: "full" | "half" = "half",
   defaultValue?: string,
+  helpText?: string,
 ): ContractFormFieldSchema {
-  return { defaultValue, id, label, layout, required, type: "text" };
+  return { defaultValue, helpText, id, label, layout, required, type: "text" };
 }
 
 function textarea(

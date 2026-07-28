@@ -10,7 +10,7 @@ const {
 );
 
 const expectedNames = [
-  "Prestação de Serviços",
+  "Contrato de Prestação de Serviços",
   "Freelancer por Projeto",
   "Consultoria",
   "Compra e Venda",
@@ -20,6 +20,23 @@ const expectedNames = [
   "Parceria Comercial sem Constituição de Sociedade",
   "Licença ou Cessão de Direitos Autorais",
   "Distrato de Contrato",
+] as const;
+
+const serviceSpecificFieldIds = [
+  "deliverables",
+  "scopeExclusions",
+  "acceptanceCriteria",
+  "paymentSchedule",
+  "cancellationNotice",
+  "expensesResponsibility",
+] as const;
+
+const serviceRiskTerms = [
+  "escopo",
+  "pagamento",
+  "atraso",
+  "cancelamento",
+  "responsabilidades",
 ] as const;
 
 const compatibilityFieldIds = [
@@ -59,7 +76,10 @@ describe("general contract definitions", () => {
   it("keeps every definition complete and marked for initial validation", () => {
     for (const definition of GENERAL_CONTRACT_DEFINITIONS) {
       assert.equal(definition.categorySlug, "contratos-gerais");
-      assert.equal(definition.version, 1);
+      assert.equal(
+        definition.version,
+        definition.id === "prestacao-de-servicos" ? 2 : 1,
+      );
       assert.ok(definition.description.trim());
       assert.ok(definition.objective.trim());
       assert.equal(
@@ -93,9 +113,14 @@ describe("general contract definitions", () => {
       assert.ok(compatibilityFieldIds.every((fieldId) => fieldIds.includes(fieldId)));
       assert.ok(fieldIds.length > compatibilityFieldIds.length);
       assert.deepEqual(definition.generationSchema.answerFieldIds, fieldIds);
+      const contractObject = fields.find(
+        (field) => field.id === "contractObject",
+      );
       assert.equal(
-        fields.find((field) => field.id === "contractObject")?.defaultValue,
-        definition.name,
+        contractObject?.defaultValue,
+        definition.id === "prestacao-de-servicos"
+          ? undefined
+          : definition.name,
       );
     }
   });
@@ -144,4 +169,71 @@ describe("general contract definitions", () => {
     assert.equal(revisionRounds?.defaultValue, "2");
     assert.equal(revisionRounds?.type, "number");
   });
+
+  it("implements the approved service fields without duplicating questions", () => {
+    const definition = findDefinition("prestacao-de-servicos");
+    const fields = definition.formSchema.sections.flatMap(
+      (section) => section.fields,
+    );
+    const specificFieldIds = fields
+      .map((field) => field.id)
+      .filter(
+        (fieldId) =>
+          !compatibilityFieldIds.includes(
+            fieldId as (typeof compatibilityFieldIds)[number],
+          ),
+      );
+
+    assert.deepEqual(specificFieldIds, serviceSpecificFieldIds);
+    assert.deepEqual(
+      fields.filter((field) => !field.required).map((field) => field.id),
+      ["scopeExclusions"],
+    );
+  });
+
+  it("applies simple language and the three-minute structural limit", () => {
+    const businessFields = findDefinition("prestacao-de-servicos")
+      .formSchema.sections.flatMap((section) => section.fields)
+      .filter(
+        (field) =>
+          !compatibilityFieldIds
+            .slice(0, 6)
+            .includes(
+              field.id as (typeof compatibilityFieldIds)[number],
+            ),
+      );
+
+    assert.equal(businessFields.length, 10);
+    assert.ok(businessFields.every((field) => field.label.endsWith("?")));
+    assert.ok(
+      businessFields.every(
+        (field) =>
+          !/(objeto principal|condição econômica|inadimplemento|rescisão|vigência|novação)/i.test(
+            field.label,
+          ),
+      ),
+    );
+  });
+
+  it("covers the approved service risks in generation guidance", () => {
+    const guidance = findDefinition("prestacao-de-servicos")
+      .generationSchema.sections.flatMap((section) => [
+        section.title,
+        section.objective,
+      ])
+      .join(" ")
+      .toLocaleLowerCase("pt-BR");
+
+    for (const term of serviceRiskTerms) {
+      assert.ok(guidance.includes(term), term);
+    }
+  });
 });
+
+function findDefinition(id: string) {
+  const definition = GENERAL_CONTRACT_DEFINITIONS.find(
+    (candidate) => candidate.id === id,
+  );
+  assert.ok(definition, id);
+  return definition;
+}
