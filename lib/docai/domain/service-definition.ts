@@ -1,4 +1,4 @@
-import type { ServiceChecklistConfiguration } from "./service-checklist";
+import type { ServiceFormConfiguration } from "./service-form-schema";
 
 export const SUPPORTED_SERVICE_DOCUMENTS = [
   "budget",
@@ -51,7 +51,7 @@ export type ServiceMetadata = Readonly<{
 
 type BaseServiceDefinition = Readonly<{
   active: boolean;
-  checklist?: ServiceChecklistConfiguration;
+  formConfiguration?: ServiceFormConfiguration;
   commonMaterials?: readonly ServiceMaterialDefinition[];
   description: string;
   freeTextPolicy?: ServiceFreeTextPolicy;
@@ -153,7 +153,7 @@ export function createCustomServiceDefinition(
 
   return {
     active: input.active ?? true,
-    checklist: { mode: "generic-only" },
+    formConfiguration: { mode: "generic-only" },
     ...(input.category ? { category: input.category } : {}),
     ...(input.commonMaterials
       ? { commonMaterials: input.commonMaterials }

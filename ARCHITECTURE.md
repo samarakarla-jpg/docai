@@ -75,9 +75,9 @@ As consultas ao catálogo dependem de fontes genéricas e assíncronas. Dados lo
 
 Uma `ServiceDefinition` pode declarar documentos que futuramente será capaz de alimentar. Essa declaração representa compatibilidade potencial e não cria geração automática nem dependência direta com IDs de `ContractDefinition`.
 
-Perguntas associadas a serviços reutilizam exclusivamente o vocabulário canônico de campos do `formSchema`. A `ServiceDefinition` mantém apenas referências declarativas para perguntas registradas; não define um segundo schema de formulário. Um compositor puro pode combinar o `formSchema` original com camadas genéricas, profissionais e específicas do serviço, preservando o `formSchema` como formato final consumido pelo renderer.
+Campos associados a serviços reutilizam exclusivamente o vocabulário canônico do `formSchema`. A `ServiceDefinition` mantém apenas referências declarativas para campos registrados; não define um segundo schema de formulário. Um compositor puro pode combinar o `formSchema` original com camadas genéricas, profissionais e específicas do serviço, preservando o `formSchema` como formato final consumido pelo renderer.
 
-O compositor não conhece IDs de serviços ou contratos. Catálogos e camadas fornecem a configuração, perguntas repetidas são consolidadas por ID estável e conflitos com o formulário original são rejeitados. Serviços personalizados usam somente a camada genérica até possuírem configuração explicitamente aprovada.
+O compositor não conhece IDs de serviços ou contratos. Catálogos e camadas fornecem a configuração, campos repetidos são consolidados por ID estável e conflitos com o formulário original são rejeitados. Serviços personalizados usam somente a camada genérica até possuírem configuração explicitamente aprovada.
 
 Informações jurídicas, cláusulas, bindings e decisões de geração continuam pertencendo exclusivamente à `ContractDefinition`. `ServiceDefinition` não pode introduzir lógica em renderer, motor, Server Actions, rotas ou componentes compartilhados.
 

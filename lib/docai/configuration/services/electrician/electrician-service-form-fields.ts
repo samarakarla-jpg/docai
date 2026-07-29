@@ -1,12 +1,12 @@
-import type { ContractFormFieldSchema } from "./contract-definition";
+import type { ContractFormFieldSchema } from "../../../domain/contract-definition";
 import {
-  ChecklistQuestionRegistry,
-  type ChecklistLayer,
-  recommendedQuestion,
-} from "./service-checklist";
-import { GENERIC_SERVICE_CHECKLIST_QUESTIONS } from "./service-checklist-questions";
+  recommendedFormField,
+  ServiceFormFieldRegistry,
+  type ServiceFormSchemaLayer,
+} from "../../../domain/service-form-schema";
+import { GENERIC_SERVICE_FORM_FIELDS } from "../generic-service-form-fields";
 
-export const ELECTRICIAN_CHECKLIST_QUESTION_IDS = {
+export const ELECTRICIAN_FORM_FIELD_IDS = {
   breakerRating: "electrician-breaker-rating-amps",
   ceilingStructure: "electrician-ceiling-structure",
   dedicatedCircuit: "electrician-dedicated-circuit-available",
@@ -17,10 +17,10 @@ export const ELECTRICIAN_CHECKLIST_QUESTION_IDS = {
   wallControl: "electrician-wall-control-required",
 } as const;
 
-const electricianQuestions: readonly ContractFormFieldSchema[] = [
+const electricianFormFields: readonly ContractFormFieldSchema[] = [
   {
     helpText: "Explique o resultado esperado sem incluir instruções inseguras.",
-    id: ELECTRICIAN_CHECKLIST_QUESTION_IDS.freeDescription,
+    id: ELECTRICIAN_FORM_FIELD_IDS.freeDescription,
     label: "Qual serviço elétrico você precisa descrever?",
     layout: "full",
     required: false,
@@ -29,7 +29,7 @@ const electricianQuestions: readonly ContractFormFieldSchema[] = [
   },
   {
     helpText: "Escolha a tensão disponível ou indique que ainda precisa verificar.",
-    id: ELECTRICIAN_CHECKLIST_QUESTION_IDS.supplyVoltage,
+    id: ELECTRICIAN_FORM_FIELD_IDS.supplyVoltage,
     label: "Qual é a tensão disponível no local?",
     layout: "half",
     options: [
@@ -42,7 +42,7 @@ const electricianQuestions: readonly ContractFormFieldSchema[] = [
   },
   {
     helpText: "Use a potência indicada pelo fabricante do equipamento.",
-    id: ELECTRICIAN_CHECKLIST_QUESTION_IDS.equipmentPower,
+    id: ELECTRICIAN_FORM_FIELD_IDS.equipmentPower,
     label: "Qual é a potência do equipamento em watts?",
     layout: "half",
     min: 0,
@@ -50,7 +50,7 @@ const electricianQuestions: readonly ContractFormFieldSchema[] = [
     type: "number",
   },
   {
-    id: ELECTRICIAN_CHECKLIST_QUESTION_IDS.dedicatedCircuit,
+    id: ELECTRICIAN_FORM_FIELD_IDS.dedicatedCircuit,
     label: "Existe um circuito exclusivo para o equipamento?",
     layout: "half",
     options: yesNoUnknownOptions(),
@@ -59,7 +59,7 @@ const electricianQuestions: readonly ContractFormFieldSchema[] = [
   },
   {
     helpText: "Informe a corrente indicada no disjuntor, se souber.",
-    id: ELECTRICIAN_CHECKLIST_QUESTION_IDS.breakerRating,
+    id: ELECTRICIAN_FORM_FIELD_IDS.breakerRating,
     label: "Qual é a corrente do disjuntor em amperes?",
     layout: "half",
     min: 1,
@@ -67,7 +67,7 @@ const electricianQuestions: readonly ContractFormFieldSchema[] = [
     type: "number",
   },
   {
-    id: ELECTRICIAN_CHECKLIST_QUESTION_IDS.electricalPoint,
+    id: ELECTRICIAN_FORM_FIELD_IDS.electricalPoint,
     label: "Já existe um ponto elétrico no local?",
     layout: "half",
     options: yesNoUnknownOptions(),
@@ -75,7 +75,7 @@ const electricianQuestions: readonly ContractFormFieldSchema[] = [
     type: "select",
   },
   {
-    id: ELECTRICIAN_CHECKLIST_QUESTION_IDS.wallControl,
+    id: ELECTRICIAN_FORM_FIELD_IDS.wallControl,
     label: "O ventilador terá controle de parede?",
     layout: "half",
     options: [
@@ -88,7 +88,7 @@ const electricianQuestions: readonly ContractFormFieldSchema[] = [
   },
   {
     helpText: "Exemplos: concreto, madeira, gesso ou estrutura metálica.",
-    id: ELECTRICIAN_CHECKLIST_QUESTION_IDS.ceilingStructure,
+    id: ELECTRICIAN_FORM_FIELD_IDS.ceilingStructure,
     label: "Qual é a estrutura do teto?",
     layout: "half",
     required: false,
@@ -96,21 +96,21 @@ const electricianQuestions: readonly ContractFormFieldSchema[] = [
   },
 ];
 
-export const ELECTRICIAN_SERVICE_CHECKLIST_QUESTION_REGISTRY =
-  new ChecklistQuestionRegistry([
-    ...GENERIC_SERVICE_CHECKLIST_QUESTIONS,
-    ...electricianQuestions,
+export const ELECTRICIAN_SERVICE_FORM_FIELD_REGISTRY =
+  new ServiceFormFieldRegistry([
+    ...GENERIC_SERVICE_FORM_FIELDS,
+    ...electricianFormFields,
   ]);
 
-export const ELECTRICIAN_PROFESSION_CHECKLIST_LAYER: ChecklistLayer = {
-  id: "electrician-profession-checklist",
-  questions: [
-    recommendedQuestion(ELECTRICIAN_CHECKLIST_QUESTION_IDS.supplyVoltage),
+export const ELECTRICIAN_PROFESSION_FORM_LAYER: ServiceFormSchemaLayer = {
+  fields: [
+    recommendedFormField(ELECTRICIAN_FORM_FIELD_IDS.supplyVoltage),
   ],
+  id: "electrician-profession-form",
   scope: "profession",
   section: {
     description: "Informações elétricas que podem afetar o serviço.",
-    id: "service-checklist-electrician",
+    id: "service-form-electrician",
     title: "Condições elétricas",
   },
 };

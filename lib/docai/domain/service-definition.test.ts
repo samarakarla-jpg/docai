@@ -33,7 +33,7 @@ describe("service definition", () => {
     assert.notEqual(first.id, second.id);
     assert.equal(first.origin, "custom");
     assert.equal(first.kind, "custom");
-    assert.deepEqual(first.checklist, { mode: "generic-only" });
+    assert.deepEqual(first.formConfiguration, { mode: "generic-only" });
     assert.equal(first.active, true);
     assert.equal(first.name, "Ajuste elétrico personalizado");
     assert.equal(first.description, "Serviço personalizado para o imóvel.");

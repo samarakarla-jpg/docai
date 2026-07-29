@@ -13,11 +13,12 @@ if (typeof registerHooks === "function") {
       nextResolve: (specifier: string, context: unknown) => unknown,
     ) {
       if (
-        specifier === "./electrician-service-catalog" ||
-        specifier === "./electrician-service-checklist" ||
-        specifier === "./service-checklist" ||
-        specifier === "./service-checklist-questions" ||
-        specifier === "./service-definition"
+        specifier === "./electrician-service-definitions" ||
+        specifier === "./electrician-service-form-fields" ||
+        specifier === "../generic-service-form-fields" ||
+        specifier === "../../domain/service-form-schema" ||
+        specifier === "../../../domain/service-definition" ||
+        specifier === "../../../domain/service-form-schema"
       ) {
         return nextResolve(`${specifier}.ts`, context);
       }
@@ -31,24 +32,18 @@ const {
   ELECTRICIAN_PROFESSION,
   ELECTRICIAN_SERVICE_CATEGORIES,
   ELECTRICIAN_SERVICE_DEFINITIONS,
-}: typeof import("./electrician-service-catalog") = requireModule(
-  "./electrician-service-catalog.ts",
+}: typeof import("./electrician-service-definitions") = requireModule(
+  "./electrician-service-definitions.ts",
 );
 const {
-  SERVICE_CATALOG,
-  DuplicateServiceDefinitionIdError,
-  ServiceCatalog,
-  createLocalServiceDefinitionSource,
-}: typeof import("./service-catalog") = requireModule("./service-catalog.ts");
-const {
-  ELECTRICIAN_SERVICE_CHECKLIST_QUESTION_REGISTRY,
-}: typeof import("./electrician-service-checklist") = requireModule(
-  "./electrician-service-checklist.ts",
+  ELECTRICIAN_SERVICE_FORM_FIELD_REGISTRY,
+}: typeof import("./electrician-service-form-fields") = requireModule(
+  "./electrician-service-form-fields.ts",
 );
 const {
   SUPPORTED_SERVICE_DOCUMENTS,
-}: typeof import("./service-definition") = requireModule(
-  "./service-definition.ts",
+}: typeof import("../../../domain/service-definition") = requireModule(
+  "../../../domain/service-definition.ts",
 );
 
 const expectedCategoryNames = [
@@ -109,7 +104,7 @@ const expectedStandardServiceNames = [
   "Preparação para carregador de veículo elétrico",
 ] as const;
 
-describe("electrician service catalog", () => {
+describe("electrician service definitions", () => {
   it("defines the approved profession and categories in order", () => {
     assert.deepEqual(ELECTRICIAN_PROFESSION, {
       id: "electrician",
@@ -161,14 +156,14 @@ describe("electrician service catalog", () => {
         SUPPORTED_SERVICE_DOCUMENTS,
       );
 
-      const questionIds =
-        definition.checklist?.mode === "configured"
-          ? definition.checklist.questions.map((question) => question.questionId)
+      const fieldIds =
+        definition.formConfiguration?.mode === "configured"
+          ? definition.formConfiguration.fields.map((field) => field.fieldId)
           : [];
-      assert.equal(new Set(questionIds).size, questionIds.length);
-      for (const questionId of questionIds) {
+      assert.equal(new Set(fieldIds).size, fieldIds.length);
+      for (const fieldId of fieldIds) {
         assert.ok(
-          ELECTRICIAN_SERVICE_CHECKLIST_QUESTION_REGISTRY.resolve(questionId),
+          ELECTRICIAN_SERVICE_FORM_FIELD_REGISTRY.resolve(fieldId),
         );
       }
     }
@@ -214,18 +209,18 @@ describe("electrician service catalog", () => {
     assert.equal(other.id, "electrician-other-service");
     assert.equal(other.category, undefined);
     assert.equal(other.freeTextPolicy.reviewRequired, true);
-    assert.deepEqual(other.checklist, {
-      mode: "configured",
-      questions: [
+    assert.deepEqual(other.formConfiguration, {
+      fields: [
         {
-          questionId: "electrician-free-service-description",
+          fieldId: "electrician-free-service-description",
           requirement: "required",
         },
       ],
+      mode: "configured",
     });
   });
 
-  it("references canonical questions for shower and ceiling fan services", () => {
+  it("references canonical fields for shower and ceiling fan services", () => {
     const shower = ELECTRICIAN_SERVICE_DEFINITIONS.find(
       (definition) =>
         definition.id === "electrician-electric-shower-installation",
@@ -234,9 +229,9 @@ describe("electrician service catalog", () => {
       (definition) => definition.id === "electrician-ceiling-fan-installation",
     );
 
-    assert.ok(shower?.checklist?.mode === "configured");
+    assert.ok(shower?.formConfiguration?.mode === "configured");
     assert.deepEqual(
-      shower.checklist.questions.map((question) => question.questionId),
+      shower.formConfiguration.fields.map((field) => field.fieldId),
       [
         "electrician-supply-voltage",
         "electrician-equipment-power-watts",
@@ -244,9 +239,9 @@ describe("electrician service catalog", () => {
         "electrician-breaker-rating-amps",
       ],
     );
-    assert.ok(ceilingFan?.checklist?.mode === "configured");
+    assert.ok(ceilingFan?.formConfiguration?.mode === "configured");
     assert.deepEqual(
-      ceilingFan.checklist.questions.map((question) => question.questionId),
+      ceilingFan.formConfiguration.fields.map((field) => field.fieldId),
       [
         "electrician-electrical-point-available",
         "electrician-wall-control-required",
@@ -268,53 +263,4 @@ describe("electrician service catalog", () => {
     );
   });
 
-  it("queries the local source through the generic asynchronous catalog", async () => {
-    assert.equal(
-      (await SERVICE_CATALOG.list({ professionId: "electrician" })).length,
-      45,
-    );
-    assert.equal(
-      (await SERVICE_CATALOG.list({ active: false })).length,
-      0,
-    );
-    assert.equal(
-      (await SERVICE_CATALOG.list({ origin: "official" })).length,
-      45,
-    );
-    assert.equal(
-      (await SERVICE_CATALOG.list({ supportedDocument: "warranty" })).length,
-      45,
-    );
-    assert.equal(
-      (
-        await SERVICE_CATALOG.list({
-          categoryId: "basic-installations",
-          kind: "standard",
-        })
-      ).length,
-      5,
-    );
-    assert.equal(
-      (await SERVICE_CATALOG.getById("electrician-rcd-installation"))?.name,
-      "Instalação de DR",
-    );
-    assert.equal(await SERVICE_CATALOG.getById("unknown-service"), undefined);
-  });
-
-  it("rejects ID collisions across independent data sources", async () => {
-    const duplicatedDefinition = ELECTRICIAN_SERVICE_DEFINITIONS[0];
-    const catalog = new ServiceCatalog([
-      createLocalServiceDefinitionSource("first", [duplicatedDefinition]),
-      createLocalServiceDefinitionSource("second", [duplicatedDefinition]),
-    ]);
-
-    await assert.rejects(
-      () => catalog.list(),
-      DuplicateServiceDefinitionIdError,
-    );
-    await assert.rejects(
-      () => catalog.getById(duplicatedDefinition.id),
-      DuplicateServiceDefinitionIdError,
-    );
-  });
 });
