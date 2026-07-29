@@ -473,33 +473,89 @@ export const GENERAL_CONTRACT_DEFINITIONS: readonly ContractDefinition<"contrato
     ],
   }),
   defineGeneralContract({
+    coreFields: {
+      contractObject: {
+        helpText: "Ex.: negociação comercial, desenvolvimento de software ou consultoria.",
+        label: "Qual negociação, projeto ou relação este acordo protege?",
+      },
+      startDate: { label: "Quando o dever de sigilo começa?" },
+      term: {
+        helpText: "Ex.: 2 anos após o fim do projeto.",
+        label: "Por quanto tempo as informações devem ser protegidas?",
+      },
+      value: {
+        helpText: "Deixe em branco se nenhuma penalidade financeira foi combinada.",
+        label: "Existe alguma penalidade financeira combinada?",
+        required: false,
+      },
+    },
     description:
-      "Estrutura o compartilhamento protegido de informações para uma finalidade determinada.",
+      "Protege informações compartilhadas em uma negociação ou projeto, com finalidade, acesso e prazo definidos.",
     detailFields: [
       select("ndaMode", "Quem compartilhará informações confidenciais?", [
         option("Ambas as partes", "mutual"),
-        option("Somente o contratante", "contractor-only"),
-        option("Somente o contratado", "contracted-only"),
+        option("Somente a Parte A", "contractor-only"),
+        option("Somente a Parte B", "contracted-only"),
       ]),
       textarea("confidentialInformation", "Quais informações devem ser protegidas?"),
-      textarea("permittedPurpose", "Para qual finalidade as informações poderão ser usadas?"),
-      textarea("authorizedRecipients", "Quem poderá acessar as informações?"),
-      textarea("confidentialityExceptions", "Quais exceções devem ser consideradas?", false),
-      textarea("returnOrDeletion", "Como ocorrerá devolução ou eliminação das informações?"),
+      textarea("permittedPurpose", "Para que essas informações poderão ser usadas?"),
+      textarea("authorizedRecipients", "Quem poderá receber ou acessar essas informações?"),
+      textarea("returnOrDeletion", "O que deverá acontecer com as informações ao final?"),
+      textarea("confidentialityExceptions", "Existe alguma exceção adicional?", false),
     ],
     id: "confidencialidade-nda",
-    name: "Confidencialidade — NDA",
+    name: "Acordo de Sigilo (NDA)",
     objective:
-      "Delimitar informações confidenciais, finalidade autorizada, acesso, exceções e duração da proteção para revisão humana.",
+      "Proteger informações compartilhadas, delimitando finalidade, acesso, exceções, duração e destinação final sem transferir direitos ou substituir obrigações legais.",
     partyTitles: ["Parte A", "Parte B"],
     sections: [
-      generationSection("parties", "Identificação das partes", "Identificar partes e direção do compartilhamento."),
-      generationSection("information", "Informações confidenciais", "Delimitar categorias protegidas sem ampliar fatos não informados."),
-      generationSection("purpose", "Finalidade e uso permitido", "Restringir uso e acesso à finalidade declarada."),
-      generationSection("exceptions", "Exceções e divulgações necessárias", "Organizar exclusões e comunicações obrigatórias para revisão."),
-      generationSection("protection", "Proteção, devolução e eliminação", "Descrever cuidados e destinação das informações."),
-      generationSection("term", "Prazo e disposições finais", "Registrar duração, sobrevivência e encerramento."),
+      generationSection(
+        "parties",
+        "Identificação das partes e compartilhamento",
+        "Identificar as partes e distinguir se uma ou ambas compartilharão informações confidenciais.",
+      ),
+      generationSection(
+        "context-and-purpose",
+        "Contexto e finalidade permitida",
+        "Relacionar o acordo à negociação, projeto ou relação informada e limitar o uso à finalidade declarada.",
+      ),
+      generationSection(
+        "confidential-information",
+        "Informações confidenciais",
+        "Delimitar somente as informações e categorias indicadas, sem ampliar fatos ou criar sigilo sobre informação pública.",
+      ),
+      generationSection(
+        "permitted-access",
+        "Uso permitido e pessoas autorizadas",
+        "Restringir acesso às pessoas informadas e exigir que recebam apenas o necessário para a finalidade permitida.",
+      ),
+      generationSection(
+        "protection",
+        "Deveres de proteção",
+        "Estabelecer cuidados proporcionais contra uso, acesso ou divulgação não autorizados e prever comunicação de incidente conhecido.",
+      ),
+      generationSection(
+        "exceptions",
+        "Exceções e divulgação obrigatória",
+        "Registrar as exceções informadas e permitir divulgação exigida por lei ou autoridade competente, com comunicação quando juridicamente permitida.",
+      ),
+      generationSection(
+        "return-or-deletion",
+        "Devolução, eliminação e cópias",
+        "Organizar a destinação informada sem prometer eliminação tecnicamente impossível de cópias de segurança sujeitas a retenção legítima.",
+      ),
+      generationSection(
+        "term-and-penalty",
+        "Prazo e penalidade",
+        "Registrar o início, a duração e eventual penalidade financeira somente quando informada, sem inventar indenização ou presumir sigilo eterno.",
+      ),
+      generationSection(
+        "final-provisions",
+        "Propriedade intelectual, LGPD e disposições finais",
+        "Esclarecer que o acordo não transfere propriedade intelectual, não concede licença além da finalidade declarada e não substitui obrigações próprias da LGPD.",
+      ),
     ],
+    version: 2,
   }),
   defineGeneralContract({
     description:

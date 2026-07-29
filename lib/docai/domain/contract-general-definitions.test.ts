@@ -19,7 +19,7 @@ const expectedNames = [
   "Compra e Venda",
   "Fornecimento de Produtos",
   "Locação de Bens e Equipamentos",
-  "Confidencialidade — NDA",
+  "Acordo de Sigilo (NDA)",
   "Parceria Comercial sem Constituição de Sociedade",
   "Licença ou Cessão de Direitos Autorais",
   "Distrato de Contrato",
@@ -43,6 +43,28 @@ const deliveryAcceptanceRiskTerms = [
   "garantia",
   "quitação geral",
   "silêncio",
+] as const;
+
+const ndaSpecificFieldIds = [
+  "ndaMode",
+  "confidentialInformation",
+  "permittedPurpose",
+  "authorizedRecipients",
+  "returnOrDeletion",
+  "confidentialityExceptions",
+] as const;
+
+const ndaRiskTerms = [
+  "finalidade",
+  "acesso",
+  "divulgação",
+  "lei",
+  "eliminação",
+  "cópias de segurança",
+  "penalidade",
+  "sigilo eterno",
+  "propriedade intelectual",
+  "lgpd",
 ] as const;
 
 const scopeChangeSpecificFieldIds = [
@@ -137,7 +159,11 @@ describe("general contract definitions", () => {
       assert.equal(definition.categorySlug, "contratos-gerais");
       assert.equal(
         definition.version,
-        definition.id === "prestacao-de-servicos" ? 2 : 1,
+        ["prestacao-de-servicos", "confidencialidade-nda"].includes(
+          definition.id,
+        )
+          ? 2
+          : 1,
       );
       assert.ok(definition.description.trim());
       assert.ok(definition.objective.trim());
@@ -182,6 +208,7 @@ describe("general contract definitions", () => {
           "proposta-comercial-com-aceite",
           "termo-de-alteracao-de-escopo",
           "termo-de-entrega-e-aceite",
+          "confidencialidade-nda",
         ].includes(definition.id)
           ? undefined
           : definition.name,
@@ -499,6 +526,78 @@ describe("general contract definitions", () => {
     assert.deepEqual(
       acceptanceStatus.options.map((option) => option.value),
       ["accepted", "accepted-with-reservations", "pending-verification"],
+    );
+  });
+
+  it("evolves only the existing NDA definition with the approved questions", () => {
+    const definition = findDefinition("confidencialidade-nda");
+    const fields = definition.formSchema.sections.flatMap(
+      (section) => section.fields,
+    );
+    const specificFieldIds = fields
+      .map((field) => field.id)
+      .filter(
+        (fieldId) =>
+          !compatibilityFieldIds.includes(
+            fieldId as (typeof compatibilityFieldIds)[number],
+          ),
+      );
+
+    assert.equal(definition.version, 2);
+    assert.equal(definition.name, "Acordo de Sigilo (NDA)");
+    assert.deepEqual(specificFieldIds, ndaSpecificFieldIds);
+    assert.deepEqual(
+      fields.filter((field) => !field.required).map((field) => field.id),
+      ["value", "confidentialityExceptions"],
+    );
+  });
+
+  it("keeps the NDA within the simple-language three-minute limit", () => {
+    const businessFields = findDefinition("confidencialidade-nda")
+      .formSchema.sections.flatMap((section) => section.fields)
+      .filter(
+        (field) =>
+          !compatibilityFieldIds
+            .slice(0, 6)
+            .includes(
+              field.id as (typeof compatibilityFieldIds)[number],
+            ),
+      );
+
+    assert.equal(businessFields.length, 10);
+    assert.equal(
+      businessFields.filter((field) => field.required).length,
+      8,
+    );
+    assert.ok(businessFields.every((field) => field.label.endsWith("?")));
+    assert.ok(
+      businessFields.every(
+        (field) =>
+          !/(objeto principal|condição econômica|inadimplemento|rescisão|vigência|novação)/i.test(
+            field.label,
+          ),
+      ),
+    );
+  });
+
+  it("covers NDA risks with an explicit sharing direction", () => {
+    const definition = findDefinition("confidencialidade-nda");
+    const guidance = definition.generationSchema.sections
+      .flatMap((section) => [section.title, section.objective])
+      .join(" ")
+      .toLocaleLowerCase("pt-BR");
+
+    for (const term of ndaRiskTerms) {
+      assert.ok(guidance.includes(term), term);
+    }
+
+    const ndaMode = definition.formSchema.sections
+      .flatMap((section) => section.fields)
+      .find((field) => field.id === "ndaMode");
+    assert.equal(ndaMode?.type, "select");
+    assert.deepEqual(
+      ndaMode.options.map((option) => option.value),
+      ["mutual", "contractor-only", "contracted-only"],
     );
   });
 });

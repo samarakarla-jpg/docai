@@ -45,7 +45,7 @@ const expectedModelNames = {
     "Compra e Venda",
     "Fornecimento de Produtos",
     "Locação de Bens e Equipamentos",
-    "Confidencialidade — NDA",
+    "Acordo de Sigilo (NDA)",
     "Parceria Comercial sem Constituição de Sociedade",
     "Licença ou Cessão de Direitos Autorais",
     "Distrato de Contrato",
@@ -199,7 +199,9 @@ describe("DocAI contract library", () => {
       );
       assert.equal(
         model.version,
-        model.id === "prestacao-de-servicos" ? 2 : 1,
+        ["prestacao-de-servicos", "confidencialidade-nda"].includes(model.id)
+          ? 2
+          : 1,
       );
 
       const formFields = model.formSchema.sections.flatMap(
@@ -213,6 +215,7 @@ describe("DocAI contract library", () => {
           "proposta-comercial-com-aceite",
           "termo-de-alteracao-de-escopo",
           "termo-de-entrega-e-aceite",
+          "confidencialidade-nda",
         ].includes(model.id)
           ? undefined
           : model.name,
@@ -240,6 +243,13 @@ describe("DocAI contract library", () => {
   });
 
   it("maps the compatible general models to the existing contract types", () => {
+    const nda = getContractLibraryModel(
+      "contratos-gerais",
+      "confidencialidade-nda",
+    );
+    assert.equal(nda?.name, "Acordo de Sigilo (NDA)");
+    assert.equal(nda?.version, 2);
+    assert.equal(nda?.contractType, "services");
     assert.equal(
       getContractLibraryModel(
         "contratos-gerais",
