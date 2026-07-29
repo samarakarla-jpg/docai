@@ -13,6 +13,7 @@ const expectedNames = [
   "Contrato de Prestação de Serviços",
   "Proposta Comercial com Aceite",
   "Termo de Alteração de Escopo",
+  "Termo de Entrega e Aceite",
   "Freelancer por Projeto",
   "Consultoria",
   "Compra e Venda",
@@ -22,6 +23,26 @@ const expectedNames = [
   "Parceria Comercial sem Constituição de Sociedade",
   "Licença ou Cessão de Direitos Autorais",
   "Distrato de Contrato",
+] as const;
+
+const deliveryAcceptanceSpecificFieldIds = [
+  "deliveredItems",
+  "acceptanceStatus",
+  "reservations",
+  "pendingItems",
+  "deliveryEvidence",
+  "supportOrWarrantyStart",
+] as const;
+
+const deliveryAcceptanceRiskTerms = [
+  "entrega",
+  "aceite",
+  "ressalvas",
+  "pendências",
+  "saldo",
+  "garantia",
+  "quitação geral",
+  "silêncio",
 ] as const;
 
 const scopeChangeSpecificFieldIds = [
@@ -98,8 +119,8 @@ const requiredTargets = {
 } as const;
 
 describe("general contract definitions", () => {
-  it("registers the proposal after services and preserves prior contracts", () => {
-    assert.equal(GENERAL_CONTRACT_DEFINITIONS.length, 12);
+  it("registers the essential contracts in order and preserves prior contracts", () => {
+    assert.equal(GENERAL_CONTRACT_DEFINITIONS.length, 13);
     assert.deepEqual(
       GENERAL_CONTRACT_DEFINITIONS.map((definition) => definition.name),
       expectedNames,
@@ -160,6 +181,7 @@ describe("general contract definitions", () => {
           "prestacao-de-servicos",
           "proposta-comercial-com-aceite",
           "termo-de-alteracao-de-escopo",
+          "termo-de-entrega-e-aceite",
         ].includes(definition.id)
           ? undefined
           : definition.name,
@@ -400,6 +422,83 @@ describe("general contract definitions", () => {
     assert.deepEqual(
       priceImpactType.options.map((option) => option.value),
       ["unchanged", "increase", "decrease"],
+    );
+  });
+
+  it("implements only the approved delivery-and-acceptance questions", () => {
+    const definition = findDefinition("termo-de-entrega-e-aceite");
+    const fields = definition.formSchema.sections.flatMap(
+      (section) => section.fields,
+    );
+    const specificFieldIds = fields
+      .map((field) => field.id)
+      .filter(
+        (fieldId) =>
+          !compatibilityFieldIds.includes(
+            fieldId as (typeof compatibilityFieldIds)[number],
+          ),
+      );
+
+    assert.deepEqual(specificFieldIds, deliveryAcceptanceSpecificFieldIds);
+    assert.deepEqual(
+      fields.filter((field) => !field.required).map((field) => field.id),
+      [
+        "value",
+        "term",
+        "reservations",
+        "pendingItems",
+        "deliveryEvidence",
+        "supportOrWarrantyStart",
+      ],
+    );
+  });
+
+  it("keeps delivery and acceptance within the simple-language three-minute limit", () => {
+    const businessFields = findDefinition("termo-de-entrega-e-aceite")
+      .formSchema.sections.flatMap((section) => section.fields)
+      .filter(
+        (field) =>
+          !compatibilityFieldIds
+            .slice(0, 6)
+            .includes(
+              field.id as (typeof compatibilityFieldIds)[number],
+            ),
+      );
+
+    assert.equal(businessFields.length, 10);
+    assert.equal(
+      businessFields.filter((field) => field.required).length,
+      4,
+    );
+    assert.ok(businessFields.every((field) => field.label.endsWith("?")));
+    assert.ok(
+      businessFields.every(
+        (field) =>
+          !/(objeto principal|condição econômica|inadimplemento|rescisão|vigência|novação)/i.test(
+            field.label,
+          ),
+      ),
+    );
+  });
+
+  it("covers delivery-and-acceptance risks with explicit review choices", () => {
+    const definition = findDefinition("termo-de-entrega-e-aceite");
+    const guidance = definition.generationSchema.sections
+      .flatMap((section) => [section.title, section.objective])
+      .join(" ")
+      .toLocaleLowerCase("pt-BR");
+
+    for (const term of deliveryAcceptanceRiskTerms) {
+      assert.ok(guidance.includes(term), term);
+    }
+
+    const acceptanceStatus = definition.formSchema.sections
+      .flatMap((section) => section.fields)
+      .find((field) => field.id === "acceptanceStatus");
+    assert.equal(acceptanceStatus?.type, "select");
+    assert.deepEqual(
+      acceptanceStatus.options.map((option) => option.value),
+      ["accepted", "accepted-with-reservations", "pending-verification"],
     );
   });
 });

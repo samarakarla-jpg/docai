@@ -39,6 +39,7 @@ const expectedModelNames = {
     "Contrato de Prestação de Serviços",
     "Proposta Comercial com Aceite",
     "Termo de Alteração de Escopo",
+    "Termo de Entrega e Aceite",
     "Freelancer por Projeto",
     "Consultoria",
     "Compra e Venda",
@@ -159,7 +160,7 @@ describe("DocAI contract library", () => {
       CONTRACT_CATEGORIES.map((category) => category.slug),
     );
 
-    assert.equal(CONTRACT_LIBRARY_MODELS.length, 73);
+    assert.equal(CONTRACT_LIBRARY_MODELS.length, 74);
     assert.ok(
       CONTRACT_LIBRARY_MODELS.every((model) =>
         categorySlugs.has(model.categorySlug),
@@ -211,6 +212,7 @@ describe("DocAI contract library", () => {
           "prestacao-de-servicos",
           "proposta-comercial-com-aceite",
           "termo-de-alteracao-de-escopo",
+          "termo-de-entrega-e-aceite",
         ].includes(model.id)
           ? undefined
           : model.name,
@@ -238,6 +240,13 @@ describe("DocAI contract library", () => {
   });
 
   it("maps the compatible general models to the existing contract types", () => {
+    assert.equal(
+      getContractLibraryModel(
+        "contratos-gerais",
+        "termo-de-entrega-e-aceite",
+      )?.contractType,
+      "services",
+    );
     assert.equal(
       getContractLibraryModel("contratos-gerais", "compra-e-venda")
         ?.contractType,

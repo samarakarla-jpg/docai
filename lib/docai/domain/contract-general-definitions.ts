@@ -256,6 +256,91 @@ export const GENERAL_CONTRACT_DEFINITIONS: readonly ContractDefinition<"contrato
     ],
   }),
   defineGeneralContract({
+    coreFields: {
+      contractObject: {
+        helpText: "Informe o nome, a data ou outra referência do contrato, proposta ou projeto.",
+        label: "Qual serviço, contrato ou projeto está sendo entregue?",
+      },
+      startDate: { label: "Quando a entrega foi realizada?" },
+      term: {
+        helpText: "Deixe em branco se não houver pendências.",
+        label: "Até quando as pendências serão resolvidas?",
+        required: false,
+      },
+      value: {
+        helpText: "Informe somente o valor que ainda depende desta entrega.",
+        label: "Qual é o saldo relacionado à entrega, se houver?",
+        required: false,
+      },
+    },
+    description:
+      "Registra a entrega de um serviço, o resultado da conferência e eventuais ressalvas ou pendências.",
+    detailFields: [
+      textarea("deliveredItems", "O que foi entregue?"),
+      select("acceptanceStatus", "Qual foi o resultado da conferência?", [
+        option("Entrega aceita", "accepted"),
+        option("Aceita com ressalvas", "accepted-with-reservations"),
+        option("Aguardando conferência", "pending-verification"),
+      ]),
+      textarea("reservations", "Existe alguma ressalva sobre a entrega?", false),
+      textarea("pendingItems", "Ficou alguma pendência?", false),
+      text(
+        "deliveryEvidence",
+        "Existe algum link, arquivo ou comprovante da entrega?",
+        false,
+        "full",
+      ),
+      text(
+        "supportOrWarrantyStart",
+        "Quando começa o suporte ou a garantia contratual, se houver?",
+        false,
+        "full",
+      ),
+    ],
+    id: "termo-de-entrega-e-aceite",
+    name: "Termo de Entrega e Aceite",
+    objective:
+      "Comprovar o que foi entregue e registrar o resultado da conferência, as ressalvas e as pendências sem presumir quitação geral.",
+    partyTitles: ["Cliente", "Prestador"],
+    sections: [
+      generationSection(
+        "parties",
+        "Identificação das partes e do serviço",
+        "Identificar cliente, prestador e o contrato, proposta ou projeto relacionado sem inventar referências.",
+      ),
+      generationSection(
+        "delivery",
+        "Entrega realizada",
+        "Descrever os itens entregues, a data da entrega e as evidências informadas sem acrescentar materiais não declarados.",
+      ),
+      generationSection(
+        "verification",
+        "Conferência, aceite e ressalvas",
+        "Distinguir aceite integral, aceite com ressalvas e conferência pendente, sem tratar silêncio como concordância.",
+      ),
+      generationSection(
+        "pending-items",
+        "Pendências e prazo",
+        "Registrar somente as pendências e o prazo informados, sem presumir que a ausência de resposta confirma a conclusão integral.",
+      ),
+      generationSection(
+        "balance",
+        "Saldo relacionado à entrega",
+        "Registrar eventual saldo vinculado à entrega sem inventar vencimentos, encargos ou declaração de pagamento.",
+      ),
+      generationSection(
+        "support-and-warranty",
+        "Suporte e garantia contratual",
+        "Registrar o início informado de suporte ou garantia contratual sem limitar garantias legais ou direitos obrigatórios.",
+      ),
+      generationSection(
+        "final-provisions",
+        "Disposições finais",
+        "Formalizar o resultado da entrega sem criar quitação geral, renúncia de direitos ou alteração das condições não tratadas neste termo.",
+      ),
+    ],
+  }),
+  defineGeneralContract({
     description:
       "Estrutura um trabalho autônomo por projeto, com entregáveis, revisões, aceite e arquivos finais.",
     detailFields: [
