@@ -65,6 +65,24 @@ Toda inteligência específica pertence à `ContractDefinition`. Cada definiçã
 
 Nenhuma dessas regras deve ser duplicada em outras camadas.
 
+## `ServiceDefinition`: Catálogo de Atividades Profissionais
+
+`ServiceDefinition` representa uma atividade que um profissional pode oferecer. Ela é independente de `ContractDefinition`: um serviço descreve o trabalho, enquanto uma definição de contrato descreve um documento jurídico e suas regras de preenchimento e geração.
+
+A primeira camada do catálogo de serviços é somente configuração de domínio. Ela pode registrar serviços oficiais, opções de descrição livre e a estrutura de serviços personalizados, mas não altera formulários, geração, contratos, persistência ou interface.
+
+As consultas ao catálogo dependem de fontes genéricas e assíncronas. Dados locais são uma implementação inicial, não uma premissa permanente. Futuras fontes oficiais, personalizadas ou persistidas podem implementar o mesmo contrato de consulta sem condições por profissão ou `serviceId`.
+
+Uma `ServiceDefinition` pode declarar documentos que futuramente será capaz de alimentar. Essa declaração representa compatibilidade potencial e não cria geração automática nem dependência direta com IDs de `ContractDefinition`.
+
+Perguntas associadas a serviços reutilizam exclusivamente o vocabulário canônico de campos do `formSchema`. A `ServiceDefinition` mantém apenas referências declarativas para perguntas registradas; não define um segundo schema de formulário. Um compositor puro pode combinar o `formSchema` original com camadas genéricas, profissionais e específicas do serviço, preservando o `formSchema` como formato final consumido pelo renderer.
+
+O compositor não conhece IDs de serviços ou contratos. Catálogos e camadas fornecem a configuração, perguntas repetidas são consolidadas por ID estável e conflitos com o formulário original são rejeitados. Serviços personalizados usam somente a camada genérica até possuírem configuração explicitamente aprovada.
+
+Informações jurídicas, cláusulas, bindings e decisões de geração continuam pertencendo exclusivamente à `ContractDefinition`. `ServiceDefinition` não pode introduzir lógica em renderer, motor, Server Actions, rotas ou componentes compartilhados.
+
+Descrições livres devem admitir política declarativa de revisão. O catálogo oficial não pode oferecer atividades ilegais, fraudulentas ou inseguras, e uma política de revisão não equivale a detector automático nem autoriza geração de orientação operacional.
+
 ## `formSchema`
 
 O `formSchema` define completamente a coleta e a apresentação dos dados:
