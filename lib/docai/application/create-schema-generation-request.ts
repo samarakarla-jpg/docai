@@ -5,6 +5,7 @@ import type {
 import type {
   ContractContent,
   ContractGenerationDefinitionContext,
+  ContractGenerationServiceContext,
   ContractParty,
   ContractGenerationContextParty,
   ContractGenerationRequest,
@@ -89,6 +90,9 @@ export class InvalidContractDefinitionError extends Error {
 export function createSchemaGenerationRequest(
   definition: ContractDefinition,
   formData: FormData,
+  context?: Readonly<{
+    service?: ContractGenerationServiceContext;
+  }>,
 ): SchemaGenerationRequestResult {
   const fields = definition.formSchema.sections.flatMap(
     (section) => section.fields,
@@ -170,6 +174,7 @@ export function createSchemaGenerationRequest(
     parties,
     reviewStatus: definition.generationSchema.reviewStatus,
     sections: definition.generationSchema.sections,
+    ...(context?.service ? { service: context.service } : {}),
   };
   const content = contentFactories[definition.contractType](
     boundContent,

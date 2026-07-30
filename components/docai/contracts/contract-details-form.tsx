@@ -10,6 +10,7 @@ import {
 import { ContractForm } from "@/components/docai/contracts/contract-form";
 import type { ContractType } from "@/lib/docai/domain/contract-models";
 import type { ContractFormSchema } from "@/lib/docai/domain/contract-definition";
+import type { SupportedServiceDocument } from "@/lib/docai/domain/service-definition";
 
 type ContractDetailsFormProps = Readonly<{
   formSchema: ContractFormSchema;
@@ -18,6 +19,13 @@ type ContractDetailsFormProps = Readonly<{
     categorySlug: string;
     id: string;
     name: string;
+  }>;
+  service?: Readonly<{
+    document: SupportedServiceDocument;
+    id: string;
+    name: string;
+    professionId: string;
+    professionName: string;
   }>;
   type: ContractType;
 }>;
@@ -29,6 +37,7 @@ const INITIAL_STATE: GenerateContractActionState = {
 export function ContractDetailsForm({
   formSchema,
   model,
+  service,
   type,
 }: ContractDetailsFormProps) {
   const router = useRouter();
@@ -42,6 +51,13 @@ export function ContractDetailsForm({
       router.push(`/dashboard/contracts/${state.result.id}`);
     }
   }, [router, state]);
+  const submitLabel = pending
+    ? service
+      ? "Gerando proposta..."
+      : "Gerando contrato..."
+    : service
+      ? "Gerar proposta"
+      : "Gerar contrato";
 
   return (
     <form
@@ -59,22 +75,39 @@ export function ContractDetailsForm({
           <input name="definitionId" type="hidden" value={model.id} />
         </>
       ) : null}
+      {service ? (
+        <>
+          <input
+            name="serviceDocument"
+            type="hidden"
+            value={service.document}
+          />
+          <input
+            name="serviceProfessionId"
+            type="hidden"
+            value={service.professionId}
+          />
+          <input name="serviceId" type="hidden" value={service.id} />
+        </>
+      ) : null}
       {model ? (
         <section
           aria-labelledby="selected-library-model-title"
           className="mb-8 rounded-xl border border-blue-200 bg-blue-50 p-4"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-800">
-            Modelo selecionado
+            {service ? "Serviço selecionado" : "Modelo selecionado"}
           </p>
           <h2
             className="mt-1 text-lg font-semibold text-slate-950"
             id="selected-library-model-title"
           >
-            {model.name}
+            {service ? service.name : model.name}
           </h2>
           <p className="mt-1 text-sm text-slate-600">
-            Categoria: {model.categoryName}
+            {service
+              ? `Profissão: ${service.professionName}`
+              : `Categoria: ${model.categoryName}`}
           </p>
         </section>
       ) : null}
@@ -97,7 +130,7 @@ export function ContractDetailsForm({
         disabled={pending}
         type="submit"
       >
-        {pending ? "Gerando contrato..." : "Gerar contrato"}
+        {submitLabel}
       </button>
     </form>
   );

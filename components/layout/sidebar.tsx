@@ -72,7 +72,7 @@ export function Sidebar({
             href="/dashboard/contracts/new"
             onClick={onClose}
           >
-            Novo contrato
+            Nova Proposta
           </Link>
           <ul className="space-y-1">
             {navigationItems.map((item) => {

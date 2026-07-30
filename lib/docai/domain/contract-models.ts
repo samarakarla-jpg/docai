@@ -78,6 +78,16 @@ export interface ContractGenerationContextParty extends ContractParty {
   readonly role: string;
 }
 
+export interface ContractGenerationServiceContext {
+  readonly description: string;
+  readonly profession: Readonly<{
+    id: string;
+    name: string;
+  }>;
+  readonly serviceId: string;
+  readonly serviceName: string;
+}
+
 export interface ContractGenerationDefinitionContext {
   readonly answers: readonly ContractGenerationAnswer[];
   readonly definitionId: string;
@@ -87,6 +97,7 @@ export interface ContractGenerationDefinitionContext {
   readonly parties: readonly ContractGenerationContextParty[];
   readonly reviewStatus: ContractDefinitionReviewStatus;
   readonly sections: readonly ContractGenerationSection[];
+  readonly service?: ContractGenerationServiceContext;
 }
 
 export interface ContractGenerationRequest {

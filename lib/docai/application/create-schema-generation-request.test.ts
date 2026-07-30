@@ -110,6 +110,38 @@ describe("createSchemaGenerationRequest", () => {
     });
   });
 
+  it("preserves canonical answers and adds resolved service metadata", () => {
+    const formData = validFormData();
+    formData.set("specificAnswer", "220 V");
+
+    const result = createSchemaGenerationRequest(definition, formData, {
+      service: {
+        description: "Instala um chuveiro elétrico.",
+        profession: { id: "electrician", name: "Eletricista" },
+        serviceId: "electrician-electric-shower-installation",
+        serviceName: "Instalação de chuveiro elétrico",
+      },
+    });
+
+    assert.equal(result.valid, true);
+    if (!result.valid) return;
+
+    assert.deepEqual(result.request.content.definitionContext?.answers, [
+      { fieldId: "scope", label: "Escopo", value: "Projeto piloto" },
+      {
+        fieldId: "specificAnswer",
+        label: "Resposta específica",
+        value: "220 V",
+      },
+    ]);
+    assert.deepEqual(result.request.content.definitionContext?.service, {
+      description: "Instala um chuveiro elétrico.",
+      profession: { id: "electrician", name: "Eletricista" },
+      serviceId: "electrician-electric-shower-installation",
+      serviceName: "Instalação de chuveiro elétrico",
+    });
+  });
+
   it("rejects a definition that references an unknown field", () => {
     const invalidDefinition: ContractDefinition = {
       ...definition,

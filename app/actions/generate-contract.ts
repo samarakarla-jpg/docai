@@ -2,7 +2,10 @@
 
 import { createReadOnlyAuthClient } from "@/lib/auth/server";
 import { createSchemaGenerationRequest } from "@/lib/docai/application/create-schema-generation-request";
+import { InvalidServiceDocumentContextError } from "@/lib/docai/application/resolve-service-document-context";
+import { SERVICE_DOCUMENT_CONTEXT } from "@/lib/docai/configuration/services/service-document-context";
 import { getContractLibraryModel } from "@/lib/docai/domain/contract-library";
+import type { SupportedServiceDocument } from "@/lib/docai/domain/service-definition";
 import { createGeminiAdapterFromEnvironment } from "@/lib/docai/infrastructure/ai/gemini-adapter";
 import { createSupabaseContractRepository } from "@/lib/docai/infrastructure/persistence/supabase-contract-repository";
 import type {
@@ -45,19 +48,19 @@ export async function generateContract(
   _previousState: GenerateContractActionState,
   formData: FormData,
 ): Promise<GenerateContractActionState> {
-  const parsed = parseFormData(formData);
-
-  if (!parsed.valid) {
-    return {
-      fieldErrors: parsed.fieldErrors,
-      message: "Preencha todos os campos obrigatórios.",
-      status: "error",
-    };
-  }
-
-  let stage = "initialization";
+  let stage = "validation";
 
   try {
+    const parsed = await parseFormData(formData);
+
+    if (!parsed.valid) {
+      return {
+        fieldErrors: parsed.fieldErrors,
+        message: "Preencha todos os campos obrigatórios.",
+        status: "error",
+      };
+    }
+
     stage = "gemini";
     const aiAdapter = createGeminiAdapterFromEnvironment();
     const aiService = new AIService(aiAdapter);
@@ -194,15 +197,95 @@ type ParsedForm =
       valid: true;
     }>;
 
-function parseFormData(formData: FormData): ParsedForm {
+async function parseFormData(formData: FormData): Promise<ParsedForm> {
   const definitionCategory = readText(formData.get("definitionCategory"));
   const definitionId = readText(formData.get("definitionId"));
+  const rawServiceDocument = formData.get("serviceDocument");
+  const rawServiceProfessionId = formData.get("serviceProfessionId");
+  const rawServiceId = formData.get("serviceId");
+  const serviceDocument = readSupportedServiceDocument(rawServiceDocument);
+  const serviceProfessionId = readText(rawServiceProfessionId);
+  const serviceId = readText(rawServiceId);
+  const hasServiceContext = Boolean(
+    rawServiceDocument !== null ||
+      rawServiceProfessionId !== null ||
+      rawServiceId !== null,
+  );
+
+  if (hasServiceContext) {
+    return parseServiceDefinitionFormData(
+      definitionCategory,
+      definitionId,
+      serviceDocument,
+      serviceProfessionId,
+      serviceId,
+      formData,
+    );
+  }
 
   if (definitionCategory || definitionId) {
     return parseDefinitionFormData(definitionCategory, definitionId, formData);
   }
 
   return parseLegacyFormData(formData);
+}
+
+async function parseServiceDefinitionFormData(
+  category: string,
+  definitionId: string,
+  document: SupportedServiceDocument | undefined,
+  professionId: string,
+  serviceId: string,
+  formData: FormData,
+): Promise<ParsedForm> {
+  const type = parseContractType(formData.get("type"));
+
+  if (
+    !category ||
+    !definitionId ||
+    !document ||
+    !professionId ||
+    !serviceId ||
+    !type
+  ) {
+    return invalidServiceSelection();
+  }
+
+  try {
+    const context = await SERVICE_DOCUMENT_CONTEXT.resolve({
+      document,
+      professionId,
+      serviceId,
+    });
+    const definition = context.contractDefinition;
+
+    if (
+      definition.categorySlug !== category ||
+      definition.id !== definitionId ||
+      definition.contractType !== type
+    ) {
+      return invalidServiceSelection();
+    }
+
+    return createSchemaGenerationRequest(definition, formData, {
+      service: context.generationServiceContext,
+    });
+  } catch (error) {
+    if (error instanceof InvalidServiceDocumentContextError) {
+      return invalidServiceSelection();
+    }
+
+    throw error;
+  }
+}
+
+function invalidServiceSelection(): ParsedForm {
+  return {
+    fieldErrors: {
+      serviceId: "Selecione uma profissão e um serviço válidos.",
+    },
+    valid: false,
+  };
 }
 
 function parseDefinitionFormData(
@@ -322,6 +405,12 @@ function parseContractType(value: FormDataEntryValue | null): ContractType | nul
     value === "loan"
     ? value
     : null;
+}
+
+function readSupportedServiceDocument(
+  value: FormDataEntryValue | null,
+): SupportedServiceDocument | undefined {
+  return value === "proposal" ? value : undefined;
 }
 
 function readText(value: FormDataEntryValue | null): string {
