@@ -92,6 +92,7 @@ export function createSchemaGenerationRequest(
   formData: FormData,
   context?: Readonly<{
     service?: ContractGenerationServiceContext;
+    services?: readonly ContractGenerationServiceContext[];
   }>,
 ): SchemaGenerationRequestResult {
   const fields = definition.formSchema.sections.flatMap(
@@ -112,7 +113,7 @@ export function createSchemaGenerationRequest(
 
   for (const field of fields) {
     if (field.required && isMissingRequiredValue(field.type, values[field.id])) {
-      fieldErrors[field.id] = "Preencha este campo.";
+      fieldErrors[field.id] = "Este campo é obrigatório.";
       continue;
     }
 
@@ -127,23 +128,29 @@ export function createSchemaGenerationRequest(
   }
 
   validateGenerationSchema(definition, fieldsById);
+  const generationValues = Object.fromEntries(
+    fields.map((field) => [
+      field.id,
+      normalizeGenerationValue(field, values[field.id]),
+    ]),
+  ) as Readonly<Record<string, string>>;
 
   const parties = definition.generationSchema.partyBindings.map(
     (binding): ContractGenerationContextParty => ({
       ...(binding.addressFieldId
-        ? { address: values[binding.addressFieldId] }
+        ? { address: generationValues[binding.addressFieldId] }
         : {}),
       ...(binding.identifierFieldId
-        ? { identifier: values[binding.identifierFieldId] }
+        ? { identifier: generationValues[binding.identifierFieldId] }
         : {}),
-      name: values[binding.nameFieldId],
+      name: generationValues[binding.nameFieldId],
       role: binding.role,
     }),
   );
   const boundContent = Object.fromEntries(
     definition.generationSchema.contentBindings.map((binding) => [
       binding.target,
-      values[binding.sourceFieldId],
+      generationValues[binding.sourceFieldId],
     ]),
   );
 
@@ -165,7 +172,7 @@ export function createSchemaGenerationRequest(
     answers: definition.generationSchema.answerFieldIds.map((fieldId) => ({
       fieldId,
       label: fieldsById.get(fieldId)?.label ?? fieldId,
-      value: values[fieldId],
+      value: generationValues[fieldId],
     })),
     definitionId: definition.id,
     definitionVersion: definition.version,
@@ -175,6 +182,7 @@ export function createSchemaGenerationRequest(
     reviewStatus: definition.generationSchema.reviewStatus,
     sections: definition.generationSchema.sections,
     ...(context?.service ? { service: context.service } : {}),
+    ...(context?.services ? { services: context.services } : {}),
   };
   const content = contentFactories[definition.contractType](
     boundContent,
@@ -251,44 +259,74 @@ function validateFieldValue(
     field.type === "select" &&
     !field.options.some((option) => option.value === value)
   ) {
-    return "Selecione uma opção válida.";
+    return "Escolha uma opção da lista.";
   }
 
   if (field.type === "number") {
     const numericValue = Number(value);
 
     if (!Number.isFinite(numericValue)) {
-      return "Informe um número válido.";
+      return "Digite um número válido.";
     }
 
     if (field.min !== undefined && numericValue < field.min) {
-      return `Informe um valor maior ou igual a ${field.min}.`;
+      return `Digite um valor igual ou maior que ${field.min}.`;
     }
 
     if (field.max !== undefined && numericValue > field.max) {
-      return `Informe um valor menor ou igual a ${field.max}.`;
+      return `Digite um valor igual ou menor que ${field.max}.`;
     }
   }
 
-  if (field.type === "date" && !isIsoDate(value)) {
-    return "Informe uma data válida.";
+  if (field.type === "date" && !readDateParts(value)) {
+    return "Digite uma data válida no formato dia/mês/ano.";
   }
 
   return undefined;
 }
 
-function isIsoDate(value: string): boolean {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) return false;
+function normalizeGenerationValue(
+  field: ContractFormFieldSchema,
+  value: string,
+): string {
+  if (!value) return value;
 
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
+  if (field.type === "select") {
+    return (
+      field.options.find((option) => option.value === value)?.label ?? value
+    );
+  }
+
+  if (field.type === "date") {
+    const date = readDateParts(value);
+    if (!date) return value;
+
+    return `${String(date.day).padStart(2, "0")}/${String(date.month).padStart(2, "0")}/${date.year}`;
+  }
+
+  return value;
+}
+
+function readDateParts(
+  value: string,
+): Readonly<{ day: number; month: number; year: number }> | undefined {
+  const brazilianMatch = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+  const isoMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  const year = Number(brazilianMatch?.[3] ?? isoMatch?.[1]);
+  const month = Number(brazilianMatch?.[2] ?? isoMatch?.[2]);
+  const day = Number(brazilianMatch?.[1] ?? isoMatch?.[3]);
+
+  if (!brazilianMatch && !isoMatch) return undefined;
+
   const date = new Date(Date.UTC(year, month - 1, day));
 
-  return (
+  if (
     date.getUTCFullYear() === year &&
     date.getUTCMonth() === month - 1 &&
     date.getUTCDate() === day
-  );
+  ) {
+    return { day, month, year };
+  }
+
+  return undefined;
 }

@@ -200,6 +200,20 @@ describe("electrician service definitions", () => {
     });
   });
 
+  it("shows familiar voltage labels without changing internal values", () => {
+    const voltage = ELECTRICIAN_SERVICE_FORM_FIELD_REGISTRY.resolve(
+      "electrician-supply-voltage",
+    );
+
+    assert.equal(voltage.type, "select");
+    if (voltage.type !== "select") return;
+    assert.deepEqual(voltage.options, [
+      { label: "127 V (110 V)", value: "127v" },
+      { label: "220 V", value: "220v" },
+      { label: "Ainda precisa verificar", value: "unknown" },
+    ]);
+  });
+
   it("models Other as data with free-text review instead of name-based logic", () => {
     const other = ELECTRICIAN_SERVICE_DEFINITIONS.find(
       (definition) => definition.kind === "free-form",

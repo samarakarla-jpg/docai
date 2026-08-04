@@ -38,7 +38,9 @@ export type ResolvedServiceDocumentContext = Readonly<{
   contractDefinition: ContractDefinition;
   document: SupportedServiceDocument;
   generationServiceContext: ContractGenerationServiceContext;
+  generationServiceContexts: readonly ContractGenerationServiceContext[];
   serviceDefinition: ServiceDefinition;
+  serviceDefinitions: readonly ServiceDefinition[];
 }>;
 
 type ResolveServiceDocumentContextDependencies = Readonly<{
@@ -98,21 +100,55 @@ export class ResolveServiceDocumentContext {
     professionId: string;
     serviceId: string;
   }>): Promise<ResolvedServiceDocumentContext> {
+    return this.resolveMany({
+      document: input.document,
+      professionId: input.professionId,
+      serviceIds: [input.serviceId],
+    });
+  }
+
+  async resolveMany(input: Readonly<{
+    document: SupportedServiceDocument;
+    professionId: string;
+    serviceIds: readonly string[];
+  }>): Promise<ResolvedServiceDocumentContext> {
     const contractDefinition = this.resolveContractDefinition(input.document);
-    const serviceDefinition = await this.dependencies.serviceSource.getById(
-      input.serviceId,
+    const uniqueServiceIds = [...new Set(input.serviceIds)];
+
+    if (
+      uniqueServiceIds.length === 0 ||
+      uniqueServiceIds.length !== input.serviceIds.length
+    ) {
+      throw new InvalidServiceDocumentContextError(
+        "At least one unique service must be selected for this document.",
+      );
+    }
+
+    const serviceDefinitions = await Promise.all(
+      uniqueServiceIds.map((serviceId) =>
+        this.dependencies.serviceSource.getById(serviceId),
+      ),
     );
 
     if (
-      !serviceDefinition ||
-      !serviceDefinition.active ||
-      serviceDefinition.profession.id !== input.professionId ||
-      !serviceDefinition.supportedDocuments.includes(input.document)
+      serviceDefinitions.some(
+        (serviceDefinition) =>
+          !serviceDefinition ||
+          !serviceDefinition.active ||
+          serviceDefinition.profession.id !== input.professionId ||
+          !serviceDefinition.supportedDocuments.includes(input.document),
+      )
     ) {
       throw new InvalidServiceDocumentContextError(
         "The selected profession and service are not valid for this document.",
       );
     }
+
+    const validServiceDefinitions = serviceDefinitions.filter(
+      (serviceDefinition): serviceDefinition is ServiceDefinition =>
+        serviceDefinition !== undefined,
+    );
+    const serviceDefinition = validServiceDefinitions[0];
 
     const professionConfiguration =
       this.dependencies.professionFormConfigurations.find(
@@ -128,11 +164,20 @@ export class ResolveServiceDocumentContext {
 
     const layers = [this.dependencies.genericFormLayer];
 
-    if (serviceDefinition.origin === "official") {
+    if (
+      validServiceDefinitions.some(
+        (candidate) => candidate.origin === "official",
+      )
+    ) {
       layers.push(professionConfiguration.professionLayer);
 
-      if (serviceDefinition.formConfiguration?.mode === "configured") {
-        layers.push(createServiceFormLayer(serviceDefinition));
+      for (const candidate of validServiceDefinitions) {
+        if (
+          candidate.origin === "official" &&
+          candidate.formConfiguration?.mode === "configured"
+        ) {
+          layers.push(createServiceFormLayer(candidate));
+        }
       }
     }
 
@@ -145,6 +190,15 @@ export class ResolveServiceDocumentContext {
       section.fields.map((field) => field.id),
     );
 
+    const generationServiceContexts = validServiceDefinitions.map(
+      (candidate): ContractGenerationServiceContext => ({
+        description: candidate.description,
+        profession: candidate.profession,
+        serviceId: candidate.id,
+        serviceName: candidate.name,
+      }),
+    );
+
     return {
       contractDefinition: {
         ...contractDefinition,
@@ -155,13 +209,10 @@ export class ResolveServiceDocumentContext {
         },
       },
       document: input.document,
-      generationServiceContext: {
-        description: serviceDefinition.description,
-        profession: serviceDefinition.profession,
-        serviceId: serviceDefinition.id,
-        serviceName: serviceDefinition.name,
-      },
+      generationServiceContext: generationServiceContexts[0],
+      generationServiceContexts,
       serviceDefinition,
+      serviceDefinitions: validServiceDefinitions,
     };
   }
 

@@ -16,6 +16,7 @@ type ContractFormProps = Readonly<{
   disabled?: boolean;
   fieldErrors?: Readonly<Record<string, string>>;
   schema?: ContractFormSchema;
+  sectionTitleOverrides?: Readonly<Record<string, string>>;
   type: ContractType | "";
 }>;
 
@@ -23,6 +24,7 @@ export function ContractForm({
   disabled,
   fieldErrors,
   schema,
+  sectionTitleOverrides,
 }: ContractFormProps) {
   const formSchema = schema ?? createStandardContractFormSchema();
 
@@ -39,7 +41,7 @@ export function ContractForm({
               className="text-lg font-semibold text-slate-950"
               id={titleId}
             >
-              {section.title}
+              {sectionTitleOverrides?.[section.id] ?? section.title}
             </h2>
             {section.description ? (
               <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -100,7 +102,17 @@ function FormField({ error, field }: FormFieldProps) {
         />
       );
     case "date":
-      return <InputField error={error} field={field} type="date" />;
+      return (
+        <InputField
+          error={error}
+          field={field}
+          inputMode="numeric"
+          maxLength={10}
+          onChange={formatDateInput}
+          placeholder="dd/mm/aaaa"
+          type="text"
+        />
+      );
     case "text":
       return (
         <InputField
@@ -120,11 +132,13 @@ type InputFieldProps = Readonly<{
     ContractFormFieldSchema,
     TextAreaFormFieldSchema | SelectFormFieldSchema | CheckboxFormFieldSchema
   >;
-  inputMode?: "decimal";
+  inputMode?: "decimal" | "numeric";
   max?: number;
+  maxLength?: number;
   min?: number;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
-  type: "date" | "number" | "text";
+  placeholder?: string;
+  type: "number" | "text";
 }>;
 
 function InputField({
@@ -133,8 +147,10 @@ function InputField({
   field,
   inputMode,
   max,
+  maxLength,
   min,
   onChange,
+  placeholder,
   type,
 }: InputFieldProps) {
   const descriptionId = field.helpText ? `${field.id}-description` : undefined;
@@ -150,13 +166,19 @@ function InputField({
         aria-invalid={Boolean(error)}
         autoComplete={autoComplete}
         className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none focus:border-slate-600 focus:ring-2 focus:ring-slate-200"
-        defaultValue={field.defaultValue}
+        defaultValue={
+          field.type === "date"
+            ? formatDateInputValue(field.defaultValue ?? "")
+            : field.defaultValue
+        }
         id={field.id}
         inputMode={inputMode}
         max={max}
+        maxLength={maxLength}
         min={min}
         name={field.id}
         onChange={onChange}
+        placeholder={placeholder ?? field.placeholder}
         required={field.required}
         type={type}
       />
@@ -184,6 +206,7 @@ function TextAreaField({
         defaultValue={field.defaultValue}
         id={field.id}
         name={field.id}
+        placeholder={field.placeholder}
         required={field.required}
         rows={field.rows ?? 4}
       />
@@ -293,4 +316,21 @@ function formatCurrencyInput(event: ChangeEvent<HTMLInputElement>): void {
     minimumFractionDigits: 2,
     style: "currency",
   });
+}
+
+function formatDateInput(event: ChangeEvent<HTMLInputElement>): void {
+  event.currentTarget.value = formatDateInputValue(event.currentTarget.value);
+}
+
+function formatDateInputValue(value: string): string {
+  const isoMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (isoMatch) {
+    return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+  }
+
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
 }

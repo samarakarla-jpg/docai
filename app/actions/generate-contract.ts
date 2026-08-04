@@ -7,7 +7,10 @@ import { SERVICE_DOCUMENT_CONTEXT } from "@/lib/docai/configuration/services/ser
 import { getContractLibraryModel } from "@/lib/docai/domain/contract-library";
 import type { SupportedServiceDocument } from "@/lib/docai/domain/service-definition";
 import { createGeminiAdapterFromEnvironment } from "@/lib/docai/infrastructure/ai/gemini-adapter";
-import { createSupabaseContractRepository } from "@/lib/docai/infrastructure/persistence/supabase-contract-repository";
+import {
+  createSupabaseContractRepository,
+  type CreateSavedContractInput,
+} from "@/lib/docai/infrastructure/persistence/supabase-contract-repository";
 import type {
   ContractContent,
   ContractGenerationRequest,
@@ -56,7 +59,7 @@ export async function generateContract(
     if (!parsed.valid) {
       return {
         fieldErrors: parsed.fieldErrors,
-        message: "Preencha todos os campos obrigatórios.",
+        message: "Revise os campos indicados antes de continuar.",
         status: "error",
       };
     }
@@ -68,7 +71,7 @@ export async function generateContract(
 
     if (typeof result.output !== "string" || !result.output.trim()) {
       return {
-        message: "O Gemini não retornou um contrato válido.",
+        message: "Não foi possível criar o documento agora. Tente novamente.",
         status: "error",
       };
     }
@@ -87,6 +90,7 @@ export async function generateContract(
     stage = "persistence";
     const repository = await createSupabaseContractRepository();
     const savedContract = await repository.create({
+      ...parsed.persistenceContext,
       content: result.output.trim(),
       title: parsed.documentTitle,
       type: parsed.request.type,
@@ -107,7 +111,7 @@ export async function generateContract(
 
     return {
       message:
-        "Não foi possível gerar e salvar o contrato. Verifique a configuração e tente novamente.",
+        "Não foi possível criar o documento agora. Tente novamente em alguns instantes.",
       status: "error",
     };
   }
@@ -186,6 +190,20 @@ function describeSafeError(error: unknown): Readonly<{
 
 type FormValues = Record<(typeof FIELD_NAMES)[number], string>;
 
+type ProposalPersistenceContext = Pick<
+  CreateSavedContractInput,
+  | "clientName"
+  | "contractDefinitionId"
+  | "documentKind"
+  | "professionId"
+  | "professionName"
+  | "providerName"
+  | "serviceId"
+  | "serviceIds"
+  | "serviceName"
+  | "serviceNames"
+>;
+
 type ParsedForm =
   | Readonly<{
       fieldErrors: Readonly<Record<string, string>>;
@@ -193,6 +211,7 @@ type ParsedForm =
     }>
   | Readonly<{
       documentTitle: string;
+      persistenceContext?: ProposalPersistenceContext;
       request: ContractGenerationRequest;
       valid: true;
     }>;
@@ -202,14 +221,14 @@ async function parseFormData(formData: FormData): Promise<ParsedForm> {
   const definitionId = readText(formData.get("definitionId"));
   const rawServiceDocument = formData.get("serviceDocument");
   const rawServiceProfessionId = formData.get("serviceProfessionId");
-  const rawServiceId = formData.get("serviceId");
+  const rawServiceIds = formData.getAll("serviceId");
   const serviceDocument = readSupportedServiceDocument(rawServiceDocument);
   const serviceProfessionId = readText(rawServiceProfessionId);
-  const serviceId = readText(rawServiceId);
+  const serviceIds = rawServiceIds.map(readText).filter(Boolean);
   const hasServiceContext = Boolean(
     rawServiceDocument !== null ||
       rawServiceProfessionId !== null ||
-      rawServiceId !== null,
+      rawServiceIds.length > 0,
   );
 
   if (hasServiceContext) {
@@ -218,7 +237,7 @@ async function parseFormData(formData: FormData): Promise<ParsedForm> {
       definitionId,
       serviceDocument,
       serviceProfessionId,
-      serviceId,
+      serviceIds,
       formData,
     );
   }
@@ -235,7 +254,7 @@ async function parseServiceDefinitionFormData(
   definitionId: string,
   document: SupportedServiceDocument | undefined,
   professionId: string,
-  serviceId: string,
+  serviceIds: readonly string[],
   formData: FormData,
 ): Promise<ParsedForm> {
   const type = parseContractType(formData.get("type"));
@@ -245,17 +264,17 @@ async function parseServiceDefinitionFormData(
     !definitionId ||
     !document ||
     !professionId ||
-    !serviceId ||
+    serviceIds.length === 0 ||
     !type
   ) {
     return invalidServiceSelection();
   }
 
   try {
-    const context = await SERVICE_DOCUMENT_CONTEXT.resolve({
+    const context = await SERVICE_DOCUMENT_CONTEXT.resolveMany({
       document,
       professionId,
-      serviceId,
+      serviceIds,
     });
     const definition = context.contractDefinition;
 
@@ -267,9 +286,32 @@ async function parseServiceDefinitionFormData(
       return invalidServiceSelection();
     }
 
-    return createSchemaGenerationRequest(definition, formData, {
+    const parsed = createSchemaGenerationRequest(definition, formData, {
       service: context.generationServiceContext,
+      services: context.generationServiceContexts,
     });
+
+    if (!parsed.valid) {
+      return parsed;
+    }
+
+    const [client, provider] = parsed.request.content.parties;
+
+    return {
+      ...parsed,
+      persistenceContext: {
+        clientName: client.name,
+        contractDefinitionId: definition.id,
+        documentKind: context.document,
+        professionId: context.serviceDefinition.profession.id,
+        professionName: context.serviceDefinition.profession.name,
+        providerName: provider.name,
+        serviceId: context.serviceDefinition.id,
+        serviceName: context.serviceDefinition.name,
+        serviceIds: context.serviceDefinitions.map((service) => service.id),
+        serviceNames: context.serviceDefinitions.map((service) => service.name),
+      },
+    };
   } catch (error) {
     if (error instanceof InvalidServiceDocumentContextError) {
       return invalidServiceSelection();
@@ -282,7 +324,7 @@ async function parseServiceDefinitionFormData(
 function invalidServiceSelection(): ParsedForm {
   return {
     fieldErrors: {
-      serviceId: "Selecione uma profissão e um serviço válidos.",
+      serviceId: "Volte e selecione pelo menos um serviço para continuar.",
     },
     valid: false,
   };

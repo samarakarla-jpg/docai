@@ -105,7 +105,7 @@ describe("createSchemaGenerationRequest", () => {
     const result = createSchemaGenerationRequest(definition, formData);
 
     assert.deepEqual(result, {
-      fieldErrors: { scope: "Preencha este campo." },
+      fieldErrors: { scope: "Este campo é obrigatório." },
       valid: false,
     });
   });
@@ -241,12 +241,143 @@ describe("createSchemaGenerationRequest", () => {
 
     assert.deepEqual(result, {
       fieldErrors: {
-        amount: "Informe um valor maior ou igual a 1.",
-        choice: "Selecione uma opção válida.",
-        date: "Informe uma data válida.",
+        amount: "Digite um valor igual ou maior que 1.",
+        choice: "Escolha uma opção da lista.",
+        date: "Digite uma data válida no formato dia/mês/ano.",
       },
       valid: false,
     });
+  });
+
+  it("normalizes Brazilian and legacy ISO dates for generation", () => {
+    const constrainedDefinition: ContractDefinition = {
+      ...definition,
+      formSchema: {
+        sections: [
+          ...definition.formSchema.sections,
+          {
+            fields: [
+              {
+                id: "brazilianDate",
+                label: "Data brasileira",
+                layout: "half",
+                required: true,
+                type: "date",
+              },
+              {
+                id: "legacyDate",
+                label: "Data legada",
+                layout: "half",
+                required: true,
+                type: "date",
+              },
+            ],
+            id: "dates",
+            title: "Datas",
+          },
+        ],
+      },
+      generationSchema: {
+        ...definition.generationSchema,
+        answerFieldIds: ["brazilianDate", "legacyDate"],
+      },
+    };
+    const formData = validFormData();
+    formData.set("brazilianDate", "29/02/2028");
+    formData.set("legacyDate", "2026-08-01");
+
+    const result = createSchemaGenerationRequest(
+      constrainedDefinition,
+      formData,
+    );
+
+    assert.equal(result.valid, true);
+    if (!result.valid) return;
+    assert.deepEqual(result.request.content.definitionContext?.answers, [
+      {
+        fieldId: "brazilianDate",
+        label: "Data brasileira",
+        value: "29/02/2028",
+      },
+      {
+        fieldId: "legacyDate",
+        label: "Data legada",
+        value: "01/08/2026",
+      },
+    ]);
+  });
+
+  it("uses select labels instead of internal values in generation answers", () => {
+    const selectDefinition: ContractDefinition = {
+      ...definition,
+      formSchema: {
+        sections: [
+          ...definition.formSchema.sections,
+          {
+            fields: [
+              {
+                id: "paymentMethod",
+                label: "Forma de pagamento",
+                layout: "half",
+                options: [{ label: "Transferência", value: "bank-transfer" }],
+                required: true,
+                type: "select",
+              },
+            ],
+            id: "payment",
+            title: "Pagamento",
+          },
+        ],
+      },
+      generationSchema: {
+        ...definition.generationSchema,
+        answerFieldIds: ["paymentMethod"],
+      },
+    };
+    const formData = validFormData();
+    formData.set("paymentMethod", "bank-transfer");
+
+    const result = createSchemaGenerationRequest(selectDefinition, formData);
+
+    assert.equal(result.valid, true);
+    if (!result.valid) return;
+    assert.equal(
+      result.request.content.definitionContext?.answers[0]?.value,
+      "Transferência",
+    );
+  });
+
+  it("keeps all selected services in the canonical generation context", () => {
+    const services = [
+      {
+        description: "Instala um chuveiro.",
+        profession: { id: "electrician", name: "Eletricista" },
+        serviceId: "electric-shower",
+        serviceName: "Instalação de chuveiro",
+      },
+      {
+        description: "Instala um ventilador.",
+        profession: { id: "electrician", name: "Eletricista" },
+        serviceId: "ceiling-fan",
+        serviceName: "Instalação de ventilador",
+      },
+    ] as const;
+
+    const result = createSchemaGenerationRequest(definition, validFormData(), {
+      service: services[0],
+      services,
+    });
+
+    assert.equal(result.valid, true);
+    if (!result.valid) return;
+    assert.deepEqual(
+      result.request.content.definitionContext?.services,
+      services,
+    );
+    assert.equal(
+      result.request.content.definitionContext?.service?.serviceId,
+      "electric-shower",
+    );
   });
 });
 

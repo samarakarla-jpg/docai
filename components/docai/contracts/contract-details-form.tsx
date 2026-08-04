@@ -20,13 +20,13 @@ type ContractDetailsFormProps = Readonly<{
     id: string;
     name: string;
   }>;
-  service?: Readonly<{
+  services?: readonly Readonly<{
     document: SupportedServiceDocument;
     id: string;
     name: string;
     professionId: string;
     professionName: string;
-  }>;
+  }>[];
   type: ContractType;
 }>;
 
@@ -37,7 +37,7 @@ const INITIAL_STATE: GenerateContractActionState = {
 export function ContractDetailsForm({
   formSchema,
   model,
-  service,
+  services,
   type,
 }: ContractDetailsFormProps) {
   const router = useRouter();
@@ -52,11 +52,11 @@ export function ContractDetailsForm({
     }
   }, [router, state]);
   const submitLabel = pending
-    ? service
-      ? "Gerando proposta..."
+    ? services
+      ? "Criando sua proposta..."
       : "Gerando contrato..."
-    : service
-      ? "Gerar proposta"
+    : services
+      ? "Criar proposta"
       : "Gerar contrato";
 
   return (
@@ -75,19 +75,26 @@ export function ContractDetailsForm({
           <input name="definitionId" type="hidden" value={model.id} />
         </>
       ) : null}
-      {service ? (
+      {services ? (
         <>
           <input
             name="serviceDocument"
             type="hidden"
-            value={service.document}
+            value={services[0]?.document}
           />
           <input
             name="serviceProfessionId"
             type="hidden"
-            value={service.professionId}
+            value={services[0]?.professionId}
           />
-          <input name="serviceId" type="hidden" value={service.id} />
+          {services.map((service) => (
+            <input
+              key={service.id}
+              name="serviceId"
+              type="hidden"
+              value={service.id}
+            />
+          ))}
         </>
       ) : null}
       {model ? (
@@ -96,17 +103,19 @@ export function ContractDetailsForm({
           className="mb-8 rounded-xl border border-blue-200 bg-blue-50 p-4"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-800">
-            {service ? "Serviço selecionado" : "Modelo selecionado"}
+            {services ? "Serviços selecionados" : "Modelo selecionado"}
           </p>
           <h2
             className="mt-1 text-lg font-semibold text-slate-950"
             id="selected-library-model-title"
           >
-            {service ? service.name : model.name}
+            {services
+              ? services.map((service) => service.name).join(" · ")
+              : model.name}
           </h2>
           <p className="mt-1 text-sm text-slate-600">
-            {service
-              ? `Profissão: ${service.professionName}`
+            {services
+              ? `${services.length} ${services.length === 1 ? "serviço selecionado" : "serviços selecionados"} · ${services[0]?.professionName}`
               : `Categoria: ${model.categoryName}`}
           </p>
         </section>
@@ -115,6 +124,16 @@ export function ContractDetailsForm({
         disabled={pending}
         fieldErrors={state.fieldErrors}
         schema={formSchema}
+        sectionTitleOverrides={
+          services
+            ? {
+                contractor: "Cliente — quem contrata o serviço",
+                "contract-details": "Dados da proposta",
+                contracted: "Eletricista — quem fará o serviço",
+                "service-form-general": "Local e orientações do serviço",
+              }
+            : undefined
+        }
         type={type}
       />
       {state.message ? (

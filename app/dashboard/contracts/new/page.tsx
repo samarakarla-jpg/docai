@@ -14,11 +14,11 @@ export default async function NewContractPage() {
           className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
           id="new-proposal-title"
         >
-          Nova Proposta
+          Criar nova proposta
         </h1>
         <p className="mt-3 text-base leading-7 text-slate-600 sm:text-lg">
-          Comece pelo serviço. O DocAI organizará as perguntas necessárias para
-          criar sua proposta.
+          Selecione um ou mais serviços que serão realizados. O DocAI fará apenas
+          as perguntas necessárias para montar sua proposta.
         </p>
       </div>
 

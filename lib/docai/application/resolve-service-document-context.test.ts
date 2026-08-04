@@ -106,7 +106,21 @@ const unrelatedService: ServiceDefinition = {
   active: false,
 };
 
-const services = [configuredService, unrelatedService];
+const secondConfiguredService: ServiceDefinition = {
+  ...configuredService,
+  description: "Installs a ceiling fan.",
+  formConfiguration: {
+    fields: [
+      recommendedFormField("electrician-voltage"),
+      requiredFormField("electrician-power"),
+    ],
+    mode: "configured",
+  },
+  id: "ceiling-fan",
+  name: "Ceiling fan installation",
+};
+
+const services = [configuredService, secondConfiguredService, unrelatedService];
 const resolver = new ResolveServiceDocumentContext({
   documentDefinitions: [
     {
@@ -143,6 +157,13 @@ const resolver = new ResolveServiceDocumentContext({
           required: false,
           type: "select",
         },
+        {
+          id: "electrician-power",
+          label: "Power?",
+          layout: "half",
+          required: false,
+          type: "number",
+        },
       ]),
       professionId: "electrician",
       professionLayer: {
@@ -175,7 +196,33 @@ describe("ResolveServiceDocumentContext", () => {
     ]);
     assert.deepEqual(
       context.services.map((service) => service.id),
-      ["electric-shower"],
+      ["electric-shower", "ceiling-fan"],
+    );
+  });
+
+  it("composes multiple services into one schema and one generation context", async () => {
+    const context = await resolver.resolveMany({
+      document: "proposal",
+      professionId: "electrician",
+      serviceIds: ["electric-shower", "ceiling-fan"],
+    });
+    const fieldIds = context.contractDefinition.formSchema.sections.flatMap(
+      (section) => section.fields.map((field) => field.id),
+    );
+
+    assert.deepEqual(fieldIds, [
+      "contractObject",
+      "service-location",
+      "electrician-voltage",
+      "electrician-power",
+    ]);
+    assert.deepEqual(
+      context.serviceDefinitions.map((service) => service.id),
+      ["electric-shower", "ceiling-fan"],
+    );
+    assert.deepEqual(
+      context.generationServiceContexts.map((service) => service.serviceName),
+      ["Electric shower installation", "Ceiling fan installation"],
     );
   });
 
@@ -214,6 +261,14 @@ describe("ResolveServiceDocumentContext", () => {
   });
 
   it("rejects inactive, mismatched or unsupported selections", async () => {
+    await assert.rejects(
+      resolver.resolveMany({
+        document: "proposal",
+        professionId: "electrician",
+        serviceIds: ["electric-shower", "electric-shower"],
+      }),
+      InvalidServiceDocumentContextError,
+    );
     await assert.rejects(
       resolver.resolve({
         document: "proposal",

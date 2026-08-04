@@ -88,9 +88,11 @@ const proposalSpecificFieldIds = [
   "clientNeed",
   "deliverables",
   "scopeExclusions",
-  "paymentSchedule",
   "proposalValidity",
   "acceptanceMethod",
+  "paymentMethod",
+  "paymentCondition",
+  "paymentDetails",
 ] as const;
 
 const proposalRiskTerms = [
@@ -195,7 +197,14 @@ describe("general contract definitions", () => {
       const fieldIds = fields.map((field) => field.id);
 
       assert.equal(new Set(fieldIds).size, fieldIds.length);
-      assert.ok(compatibilityFieldIds.every((fieldId) => fieldIds.includes(fieldId)));
+      assert.ok(
+        compatibilityFieldIds.every(
+          (fieldId) =>
+            fieldIds.includes(fieldId) ||
+            (definition.id === "proposta-comercial-com-aceite" &&
+              fieldId === "contractObject"),
+        ),
+      );
       assert.ok(fieldIds.length > compatibilityFieldIds.length);
       assert.deepEqual(definition.generationSchema.answerFieldIds, fieldIds);
       const contractObject = fields.find(
@@ -337,7 +346,7 @@ describe("general contract definitions", () => {
     assert.deepEqual(specificFieldIds, proposalSpecificFieldIds);
     assert.deepEqual(
       fields.filter((field) => !field.required).map((field) => field.id),
-      ["scopeExclusions"],
+      ["scopeExclusions", "paymentDetails"],
     );
   });
 
@@ -353,8 +362,8 @@ describe("general contract definitions", () => {
             ),
       );
 
-    assert.equal(businessFields.length, 10);
-    assert.ok(businessFields.every((field) => field.label.endsWith("?")));
+    assert.equal(businessFields.length, 11);
+    assert.ok(businessFields.every((field) => field.label.trim().length > 0));
     assert.ok(
       businessFields.every(
         (field) =>
@@ -384,6 +393,71 @@ describe("general contract definitions", () => {
       acceptanceMethod.options.map((option) => option.value),
       ["signed-proposal", "email", "written-message"],
     );
+  });
+
+  it("declares proposal examples and structured payment fields", () => {
+    const fields = findDefinition("proposta-comercial-com-aceite")
+      .formSchema.sections.flatMap((section) => section.fields);
+    const fieldsById = new Map(fields.map((field) => [field.id, field]));
+
+    assert.equal(fieldsById.has("contractObject"), false);
+    assert.equal(fieldsById.get("clientNeed")?.label, "Observações sobre o serviço");
+    assert.equal(
+      fieldsById.get("clientNeed")?.helpText,
+      "Descreva informações específicas sobre este serviço.",
+    );
+    assert.equal(
+      fieldsById.get("clientNeed")?.placeholder,
+      "Ex.: Instalar luminária somente na cozinha. Trocar apenas o disjuntor da área de serviço. Reutilizar a fiação existente sempre que possível.",
+    );
+    assert.equal(
+      fieldsById.get("deliverables")?.placeholder,
+      "Ex.: Instalação do plafon, conexões elétricas, testes de funcionamento e limpeza do local.",
+    );
+    assert.equal(
+      fieldsById.get("scopeExclusions")?.placeholder,
+      "Ex.: Fornecimento do plafon, pintura, reparos em alvenaria ou serviços não descritos nesta proposta.",
+    );
+
+    const paymentMethod = fieldsById.get("paymentMethod");
+    const paymentCondition = fieldsById.get("paymentCondition");
+    assert.equal(paymentMethod?.type, "select");
+    assert.equal(paymentCondition?.type, "select");
+    if (paymentMethod?.type !== "select" || paymentCondition?.type !== "select") {
+      return;
+    }
+    assert.deepEqual(
+      paymentMethod.options.map((option) => option.label),
+      ["PIX", "Dinheiro", "Cartão", "Transferência", "Boleto", "Outro"],
+    );
+    assert.deepEqual(
+      paymentCondition.options.map((option) => option.label),
+      [
+        "À vista antes do início",
+        "À vista na conclusão",
+        "50% de entrada e 50% na conclusão",
+        "Parcelado",
+        "Outro",
+      ],
+    );
+    assert.equal(fieldsById.get("paymentDetails")?.required, false);
+    const paymentSection = findDefinition("proposta-comercial-com-aceite")
+      .formSchema.sections.find((section) => section.id === "proposal-payment");
+    assert.equal(paymentSection?.title, "Pagamento");
+    assert.deepEqual(
+      paymentSection?.fields.map((field) => field.label),
+      [
+        "Forma de pagamento",
+        "Quando o cliente fará o pagamento?",
+        "Detalhes do pagamento (opcional)",
+      ],
+    );
+    assert.equal(
+      fieldsById.get("paymentDetails")?.placeholder,
+      "Ex.: Entrada de R$ 500,00 via PIX antes do início e saldo restante na conclusão.",
+    );
+    assert.equal(fieldsById.get("startDate")?.defaultValue, undefined);
+    assert.equal(fieldsById.get("proposalValidity")?.defaultValue, undefined);
   });
 
   it("implements only the approved scope-change questions", () => {

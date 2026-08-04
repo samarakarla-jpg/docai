@@ -12,6 +12,7 @@ type BaseFormFieldSchema = Readonly<{
   id: string;
   label: string;
   layout: FormFieldLayout;
+  placeholder?: string;
   required: boolean;
 }>;
 

@@ -29,10 +29,10 @@ export default async function DashboardPage({
             className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
             id="dashboard-title"
           >
-            Dashboard
+            Início
           </h1>
           <p className="mt-3 text-base leading-7 text-slate-600 sm:text-lg">
-            Gerencie seus contratos.
+            Crie propostas para seus serviços elétricos e consulte as que já foram geradas.
           </p>
         </div>
       </div>
@@ -42,12 +42,12 @@ export default async function DashboardPage({
           <h2 className="text-xl font-semibold text-slate-950">
             Como o DocAI funciona
           </h2>
-          <ol className="mt-5 grid gap-4 sm:grid-cols-2">
+          <ol className="mt-5 space-y-4">
             {[
-              "Escolha o tipo de contrato.",
-              "Preencha os dados.",
-              "Gere o rascunho.",
-              'Consulte depois em "Meus contratos".',
+              "Escolha um ou mais serviços.",
+              "Informe os dados do cliente, do eletricista e dos serviços.",
+              "Crie e confira a proposta.",
+              "Baixe, imprima ou compartilhe com o cliente.",
             ].map((step, index) => (
               <li className="flex gap-3 text-slate-700" key={step}>
                 <span

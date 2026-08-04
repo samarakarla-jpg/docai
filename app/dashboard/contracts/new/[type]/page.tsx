@@ -57,10 +57,10 @@ export default async function ContractFormPage({
   const modelId = readSingleQueryValue(query.model);
   const modelName = readSingleQueryValue(query.name);
   const professionId = readSingleQueryValue(query.profession);
-  const serviceId = readSingleQueryValue(query.service);
+  const serviceIds = readQueryValues(query.service);
   const resolvedServiceContext =
-    hasServiceContext && document && professionId && serviceId
-      ? await resolveServiceContext(document, professionId, serviceId)
+    hasServiceContext && document && professionId && serviceIds.length > 0
+      ? await resolveServiceContext(document, professionId, serviceIds)
       : undefined;
   const selectedModel = resolvedServiceContext
     ? resolvedServiceContext.contractDefinition
@@ -95,11 +95,13 @@ export default async function ContractFormPage({
           className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
           id="contract-form-title"
         >
-          {resolvedServiceContext ? "Nova Proposta" : contractTypeLabels[type]}
+          {resolvedServiceContext
+            ? "Preencha os dados da proposta"
+            : contractTypeLabels[type]}
         </h1>
         <p className="mt-3 text-base leading-7 text-slate-600 sm:text-lg">
           {resolvedServiceContext
-            ? "Preencha os dados para apresentar seu serviço ao cliente."
+            ? "Informe os dados do cliente, do eletricista e dos serviços selecionados."
             : "Preencha os dados do contrato."}
         </p>
       </div>
@@ -118,17 +120,15 @@ export default async function ContractFormPage({
               }
             : undefined
         }
-        service={
+        services={
           resolvedServiceContext
-            ? {
+            ? resolvedServiceContext.serviceDefinitions.map((service) => ({
                 document: resolvedServiceContext.document,
-                id: resolvedServiceContext.serviceDefinition.id,
-                name: resolvedServiceContext.serviceDefinition.name,
-                professionId:
-                  resolvedServiceContext.serviceDefinition.profession.id,
-                professionName:
-                  resolvedServiceContext.serviceDefinition.profession.name,
-              }
+                id: service.id,
+                name: service.name,
+                professionId: service.profession.id,
+                professionName: service.profession.name,
+              }))
             : undefined
         }
         type={type}
@@ -140,13 +140,13 @@ export default async function ContractFormPage({
 async function resolveServiceContext(
   document: SupportedServiceDocument,
   professionId: string,
-  serviceId: string,
+  serviceIds: readonly string[],
 ) {
   try {
-    return await SERVICE_DOCUMENT_CONTEXT.resolve({
+    return await SERVICE_DOCUMENT_CONTEXT.resolveMany({
       document,
       professionId,
-      serviceId,
+      serviceIds,
     });
   } catch (error) {
     if (error instanceof InvalidServiceDocumentContextError) {
@@ -155,6 +155,13 @@ async function resolveServiceContext(
 
     throw error;
   }
+}
+
+function readQueryValues(
+  value: string | string[] | undefined,
+): readonly string[] {
+  const values = typeof value === "string" ? [value] : (value ?? []);
+  return values.map((item) => item.trim()).filter(Boolean);
 }
 
 function readSupportedServiceDocument(

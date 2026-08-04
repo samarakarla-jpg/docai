@@ -7,6 +7,7 @@ import type {
 import type { ContractGenerationSection, ContractType } from "./contract-models";
 
 type GeneralContractConfiguration = Readonly<{
+  additionalFormSections?: readonly ContractFormSectionSchema[];
   contractType?: ContractType;
   coreFields?: GeneralContractCoreFields;
   description: string;
@@ -28,7 +29,7 @@ type GeneralContractCoreField = Readonly<{
 }>;
 
 type GeneralContractCoreFields = Readonly<{
-  contractObject: GeneralContractCoreField;
+  contractObject?: GeneralContractCoreField;
   startDate: GeneralContractCoreField;
   term: GeneralContractCoreField;
   value: GeneralContractCoreField;
@@ -117,33 +118,86 @@ export const GENERAL_CONTRACT_DEFINITIONS: readonly ContractDefinition<"contrato
     version: 2,
   }),
   defineGeneralContract({
+    additionalFormSections: [
+      {
+        description: "Escolha como e quando o cliente fará o pagamento.",
+        fields: [
+          select("paymentMethod", "Forma de pagamento", [
+            option("PIX", "pix"),
+            option("Dinheiro", "cash"),
+            option("Cartão", "card"),
+            option("Transferência", "bank-transfer"),
+            option("Boleto", "bank-slip"),
+            option("Outro", "other"),
+          ]),
+          select("paymentCondition", "Quando o cliente fará o pagamento?", [
+            option("À vista antes do início", "upfront-before-start"),
+            option("À vista na conclusão", "upfront-on-completion"),
+            option(
+              "50% de entrada e 50% na conclusão",
+              "half-upfront-half-on-completion",
+            ),
+            option("Parcelado", "installments"),
+            option("Outro", "other"),
+          ]),
+          textarea(
+            "paymentDetails",
+            "Detalhes do pagamento (opcional)",
+            false,
+            "Ex.: Entrada de R$ 500,00 via PIX antes do início e saldo restante na conclusão.",
+          ),
+        ],
+        id: "proposal-payment",
+        title: "Pagamento",
+      },
+    ],
     coreFields: {
-      contractObject: {
-        helpText: "Ex.: criação de identidade visual, manutenção mensal ou consultoria financeira.",
-        label: "Qual serviço ou solução você está oferecendo?",
-      },
-      startDate: { label: "Quando o serviço poderá começar?" },
+      startDate: { label: "Qual é a previsão para começar?" },
       term: {
-        helpText: "Ex.: entrega em 15 dias ou execução mensal por 6 meses.",
-        label: "Quando o serviço será entregue ou concluído?",
+        helpText: "Ex.: concluir em 15 dias ou até 30/08/2026.",
+        label: "Qual é o prazo para concluir o serviço?",
       },
-      value: { label: "Qual é o valor da proposta?" },
+      value: { label: "Qual é o valor total da proposta?" },
     },
     description:
       "Apresenta uma oferta comercial clara, com solução, escopo, investimento, prazo, validade e aceite.",
     detailFields: [
-      textarea("clientNeed", "Qual necessidade do cliente será atendida?"),
-      textarea("deliverables", "O que está incluído na proposta?"),
-      textarea("scopeExclusions", "O que não está incluído na proposta?", false),
-      text("paymentSchedule", "Como o pagamento será feito?"),
-      date("proposalValidity", "Até quando esta proposta é válida?"),
-      select("acceptanceMethod", "Como o cliente poderá aceitar a proposta?", [
-        option("Assinatura desta proposta", "signed-proposal"),
-        option("Aceite por e-mail", "email"),
-        option("Aceite por mensagem escrita", "written-message"),
+      {
+        helpText: "Descreva informações específicas sobre este serviço.",
+        id: "clientNeed",
+        label: "Observações sobre o serviço",
+        layout: "full",
+        placeholder:
+          "Ex.: Instalar luminária somente na cozinha. Trocar apenas o disjuntor da área de serviço. Reutilizar a fiação existente sempre que possível.",
+        required: true,
+        rows: 4,
+        type: "textarea",
+      },
+      textarea(
+        "deliverables",
+        "O que está incluído no valor?",
+        true,
+        "Ex.: Instalação do plafon, conexões elétricas, testes de funcionamento e limpeza do local.",
+      ),
+      textarea(
+        "scopeExclusions",
+        "O que não está incluído no valor? (opcional)",
+        false,
+        "Ex.: Fornecimento do plafon, pintura, reparos em alvenaria ou serviços não descritos nesta proposta.",
+      ),
+      date("proposalValidity", "Até que dia o cliente poderá aceitar a proposta?"),
+      select("acceptanceMethod", "Como o cliente confirmará a proposta?", [
+        option("Assinando a proposta", "signed-proposal"),
+        option("Respondendo por e-mail", "email"),
+        option("Confirmando por mensagem", "written-message"),
       ]),
     ],
     id: "proposta-comercial-com-aceite",
+    engineBindings: [
+      binding("clientNeed", "scope"),
+      binding("value", "compensation"),
+      binding("term", "term"),
+    ],
     name: "Proposta Comercial com Aceite",
     objective:
       "Registrar uma oferta compreensível e verificável, com solução, escopo, investimento, prazo, validade e aceite sem promessas não informadas.",
@@ -652,6 +706,7 @@ function defineGeneralContract(
         configuration.detailFields,
         configuration.coreFields,
       ),
+      ...(configuration.additionalFormSections ?? []),
     ],
   } as const;
 
@@ -739,14 +794,18 @@ function contractDetails(
 
   return {
     fields: [
-      text(
-        "contractObject",
-        coreFields.contractObject.label,
-        coreFields.contractObject.required ?? true,
-        "full",
-        coreFields.contractObject.defaultValue,
-        coreFields.contractObject.helpText,
-      ),
+      ...(coreFields.contractObject
+        ? [
+            text(
+              "contractObject",
+              coreFields.contractObject.label,
+              coreFields.contractObject.required ?? true,
+              "full",
+              coreFields.contractObject.defaultValue,
+              coreFields.contractObject.helpText,
+            ),
+          ]
+        : []),
       money(
         "value",
         coreFields.value.label,
@@ -789,8 +848,17 @@ function textarea(
   id: string,
   label: string,
   required = true,
+  placeholder?: string,
 ): ContractFormFieldSchema {
-  return { id, label, layout: "full", required, rows: 4, type: "textarea" };
+  return {
+    id,
+    label,
+    layout: "full",
+    placeholder,
+    required,
+    rows: 4,
+    type: "textarea",
+  };
 }
 
 function date(

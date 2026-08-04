@@ -19,21 +19,22 @@ export const ELECTRICIAN_FORM_FIELD_IDS = {
 
 const electricianFormFields: readonly ContractFormFieldSchema[] = [
   {
-    helpText: "Explique o resultado esperado sem incluir instruções inseguras.",
+    helpText: "Explique de forma simples o que deverá ser feito.",
     id: ELECTRICIAN_FORM_FIELD_IDS.freeDescription,
-    label: "Qual serviço elétrico você precisa descrever?",
+    label: "Descreva o serviço elétrico",
     layout: "full",
+    placeholder: "Ex.: Revisar duas tomadas que estão aquecendo na sala.",
     required: false,
     rows: 4,
     type: "textarea",
   },
   {
-    helpText: "Escolha a tensão disponível ou indique que ainda precisa verificar.",
+    helpText: "Escolha a voltagem do local. Se não souber, selecione a opção de verificação.",
     id: ELECTRICIAN_FORM_FIELD_IDS.supplyVoltage,
-    label: "Qual é a tensão disponível no local?",
+    label: "Qual é a voltagem do local?",
     layout: "half",
     options: [
-      { label: "127 V", value: "127v" },
+      { label: "127 V (110 V)", value: "127v" },
       { label: "220 V", value: "220v" },
       { label: "Ainda precisa verificar", value: "unknown" },
     ],
@@ -41,15 +42,17 @@ const electricianFormFields: readonly ContractFormFieldSchema[] = [
     type: "select",
   },
   {
-    helpText: "Use a potência indicada pelo fabricante do equipamento.",
+    helpText: "Procure no equipamento ou no manual o valor indicado em W.",
     id: ELECTRICIAN_FORM_FIELD_IDS.equipmentPower,
-    label: "Qual é a potência do equipamento em watts?",
+    label: "Qual é a potência indicada no equipamento?",
     layout: "half",
     min: 0,
+    placeholder: "Ex.: 5500",
     required: false,
     type: "number",
   },
   {
+    helpText: "Um circuito exclusivo atende somente esse equipamento.",
     id: ELECTRICIAN_FORM_FIELD_IDS.dedicatedCircuit,
     label: "Existe um circuito exclusivo para o equipamento?",
     layout: "half",
@@ -58,15 +61,17 @@ const electricianFormFields: readonly ContractFormFieldSchema[] = [
     type: "select",
   },
   {
-    helpText: "Informe a corrente indicada no disjuntor, se souber.",
+    helpText: "Procure no disjuntor o valor indicado em A. Se não souber, deixe em branco.",
     id: ELECTRICIAN_FORM_FIELD_IDS.breakerRating,
-    label: "Qual é a corrente do disjuntor em amperes?",
+    label: "Qual é a amperagem do disjuntor?",
     layout: "half",
     min: 1,
+    placeholder: "Ex.: 32",
     required: false,
     type: "number",
   },
   {
+    helpText: "Selecione “Sim” se já houver tomada, caixa ou saída de fios no ponto da instalação.",
     id: ELECTRICIAN_FORM_FIELD_IDS.electricalPoint,
     label: "Já existe um ponto elétrico no local?",
     layout: "half",
@@ -87,7 +92,7 @@ const electricianFormFields: readonly ContractFormFieldSchema[] = [
     type: "select",
   },
   {
-    helpText: "Exemplos: concreto, madeira, gesso ou estrutura metálica.",
+    helpText: "Ex.: laje de concreto, madeira, gesso ou estrutura metálica.",
     id: ELECTRICIAN_FORM_FIELD_IDS.ceilingStructure,
     label: "Qual é a estrutura do teto?",
     layout: "half",
@@ -109,9 +114,9 @@ export const ELECTRICIAN_PROFESSION_FORM_LAYER: ServiceFormSchemaLayer = {
   id: "electrician-profession-form",
   scope: "profession",
   section: {
-    description: "Informações elétricas que podem afetar o serviço.",
+    description: "Preencha o que souber. As informações ajudam a preparar o serviço.",
     id: "service-form-electrician",
-    title: "Condições elétricas",
+    title: "Informações elétricas",
   },
 };
 

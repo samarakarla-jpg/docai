@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { DownloadPdfButton } from "@/components/docai/contracts/download-pdf-button";
+import { DocumentActions } from "@/components/docai/contracts/download-pdf-button";
 import { createReadOnlyAuthClient } from "@/lib/auth/server";
 import type { ContractType } from "@/lib/docai/domain/contract-models";
 import { createSupabaseContractRepository } from "@/lib/docai/infrastructure/persistence/supabase-contract-repository";
@@ -36,6 +36,10 @@ export default async function ContractPage({ params }: ContractPageProps) {
     notFound();
   }
 
+  const isProposal = contract.documentKind === "proposal";
+  const serviceNames =
+    contract.serviceNames ?? (contract.serviceName ? [contract.serviceName] : []);
+
   return (
     <section
       aria-labelledby="saved-contract-title"
@@ -49,17 +53,35 @@ export default async function ContractPage({ params }: ContractPageProps) {
           <span aria-hidden="true" className="mr-2">
             ←
           </span>
-          Meus contratos
+          Propostas e contratos
         </Link>
 
-        <DownloadPdfButton contractTitle={contract.title} />
+        <DocumentActions
+          document={{
+            ...(contract.clientName ? { clientName: contract.clientName } : {}),
+            content: contract.content,
+            createdAt: formatDate(contract.createdAt),
+            documentLabel: isProposal
+              ? "Proposta comercial"
+              : contractTypeLabels[contract.type],
+            isProposal,
+            ...(contract.professionName
+              ? { professionName: contract.professionName }
+              : {}),
+            ...(contract.providerName
+              ? { providerName: contract.providerName }
+              : {}),
+            ...(serviceNames.length > 0 ? { serviceNames } : {}),
+            title: contract.title,
+          }}
+        />
       </div>
 
       <div id="printable-contract">
         <header className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 bg-slate-50 px-5 py-3 sm:px-8">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">
-              Contrato salvo
+              {isProposal ? "Proposta criada" : "Contrato salvo"}
             </p>
           </div>
 
@@ -71,15 +93,41 @@ export default async function ContractPage({ params }: ContractPageProps) {
               {contract.title}
             </h1>
 
-            <dl className="mt-6 flex flex-col gap-4 border-t border-slate-200 pt-5 sm:flex-row sm:gap-10">
+            <dl
+              className={
+                isProposal
+                  ? "mt-6 grid gap-4 border-t border-slate-200 pt-5 sm:grid-cols-2 lg:grid-cols-3"
+                  : "mt-6 flex flex-col gap-4 border-t border-slate-200 pt-5 sm:flex-row sm:gap-10"
+              }
+            >
               <div>
                 <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                  Tipo
+                  {isProposal ? "Documento" : "Tipo"}
                 </dt>
                 <dd className="mt-1 text-sm font-semibold text-blue-900">
-                  {contractTypeLabels[contract.type]}
+                  {isProposal
+                    ? "Proposta comercial"
+                    : contractTypeLabels[contract.type]}
                 </dd>
               </div>
+              {isProposal && serviceNames.length > 0 ? (
+                <MetadataItem
+                  label={serviceNames.length === 1 ? "Serviço" : "Serviços"}
+                  value={serviceNames.join(" · ")}
+                />
+              ) : null}
+              {isProposal && contract.professionName ? (
+                <MetadataItem
+                  label="Profissão"
+                  value={contract.professionName}
+                />
+              ) : null}
+              {isProposal && contract.clientName ? (
+                <MetadataItem label="Cliente" value={contract.clientName} />
+              ) : null}
+              {isProposal && contract.providerName ? (
+                <MetadataItem label="Prestador" value={contract.providerName} />
+              ) : null}
               <div>
                 <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                   Data de criação
@@ -94,6 +142,22 @@ export default async function ContractPage({ params }: ContractPageProps) {
           </div>
         </header>
 
+        {isProposal ? (
+          <aside
+            aria-labelledby="proposal-review-title"
+            className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-950 shadow-sm sm:p-6"
+          >
+            <h2 className="text-sm font-semibold" id="proposal-review-title">
+              Confira antes de enviar
+            </h2>
+            <p className="mt-2 text-sm leading-6">
+              Leia toda a proposta e confira nomes, valores, serviços e datas.
+              Combine as condições com o cliente antes de enviar. Procure
+              orientação jurídica profissional quando necessário.
+            </p>
+          </aside>
+        ) : null}
+
         <article
           aria-labelledby="contract-content-title"
           className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
@@ -103,7 +167,7 @@ export default async function ContractPage({ params }: ContractPageProps) {
               className="text-sm font-semibold text-slate-950"
               id="contract-content-title"
             >
-              Conteúdo do contrato
+              {isProposal ? "Conteúdo da proposta" : "Conteúdo do contrato"}
             </h2>
           </div>
           <div className="whitespace-pre-wrap break-words px-5 py-7 text-base leading-8 text-slate-800 sm:px-8 sm:py-9 lg:px-12 lg:py-10">
@@ -124,14 +188,22 @@ export default async function ContractPage({ params }: ContractPageProps) {
           <div className="mt-10 grid gap-10 sm:grid-cols-2 sm:gap-8">
             <div>
               <div className="h-12 border-b border-slate-500" />
-              <p className="mt-3 text-center text-sm font-medium text-slate-700">
-                Contratante
+              <p className="mt-3 text-center text-sm text-slate-600">
+                Nome e assinatura
+              </p>
+              <p className="mt-1 text-center text-sm font-semibold text-slate-800">
+                {isProposal ? "Cliente" : "Contratante"}
               </p>
             </div>
             <div>
               <div className="h-12 border-b border-slate-500" />
-              <p className="mt-3 text-center text-sm font-medium text-slate-700">
-                Contratado
+              <p className="mt-3 text-center text-sm text-slate-600">
+                Nome e assinatura
+              </p>
+              <p className="mt-1 text-center text-sm font-semibold text-slate-800">
+                {isProposal
+                  ? "Eletricista responsável"
+                  : "Contratado"}
               </p>
             </div>
           </div>
@@ -213,6 +285,20 @@ export default async function ContractPage({ params }: ContractPageProps) {
         }
       `}</style>
     </section>
+  );
+}
+
+function MetadataItem({
+  label,
+  value,
+}: Readonly<{ label: string; value: string }>) {
+  return (
+    <div>
+      <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+        {label}
+      </dt>
+      <dd className="mt-1 text-sm font-medium text-slate-700">{value}</dd>
+    </div>
   );
 }
 

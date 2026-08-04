@@ -63,6 +63,13 @@ describe("configured service document context", () => {
     assert.ok(fieldIds.includes("service-work-location"));
     assert.ok(fieldIds.includes("electrician-supply-voltage"));
     assert.ok(fieldIds.includes("electrician-equipment-power-watts"));
+    const fields = context.contractDefinition.formSchema.sections.flatMap(
+      (section) => section.fields,
+    );
+    assert.equal(
+      fields.find((field) => field.id === "service-work-location")?.placeholder,
+      "Ex.: Rua das Flores, nº 100, apartamento 20.",
+    );
     assert.deepEqual(
       context.contractDefinition.generationSchema.answerFieldIds,
       fieldIds,
@@ -104,12 +111,39 @@ describe("configured service document context", () => {
 
     assert.ok(
       result.request.content.definitionContext?.answers.some(
-        (answer) => answer.fieldId === "electrician-supply-voltage",
+        (answer) =>
+          answer.fieldId === "electrician-supply-voltage" &&
+          answer.value === "127 V (110 V)",
       ),
     );
     assert.equal(
       result.request.content.definitionContext?.service?.serviceId,
       "electrician-electric-shower-installation",
+    );
+  });
+
+  it("composes multiple electrician services into one proposal", async () => {
+    const context = await SERVICE_DOCUMENT_CONTEXT.resolveMany({
+      document: "proposal",
+      professionId: "electrician",
+      serviceIds: [
+        "electrician-electric-shower-installation",
+        "electrician-ceiling-fan-installation",
+      ],
+    });
+    const fieldIds = context.contractDefinition.formSchema.sections.flatMap(
+      (section) => section.fields.map((field) => field.id),
+    );
+
+    assert.equal(new Set(fieldIds).size, fieldIds.length);
+    assert.ok(fieldIds.includes("electrician-supply-voltage"));
+    assert.ok(fieldIds.includes("electrician-wall-control-required"));
+    assert.deepEqual(
+      context.generationServiceContexts.map((service) => service.serviceId),
+      [
+        "electrician-electric-shower-installation",
+        "electrician-ceiling-fan-installation",
+      ],
     );
   });
 });

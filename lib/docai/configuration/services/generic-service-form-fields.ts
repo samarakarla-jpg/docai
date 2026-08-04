@@ -12,18 +12,21 @@ export const GENERIC_SERVICE_FORM_FIELD_IDS = {
 export const GENERIC_SERVICE_FORM_FIELDS:
   readonly ContractFormFieldSchema[] = [
   {
-    helpText: "Informe o endereço ou descreva onde o serviço será realizado.",
+    helpText: "Informe o endereço completo ou explique como encontrar o local.",
     id: GENERIC_SERVICE_FORM_FIELD_IDS.workLocation,
     label: "Onde o serviço será realizado?",
     layout: "full",
+    placeholder: "Ex.: Rua das Flores, nº 100, apartamento 20.",
     required: false,
     type: "text",
   },
   {
-    helpText: "Inclua somente informações que afetem a execução do serviço.",
+    helpText: "Informe detalhes de acesso, horários ou cuidados necessários no local.",
     id: GENERIC_SERVICE_FORM_FIELD_IDS.serviceNotes,
-    label: "Existe alguma observação importante sobre o serviço?",
+    label: "Há alguma orientação sobre o local? (opcional)",
     layout: "full",
+    placeholder:
+      "Ex.: O quadro elétrico fica na garagem e o porteiro precisa liberar a entrada.",
     required: false,
     rows: 3,
     type: "textarea",
@@ -38,7 +41,7 @@ export const GENERIC_SERVICE_FORM_LAYER: ServiceFormSchemaLayer = {
   id: "generic-service-form",
   scope: "generic",
   section: {
-    description: "Informações práticas que ajudam a definir a execução.",
+    description: "Informe onde o serviço será feito e como acessar o local.",
     id: "service-form-general",
     title: "Detalhes do serviço",
   },

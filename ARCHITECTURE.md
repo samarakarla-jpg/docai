@@ -75,7 +75,7 @@ As consultas ao catálogo dependem de fontes genéricas e assíncronas. Dados lo
 
 Uma `ServiceDefinition` pode declarar documentos que futuramente será capaz de alimentar. Essa declaração representa compatibilidade potencial e não cria geração automática nem dependência direta com IDs de `ContractDefinition`.
 
-Campos associados a serviços reutilizam exclusivamente o vocabulário canônico do `formSchema`. A `ServiceDefinition` mantém apenas referências declarativas para campos registrados; não define um segundo schema de formulário. Um compositor puro pode combinar o `formSchema` original com camadas genéricas, profissionais e específicas do serviço, preservando o `formSchema` como formato final consumido pelo renderer.
+Campos associados a serviços reutilizam exclusivamente o vocabulário canônico do `formSchema`. A `ServiceDefinition` mantém apenas referências declarativas para campos registrados; não define um segundo schema de formulário. Um compositor puro pode combinar o `formSchema` original com camadas genéricas, profissionais e específicas do serviço, preservando o `formSchema` como formato final consumido pelo renderer. Quando uma proposta reúne vários serviços, base, camada genérica e profissão são aplicadas uma vez; as camadas das `ServiceDefinition` selecionadas são adicionadas em ordem e campos canônicos repetidos são deduplicados pelo mesmo compositor. O resultado continua sendo um único schema, uma única geração e um único documento.
 
 O compositor não conhece IDs de serviços ou contratos. Catálogos e camadas fornecem a configuração, campos repetidos são consolidados por ID estável e conflitos com o formulário original são rejeitados. Serviços personalizados usam somente a camada genérica até possuírem configuração explicitamente aprovada.
 
@@ -317,7 +317,7 @@ A Constituição corresponde à arquitetura implementada:
 - contratos da biblioteca compartilham rotas, motor, persistência e PDF;
 - o fluxo histórico permanece compatível.
 
-Na implementação atual, `id` é o slug estável do contrato e `categorySlug` identifica a categoria; não existe uma propriedade `slug` duplicada. Máscaras e placeholders ainda não fazem parte do vocabulário tipado porque nenhum contrato aprovado os exige. Caso se tornem necessários de forma genérica, a ampliação do vocabulário de schema deverá ser tratada como mudança arquitetural própria, nunca como exceção local de um contrato.
+Na implementação atual, `id` é o slug estável do contrato e `categorySlug` identifica a categoria; não existe uma propriedade `slug` duplicada. Placeholders fazem parte do vocabulário tipado como orientação opcional e declarativa, sem preencher respostas. Máscaras permanecem comportamento genérico do tipo de campo correspondente e nunca podem depender de um contrato específico.
 
 Os quatro `ContractType` existentes (`services`, `sale`, `rental` e `loan`) constituem a fronteira atual do motor. Adicionar definições compatíveis com esses tipos é evolução da biblioteca. Criar um quinto tipo fundamental é mudança arquitetural.
 
@@ -662,7 +662,7 @@ IDs de campos devem ser únicos dentro da definição. Campos obrigatórios são
 
 ### Renderer genérico
 
-O renderer percorre `formSchema.sections` e, dentro de cada seção, percorre `fields`. O discriminador `field.type` seleciona somente o controle visual genérico correspondente. Rótulo, ajuda, valor inicial, obrigatoriedade, opções, limites e layout vêm do schema.
+O renderer percorre `formSchema.sections` e, dentro de cada seção, percorre `fields`. O discriminador `field.type` seleciona somente o controle visual genérico correspondente. Rótulo, ajuda, placeholder, valor inicial, obrigatoriedade, opções, limites e layout vêm do schema.
 
 O renderer pode possuir um `switch` sobre os tipos genéricos de campo (`text`, `select`, `date` etc.), pois essa decisão pertence ao vocabulário estável da interface. Ele nunca pode possuir condição baseada em `definition.id`, nome, categoria ou tipo jurídico do contrato.
 

@@ -15,11 +15,11 @@ type SidebarProps = Readonly<{
 const navigationItems = [
   {
     href: "/dashboard/library",
-    label: "Biblioteca de Contratos",
+    label: "Modelos de documentos",
   },
   {
     href: "/dashboard/contracts",
-    label: "Meus contratos",
+    label: "Propostas e contratos",
   },
 ] as const;
 
@@ -72,7 +72,7 @@ export function Sidebar({
             href="/dashboard/contracts/new"
             onClick={onClose}
           >
-            Nova Proposta
+            Criar proposta
           </Link>
           <ul className="space-y-1">
             {navigationItems.map((item) => {
@@ -96,19 +96,18 @@ export function Sidebar({
                 </li>
               );
             })}
+            <li>
+              <form action={signOut}>
+                <button
+                  className="block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+                  type="submit"
+                >
+                  Sair
+                </button>
+              </form>
+            </li>
           </ul>
         </nav>
-
-        <div className="relative z-10 mt-auto shrink-0 border-t border-slate-200 bg-white p-3">
-          <form action={signOut}>
-            <button
-              className="w-full rounded-lg bg-slate-950 px-3 py-2.5 text-left text-sm font-medium text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
-              type="submit"
-            >
-              Sair
-            </button>
-          </form>
-        </div>
       </aside>
     </div>
   );

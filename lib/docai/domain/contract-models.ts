@@ -98,6 +98,7 @@ export interface ContractGenerationDefinitionContext {
   readonly reviewStatus: ContractDefinitionReviewStatus;
   readonly sections: readonly ContractGenerationSection[];
   readonly service?: ContractGenerationServiceContext;
+  readonly services?: readonly ContractGenerationServiceContext[];
 }
 
 export interface ContractGenerationRequest {

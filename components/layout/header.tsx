@@ -39,10 +39,10 @@ export function Header({
 
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-slate-950">
-              Dashboard
+              Início
             </p>
             <p className="truncate text-xs text-slate-500">
-              Área autenticada
+              Sua área no DocAI
             </p>
           </div>
         </div>

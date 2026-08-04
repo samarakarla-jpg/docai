@@ -36,25 +36,25 @@ export default async function ContractsPage() {
             className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
             id="contracts-title"
           >
-            Meus Contratos
+            Propostas e contratos
           </h1>
           <p className="mt-3 text-base leading-7 text-slate-600">
-            Consulte os contratos gerados anteriormente.
+            Consulte as propostas e os contratos gerados anteriormente.
           </p>
         </div>
         <Link
           className="rounded-lg bg-slate-950 px-4 py-2.5 font-medium text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
           href="/dashboard/contracts/new"
         >
-          Nova Proposta
+          Criar proposta
         </Link>
       </div>
 
       {contracts.length === 0 ? (
         <div className="mt-8">
           <StatusState
-            description="Crie seu primeiro contrato para visualizá-lo aqui."
-            title="Você ainda não possui contratos."
+            description="Clique em Criar proposta para começar."
+            title="Nenhuma proposta criada ainda"
             variant="empty"
           />
         </div>
@@ -67,13 +67,29 @@ export default async function ContractsPage() {
             >
               <div className="min-w-0">
                 <p className="text-sm font-medium text-blue-900">
-                  {contractTypeLabels[contract.type]}
+                  {contract.documentKind === "proposal"
+                    ? "Proposta"
+                    : contractTypeLabels[contract.type]}
                 </p>
                 <h2 className="mt-1 truncate text-lg font-semibold text-slate-950">
-                  {contract.title}
+                  {contract.documentKind === "proposal" &&
+                  (contract.serviceNames?.length || contract.serviceName)
+                    ? formatServiceNames(
+                        contract.serviceNames ?? [contract.serviceName ?? ""],
+                      )
+                    : contract.title}
                 </h2>
+                {contract.documentKind === "proposal" ? (
+                  <p className="mt-2 text-sm text-slate-600">
+                    {formatProposalParticipants(
+                      contract.clientName,
+                      contract.providerName,
+                    )}
+                  </p>
+                ) : null}
                 <p className="mt-2 text-sm text-slate-500">
-                  Criado em {formatDate(contract.createdAt)}
+                  {contract.documentKind === "proposal" ? "Criada" : "Criado"} em{" "}
+                  {formatDate(contract.createdAt)}
                 </p>
               </div>
               <Link
@@ -88,6 +104,32 @@ export default async function ContractsPage() {
       )}
     </section>
   );
+}
+
+function formatServiceNames(serviceNames: readonly string[]): string {
+  const validNames = serviceNames.filter(Boolean);
+  return validNames.length === 1
+    ? validNames[0]
+    : `${validNames.length} serviços · ${validNames.join(" · ")}`;
+}
+
+function formatProposalParticipants(
+  clientName: string | undefined,
+  providerName: string | undefined,
+): string {
+  if (clientName && providerName) {
+    return `Cliente: ${clientName} · Prestador: ${providerName}`;
+  }
+
+  if (clientName) {
+    return `Cliente: ${clientName}`;
+  }
+
+  if (providerName) {
+    return `Prestador: ${providerName}`;
+  }
+
+  return "Participantes não identificados";
 }
 
 function formatDate(value: string): string {
